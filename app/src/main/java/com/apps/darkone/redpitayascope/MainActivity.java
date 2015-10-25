@@ -1,22 +1,29 @@
 package com.apps.darkone.redpitayascope;
 
 import android.app.Activity;
+import android.content.Context;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
+
+
+import com.apps.darkone.redpitayascope.app_service_sap.IAppService;
+import com.apps.darkone.redpitayascope.app_service_sap.IOnServiceListener;
+import com.apps.darkone.redpitayascope.application_services.AppServiceFactory;
+import com.apps.darkone.redpitayascope.application_services.AppServiceManager;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOnChannelsValueListener;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -31,6 +38,10 @@ public class MainActivity extends AppCompatActivity
      */
     private CharSequence mTitle;
 
+
+    private AppServiceManager mAppServiceManager;
+    private Button mButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +55,11 @@ public class MainActivity extends AppCompatActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        mAppServiceManager = new AppServiceManager(this.getApplicationContext());
+
+        mAppServiceManager.runServices("192.168.43.112");
+        mAppServiceManager.setAppServiceFocus((IAppService) AppServiceFactory.getOscilloscopeInstance());
     }
 
     @Override
@@ -115,6 +131,9 @@ public class MainActivity extends AppCompatActivity
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
 
+
+        private TextView mTextView;
+
         /**
          * Returns a new instance of this fragment for the given section
          * number.
@@ -134,6 +153,17 @@ public class MainActivity extends AppCompatActivity
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+            mTextView = (TextView) rootView.findViewById(R.id.ptsTxt);
+
+            AppServiceFactory.getOscilloscopeInstance().addAppValuesListener(new IOnChannelsValueListener() {
+                @Override
+                public void onNewValue(Object newValue) {
+                    mTextView.setText("Channel 1 mean : " + AppServiceFactory.getOscilloscopeInstance().getChannel1MeanValue() + "\n" + "Channel 2 mean : " + AppServiceFactory.getOscilloscopeInstance().getChannel2MeanValue());
+                    AppServiceFactory.getOscilloscopeInstance().setTimeLimits(-10.0, 10.0);
+                }
+            });
+
             return rootView;
         }
 
