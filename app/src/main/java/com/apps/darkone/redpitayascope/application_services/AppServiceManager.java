@@ -31,6 +31,8 @@ public class AppServiceManager {
         // Add services
         addAppService((IAppService) AppServiceFactory.getOscilloscopeInstance());
         addAppService((IAppService) AppServiceFactory.getSprectrumInstance());
+
+
     }
 
     public void runServices(String ipAddress) {

@@ -30,4 +30,11 @@ public class Parameter<T>{
     {
         this.mParamValue = newValue;
     }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        Parameter<T> paramCompare = (Parameter<T>) obj;
+        return (mParamName.equals(paramCompare.getParamName()) && mParamValue.equals(paramCompare.getParamValue()));
+    }
 }

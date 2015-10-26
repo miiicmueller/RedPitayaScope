@@ -3,7 +3,6 @@ package com.apps.darkone.redpitayascope.communication;
 import android.content.Context;
 import android.util.Log;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -13,8 +12,6 @@ import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.apps.darkone.redpitayascope.communication.commSAP.ICommunicationService;
 import com.apps.darkone.redpitayascope.communication.commSAP.IOnConnectionListener;
 import com.apps.darkone.redpitayascope.communication.commSAP.IOnDataListener;
@@ -24,16 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -135,10 +123,11 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
         // Instantiate the RequestQueue with the cache and network.
         this.mRequestQueueGetData = new RequestQueue(mCache, mNetwork);
 
-        this.mRequestQueuePost = Volley.newRequestQueue(mContext);
+        this.mRequestQueuePost = new RequestQueue(mCache, mNetwork);
 
         // Start the queue
         this.mRequestQueueGetData.start();
+        this.mRequestQueuePost.start();
 
         // Service is now in running mode
         this.mIsRunning = true;
@@ -245,52 +234,23 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
 
             Log.d(COMM_IMPL_TAG, "Post new request...");
 
-//            StringRequest strRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-//                @Override
-//                public void onResponse(String response) {
-//                    Log.d(COMM_IMPL_TAG, "POST Response : " + response);
-//                }
-//            }, new Response.ErrorListener() {
-//                @Override
-//                public void onErrorResponse(VolleyError error) {
-//                    Log.d(COMM_IMPL_TAG, "POST Response Error : " + error.toString());
-//                }
-//            }) {
-//                @Override
-//                protected Map<String, String> getParams() {
-//                    Map<String, String> parameterFormPost = new HashMap<String, String>();
-//
-//                    parameterFormPost.put(params.toString(), "");
-//                    return parameterFormPost;
-//                }
-//
-//                @Override
-//                public Map<String, String> getHeaders() throws AuthFailureError {
-//                    Map<String, String> parameterFormPost = new HashMap<String, String>();
-//                    parameterFormPost.put("Pragma", "no-cache");
-//                    parameterFormPost.put("Cache-Control", "no-cache");
-//                    return parameterFormPost;
-//                }
-//            };
-//
-//            strRequest.setShouldCache(false);
-//            mRequestQueuePost.add(strRequest);
+            JSONObjectParamsRequest jsObjRequest = new JSONObjectParamsRequest
+                    (Request.Method.POST, url, params, new Response.Listener<JSONObject>() {
 
-            // Create a new HttpClient and Post Header
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            try {
-                urlConnection.setDoOutput(true);
-                urlConnection.setChunkedStreamingMode(0);
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.d(COMM_IMPL_TAG, "POST response OK");
+                        }
+                    }, new Response.ErrorListener() {
 
-                OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-                writeStream(out);
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d(COMM_IMPL_TAG, "POST Error" + error.toString());
+                        }
+                    });
 
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                readStream(in);
-                finally {
-                    urlConnection.disconnect();
-                }
-            }
+            mRequestQueuePost.add(jsObjRequest);
+        }
     }
 
     @Override
@@ -336,10 +296,10 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
                     mConnectionState = HARDWARE_CONNECTION_PROBE;
                     // We do nothing here...
                     if (mAppStartRequested) {
-                        mCommState = CommunicationState.connecting;
-
-                        // Callback all listener for this event
-                        notifyConnectionEvents(EventCodeEnum.STARTING_APP, mAppName);
+//                        mCommState = CommunicationState.connecting;
+//
+//                        // Callback all listener for this event
+//                        notifyConnectionEvents(EventCodeEnum.STARTING_APP, mAppName);
                     }
 
                     break;

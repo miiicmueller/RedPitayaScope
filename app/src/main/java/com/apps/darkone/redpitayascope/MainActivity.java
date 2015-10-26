@@ -25,6 +25,9 @@ import com.apps.darkone.redpitayascope.application_services.AppServiceFactory;
 import com.apps.darkone.redpitayascope.application_services.AppServiceManager;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOnChannelsValueListener;
 
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -32,6 +35,8 @@ public class MainActivity extends AppCompatActivity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+
+    private ScheduledThreadPoolExecutor mExecutor;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -56,10 +61,31 @@ public class MainActivity extends AppCompatActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        mAppServiceManager = new AppServiceManager(this.getApplicationContext());
 
-        mAppServiceManager.runServices("192.168.43.112");
+        // Setting ip the service manager
+        mAppServiceManager = new AppServiceManager(this.getApplicationContext());
+        mAppServiceManager.runServices("192.168.43.23");
         mAppServiceManager.setAppServiceFocus((IAppService) AppServiceFactory.getOscilloscopeInstance());
+
+
+        mExecutor =
+                new ScheduledThreadPoolExecutor(1);
+        this.mExecutor.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                AppServiceFactory.getOscilloscopeInstance().setTimeLimits(-10.0, 10.0);
+            }
+        }, 0L, 3000, TimeUnit.MILLISECONDS);
+
+
+        // Simulate app change
+//        Handler handler = new Handler();
+//        handler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                mAppServiceManager.setAppServiceFocus((IAppService) AppServiceFactory.getSprectrumInstance());
+//            }
+//        }, 5000);
     }
 
     @Override

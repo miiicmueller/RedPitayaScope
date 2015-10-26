@@ -253,7 +253,6 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         } catch (JSONException e) {
             Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
         }
-
     }
 
 
@@ -283,10 +282,10 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
     public void newParamsAvailable(String appName, JSONObject newParams) {
         // It's for us...
         if (isAppConcerned(appName)) {
-            Log.d(APP_SERVICE_NAME, "New params available! Parsing the params... ");
 
-            if (!mParameterManager.updateParamsFromJson(appName, newParams)) {
-                Log.e(APP_SERVICE_NAME, "Parameter update error....");
+            if (mParameterManager.isParamsChanges(appName,newParams)) {
+                Log.d(APP_SERVICE_NAME, "New params available...");
+                mParameterManager.updateParamsFromJson(appName, newParams);
             }
         }
     }

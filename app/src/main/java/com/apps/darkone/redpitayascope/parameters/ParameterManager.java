@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -117,6 +118,43 @@ public class ParameterManager {
             return true;
         }
         return false;
+    }
+
+
+    public boolean isParamsChanges(String appName, JSONObject newParams) {
+
+        if (this.isParamsAlreadyPresent(appName)) {
+
+            try {
+                List<Parameter<Double>> listToCompare = createListFromJSON(newParams);
+
+                return this.mAppsParameters.get(appName).equals(listToCompare);
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, "List creation error ! " + e.toString());
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * Create a list from a JSON object
+     *
+     * @param newParams
+     * @return
+     */
+    private List<Parameter<Double>> createListFromJSON(JSONObject newParams) throws JSONException {
+        List<Parameter<Double>> listTemp = new ArrayList<>();
+
+        while (newParams.keys().hasNext()) {
+            String name = newParams.keys().next();
+            listTemp.add(new Parameter<Double>(name, newParams.getDouble(name)));
+
+            Log.d(LOG_TAG, "Creating temporay list... param : " + name);
+        }
+
+        return listTemp;
+
     }
 
 
