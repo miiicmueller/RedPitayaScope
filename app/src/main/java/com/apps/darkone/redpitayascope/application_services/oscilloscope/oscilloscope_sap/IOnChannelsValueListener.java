@@ -5,5 +5,10 @@ package com.apps.darkone.redpitayascope.application_services.oscilloscope.oscill
  */
 public interface IOnChannelsValueListener<T> {
 
-    public void onNewValue(T newValue);
+    /**
+     * Called when new values for the both channels are available
+     * @param newValue
+     */
+    public void onNewValues(T newValue);
+
 }

@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * Created by DarkOne on 19.10.15.
  */
-public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataListener, IOnParamListener, IOscilloscopeApp {
+public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataListener, IOscilloscopeApp {
 
 
     private static final String XMIN = "xmin";
@@ -114,7 +114,6 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
 
     private static final String APP_SERVICE_NAME = "scope+gen";
     private ICommunicationService mCommunicationService;
-    private ParameterManager mParameterManager;
     private List<IOnChannelsValueListener> mOnChannelsValueListenersList;
 
     public OscilloscopeServiceImpl() {
@@ -125,97 +124,98 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         mOnChannelsValueListenersList = new ArrayList<IOnChannelsValueListener>();
 
         // Create the parameters
-        mParameterManager = ParameterManagerFactory.getParameterManagerInstance();
-
 
         if (!mParameterManager.isParamsAlreadyPresent(APP_SERVICE_NAME)) {
             mParameterManager.addNewAppsParams(APP_SERVICE_NAME);
         }
-        mParameterManager.addParameter(APP_SERVICE_NAME, XMIN, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, XMAX, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, TRIG_MODE, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, TRIG_SOURCE, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, TRIG_EDGE, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, TRIG_DELAY, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, TRIG_LEVEL, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, SINGLE_BTN, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, TIME_RANGE, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, TIME_UNITS, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, EN_AVRG, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, AUTO_FLAG, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, YMIN, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, YMAX, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, FORCEX_FLAG, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_MIN_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_MAX_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_AMP_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_AVG_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_FREQ_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_PERIOD_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_MIN_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_MAX_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_AMP_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_AVG_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_FREQ_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_PERIOD_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PRB_ATT_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GAIN_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PRB_ATT_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GAIN_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GUI_RESET_Y_RANGE, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_DC_OFF_1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_DC_OFF_2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GUI_XMIN, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GUI_XMAX, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MIN_Y_NORM, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, MAX_Y_NORM, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_DC_NORM_1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_DC_NORM_2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, SCALE_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, SCALE_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_TRIG_MODE_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_TYPE_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_ENABLE_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SINGLE_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_AMP_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_FREQ_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_DCOFF_CH1, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_TRIG_MODE_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_TYPE_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_ENABLE_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SINGLE_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_AMP_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_FREQ_CH2, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_DCOFF_CH2, 0.0);
+        mParameterManager.addParameter(APP_SERVICE_NAME, XMIN, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, XMAX, 100.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, TRIG_MODE, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, TRIG_SOURCE, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, TRIG_EDGE, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, TRIG_DELAY, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, TRIG_LEVEL, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, SINGLE_BTN, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, TIME_RANGE, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, TIME_UNITS, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, EN_AVRG, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, AUTO_FLAG, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, YMIN, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, YMAX, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, FORCEX_FLAG, 0.0, false);
 
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_AWG_REFRESH, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_11_ENABLE, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_11_REST, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_11_SP, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_11_KP, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_11_KI, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_11_KD, 0.0);
 
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_12_ENABLE, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_12_REST, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_12_SP, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_12_KP, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_12_KI, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_12_KD, 0.0);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_MIN_CH1, 0.0, true);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_MAX_CH1, 0.0, true);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_AMP_CH1, 0.0, true);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_AVG_CH1, 0.0, true);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_FREQ_CH1, 0.0, true);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_PERIOD_CH1, 0.0, true);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_MIN_CH2, 0.0, true);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_MAX_CH2, 0.0, true);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_AMP_CH2, 0.0, true);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_AVG_CH2, 0.0, true);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_FREQ_CH2, 0.0, true);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MEAS_PERIOD_CH2, 0.0, true);
 
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_21_ENABLE, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_21_REST, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_21_SP, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_21_KP, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_21_KI, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_21_KD, 0.0);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PRB_ATT_CH1, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GAIN_CH1, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PRB_ATT_CH2, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GAIN_CH2, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GUI_RESET_Y_RANGE, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_DC_OFF_1, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_DC_OFF_2, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GUI_XMIN, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GUI_XMAX, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MIN_Y_NORM, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, MAX_Y_NORM, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_DC_NORM_1, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_DC_NORM_2, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, SCALE_CH1, 1.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, SCALE_CH2, 1.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_TRIG_MODE_CH1, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_TYPE_CH1, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_ENABLE_CH1, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SINGLE_CH1, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_AMP_CH1, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_FREQ_CH1, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_DCOFF_CH1, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_TRIG_MODE_CH2, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_TYPE_CH2, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_ENABLE_CH2, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SINGLE_CH2, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_AMP_CH2, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_FREQ_CH2, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_DCOFF_CH2, 0.0, false);
 
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_22_ENABLE, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_22_REST, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_22_SP, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_22_KP, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_22_KI, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, PID_22_KD, 0.0);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_AWG_REFRESH, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_11_ENABLE, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_11_REST, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_11_SP, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_11_KP, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_11_KI, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_11_KD, 0.0, false);
+
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_12_ENABLE, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_12_REST, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_12_SP, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_12_KP, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_12_KI, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_12_KD, 0.0, false);
+
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_21_ENABLE, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_21_REST, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_21_SP, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_21_KP, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_21_KI, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_21_KD, 0.0, false);
+
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_22_ENABLE, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_22_REST, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_22_SP, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_22_KP, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_22_KI, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, PID_22_KD, 0.0, false);
 
         mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
 
@@ -246,10 +246,16 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
 
         // Create and post the request
-        JSONObject jsonPosRequest = null;
+        JSONObject requestParams = null;
+
         try {
-            jsonPosRequest = mParameterManager.getJsonObject(APP_SERVICE_NAME);
-            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, jsonPosRequest);
+
+            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
+            requestParams = mParameterManager.changeParamInJSON(XMAX, xmax, requestParams);
+            requestParams = mParameterManager.changeParamInJSON(XMIN, xmin, requestParams);
+
+            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+
         } catch (JSONException e) {
             Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
         }
@@ -273,19 +279,7 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
             Log.d(APP_SERVICE_NAME, "New data available : " + newData.toString());
 
             for (IOnChannelsValueListener listener : mOnChannelsValueListenersList) {
-                listener.onNewValue(null);
-            }
-        }
-    }
-
-    @Override
-    public void newParamsAvailable(String appName, JSONObject newParams) {
-        // It's for us...
-        if (isAppConcerned(appName)) {
-
-            if (mParameterManager.isParamsChanges(appName,newParams)) {
-                Log.d(APP_SERVICE_NAME, "New params available...");
-                mParameterManager.updateParamsFromJson(appName, newParams);
+                listener.onNewValues(null);
             }
         }
     }

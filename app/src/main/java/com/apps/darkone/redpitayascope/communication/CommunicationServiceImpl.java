@@ -123,6 +123,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
         // Instantiate the RequestQueue with the cache and network.
         this.mRequestQueueGetData = new RequestQueue(mCache, mNetwork);
 
+        // Instantiate new POST Queue
         this.mRequestQueuePost = new RequestQueue(mCache, mNetwork);
 
         // Start the queue
@@ -190,11 +191,13 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
     @Override
     public void stopActualRunningApp() {
         Log.d(COMM_IMPL_TAG, "Application disconnection requested...");
-        this.mAppStopRequested = true;
 
         //Wait for the state machine to be disconnected
-        while (mCommState != CommunicationState.waitingForConnect) ;
-
+        // We need the if to not ask disconnection
+        if (mCommState != CommunicationState.waitingForConnect) {
+            this.mAppStopRequested = true;
+            while(mCommState != CommunicationState.waitingForConnect);
+        }
         // Callback all listener for this event
         notifyConnectionEvents(EventCodeEnum.DISCONNECTED, mAppName);
     }
@@ -226,8 +229,8 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
 
     @Override
     public void asyncNewParamsPost(String appName, final JSONObject params) {
-        // First check if the app is the running one + service is UP + communication state is running
 
+        // First check if the app is the running one + service is UP + communication state is running
         if (mAppName.equals(appName) && isServiceRunning() && mCommState == CommunicationState.running) {
 
             String url = "http://" + mBoardIpAdress + "/data";
@@ -296,10 +299,10 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
                     mConnectionState = HARDWARE_CONNECTION_PROBE;
                     // We do nothing here...
                     if (mAppStartRequested) {
-//                        mCommState = CommunicationState.connecting;
-//
-//                        // Callback all listener for this event
-//                        notifyConnectionEvents(EventCodeEnum.STARTING_APP, mAppName);
+                        mCommState = CommunicationState.connecting;
+
+                        // Callback all listener for this event
+                        notifyConnectionEvents(EventCodeEnum.STARTING_APP, mAppName);
                     }
 
                     break;

@@ -9,16 +9,24 @@ import com.apps.darkone.redpitayascope.communication.CommunicationServiceFactory
 import com.apps.darkone.redpitayascope.communication.ConnectionEvent;
 import com.apps.darkone.redpitayascope.communication.commSAP.ICommunicationService;
 import com.apps.darkone.redpitayascope.communication.commSAP.IOnConnectionListener;
+import com.apps.darkone.redpitayascope.communication.commSAP.IOnParamListener;
+import com.apps.darkone.redpitayascope.parameters.ParameterManager;
+import com.apps.darkone.redpitayascope.parameters.ParameterManagerFactory;
+
+import org.json.JSONObject;
 
 /**
  * Created by DarkOne on 22.10.15.
  */
-public class AppServiceBase implements IAppService, IOnConnectionListener {
+public class AppServiceBase implements IAppService, IOnConnectionListener, IOnParamListener {
 
     private String mAppName;
     private ICommunicationService mCommunicationService;
     private ServiceStatus mServiceStatus;
     private IOnServiceListener mOnServiceListener;
+    protected IOnAppParamsListener mOnAppParamsListener;
+    protected ParameterManager mParameterManager;
+
 
     public AppServiceBase(String appName) {
 
@@ -33,6 +41,8 @@ public class AppServiceBase implements IAppService, IOnConnectionListener {
         mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
 
         mCommunicationService.addOnConnectionListener(this);
+
+        mParameterManager = ParameterManagerFactory.getParameterManagerInstance();
     }
 
     /**
@@ -81,6 +91,12 @@ public class AppServiceBase implements IAppService, IOnConnectionListener {
     }
 
     @Override
+    public void setOnAppParamsListener(IOnAppParamsListener appParamsListener)
+    {
+        this.mOnAppParamsListener = appParamsListener;
+    }
+
+    @Override
     public ServiceStatus getAppServiceStatus() {
         return mServiceStatus;
     }
@@ -95,6 +111,25 @@ public class AppServiceBase implements IAppService, IOnConnectionListener {
     protected boolean isAppConcerned(String appNameToCheck) {
         return this.getAppServiceName().equals(appNameToCheck);
     }
+
+
+    @Override
+    public void newParamsAvailable(String appName, JSONObject newParams) {
+        // It's for us...
+        if (isAppConcerned(appName)) {
+
+            // Always upload the parameters
+            mParameterManager.updateParamsFromJson(appName, newParams);
+
+            if (!mParameterManager.isParamsChanges(appName, newParams)) {
+                Log.d(appName, "New params available...");
+
+                // Tell listener that new params are available
+                notifyParameterUpdated();
+            }
+        }
+    }
+
 
     /**
      * Listener of the communication status
@@ -132,6 +167,13 @@ public class AppServiceBase implements IAppService, IOnConnectionListener {
 
     }
 
+
+    private void notifyParameterUpdated() {
+        if(mOnAppParamsListener != null)
+        {
+            mOnAppParamsListener.onParametersUpdated();
+        }
+    }
 
     private void notifyServiceStatusChange(ServiceStatus status) {
 

@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * Created by DarkOne on 19.10.15.
  */
-public class SpectrumServiceImpl extends AppServiceBase implements  IOnDataListener, IOnParamListener, ISpectrumApp {
+public class SpectrumServiceImpl extends AppServiceBase implements  IOnDataListener, ISpectrumApp {
 
 
     private static final String XMIN = "xmin";
@@ -51,8 +51,8 @@ public class SpectrumServiceImpl extends AppServiceBase implements  IOnDataListe
         if (!mParameterManager.isParamsAlreadyPresent(APP_SERVICE_NAME)) {
             mParameterManager.addNewAppsParams(APP_SERVICE_NAME);
         }
-        mParameterManager.addParameter(APP_SERVICE_NAME, XMAX, 0.0);
-        mParameterManager.addParameter(APP_SERVICE_NAME, XMIN, 0.0);
+        mParameterManager.addParameter(APP_SERVICE_NAME, XMAX, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, XMIN, 0.0, false);
 
 
         mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
@@ -82,18 +82,6 @@ public class SpectrumServiceImpl extends AppServiceBase implements  IOnDataListe
             for(IOnFrequencyValueListener listener : mOnChannelsValueListenersList)
             {
                 listener.onNewValue(null);
-            }
-        }
-    }
-
-    @Override
-    public void newParamsAvailable(String appName, JSONObject newParams) {
-        // It's for us...
-        if (isAppConcerned(appName)) {
-            Log.d(APP_SERVICE_NAME, "New params available! Parsing the params... ");
-
-            if (!mParameterManager.updateParamsFromJson(appName, newParams)) {
-                Log.e(APP_SERVICE_NAME, "Parameter update error....");
             }
         }
     }

@@ -6,9 +6,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -55,9 +55,9 @@ public class ParameterManager {
     }
 
 
-    public void addParameter(String appName, String paramName, Double paramValue) {
+    public void addParameter(String appName, String paramName, Double paramValue, boolean isUpdatedByBoard) {
         if (this.isParamsAlreadyPresent(appName)) {
-            this.mAppsParameters.get(appName).add(new Parameter(paramName, paramValue));
+            this.mAppsParameters.get(appName).add(new Parameter(paramName, paramValue, isUpdatedByBoard));
         }
     }
 
@@ -86,9 +86,7 @@ public class ParameterManager {
 
         if (isParamsAlreadyPresent(appName)) {
             for (Parameter<Double> parameter : mAppsParameters.get(appName)) {
-
                 paramJsonTmp.put(parameter.getParamName(), (double) parameter.getParamValue());
-
             }
 
             // Encapsulate in the API JSON format
@@ -96,6 +94,27 @@ public class ParameterManager {
 
             jsonDatasetSection = jsonDatasetSection.put("datasets", jsonParamsSection);
         }
+
+        return jsonDatasetSection;
+    }
+
+
+    public JSONObject getJsonObject(List<Parameter<Double>> listToConvert) throws JSONException {
+
+        JSONObject paramJsonTmp = new JSONObject();
+        JSONObject jsonDatasetSection = new JSONObject();
+        JSONObject jsonParamsSection = new JSONObject();
+
+
+        for (Parameter<Double> parameter : listToConvert) {
+            paramJsonTmp.put(parameter.getParamName(), (double) parameter.getParamValue());
+        }
+
+        // Encapsulate in the API JSON format
+        jsonParamsSection = jsonParamsSection.put("params", paramJsonTmp);
+
+        jsonDatasetSection = jsonDatasetSection.put("datasets", jsonParamsSection);
+
 
         return jsonDatasetSection;
     }
@@ -123,17 +142,37 @@ public class ParameterManager {
 
     public boolean isParamsChanges(String appName, JSONObject newParams) {
 
+        boolean compareResult = false;
+
+
         if (this.isParamsAlreadyPresent(appName)) {
 
             try {
                 List<Parameter<Double>> listToCompare = createListFromJSON(newParams);
 
-                return this.mAppsParameters.get(appName).equals(listToCompare);
+
+                compareResult = listToCompare.equals(this.mAppsParameters.get(appName));
+
+                return compareResult;
             } catch (JSONException e) {
                 Log.e(LOG_TAG, "List creation error ! " + e.toString());
             }
         }
-        return false;
+        return compareResult;
+    }
+
+
+    public JSONObject changeParamInJSON(String paramName, Double newParamValue, JSONObject jsonParams) throws JSONException {
+
+        List<Parameter<Double>> paramList = createListFromJSON(jsonParams.getJSONObject("datasets").getJSONObject("params"));
+
+        for (Parameter parameter : paramList) {
+            if (parameter.getParamName().equals(paramName)) {
+                parameter.setParamValue(newParamValue);
+            }
+        }
+
+        return getJsonObject(paramList);
     }
 
 
@@ -146,11 +185,11 @@ public class ParameterManager {
     private List<Parameter<Double>> createListFromJSON(JSONObject newParams) throws JSONException {
         List<Parameter<Double>> listTemp = new ArrayList<>();
 
-        while (newParams.keys().hasNext()) {
-            String name = newParams.keys().next();
-            listTemp.add(new Parameter<Double>(name, newParams.getDouble(name)));
+        Iterator<String> iter = newParams.keys();
 
-            Log.d(LOG_TAG, "Creating temporay list... param : " + name);
+        while (iter.hasNext()) {
+            String name = iter.next();
+            listTemp.add(new Parameter<Double>(name, newParams.getDouble(name), false));
         }
 
         return listTemp;

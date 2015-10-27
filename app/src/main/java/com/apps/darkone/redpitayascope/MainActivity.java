@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity
 
         // Setting ip the service manager
         mAppServiceManager = new AppServiceManager(this.getApplicationContext());
-        mAppServiceManager.runServices("192.168.43.23");
+        mAppServiceManager.runServices("192.168.43.112");
         mAppServiceManager.setAppServiceFocus((IAppService) AppServiceFactory.getOscilloscopeInstance());
 
 
@@ -73,19 +73,10 @@ public class MainActivity extends AppCompatActivity
         this.mExecutor.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                AppServiceFactory.getOscilloscopeInstance().setTimeLimits(-10.0, 10.0);
+                AppServiceFactory.getOscilloscopeInstance().setTimeLimits(-100.0, 100.0);
             }
-        }, 0L, 3000, TimeUnit.MILLISECONDS);
+        }, 10000, 10000, TimeUnit.MILLISECONDS);
 
-
-        // Simulate app change
-//        Handler handler = new Handler();
-//        handler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                mAppServiceManager.setAppServiceFocus((IAppService) AppServiceFactory.getSprectrumInstance());
-//            }
-//        }, 5000);
     }
 
     @Override
@@ -184,9 +175,8 @@ public class MainActivity extends AppCompatActivity
 
             AppServiceFactory.getOscilloscopeInstance().addAppValuesListener(new IOnChannelsValueListener() {
                 @Override
-                public void onNewValue(Object newValue) {
+                public void onNewValues(Object newValue) {
                     mTextView.setText("Channel 1 mean : " + AppServiceFactory.getOscilloscopeInstance().getChannel1MeanValue() + "\n" + "Channel 2 mean : " + AppServiceFactory.getOscilloscopeInstance().getChannel2MeanValue());
-                    AppServiceFactory.getOscilloscopeInstance().setTimeLimits(-10.0, 10.0);
                 }
             });
 
