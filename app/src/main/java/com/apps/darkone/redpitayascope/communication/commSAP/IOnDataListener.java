@@ -8,5 +8,5 @@ import java.util.Map;
  */
 public interface IOnDataListener {
 
-    public void newDataAvailable(String appName,  List<List<Map<Double, Double>>> newData);
+    public void newDataAvailable(String appName,  List<Map<Number, Number>> newData);
 }

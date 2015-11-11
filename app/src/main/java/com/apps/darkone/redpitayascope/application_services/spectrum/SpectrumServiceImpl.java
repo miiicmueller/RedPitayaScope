@@ -74,7 +74,7 @@ public class SpectrumServiceImpl extends AppServiceBase implements  IOnDataListe
     }
 
     @Override
-    public void newDataAvailable(String appName, List<List<Map<Double, Double>>> newData) {
+    public void newDataAvailable(String appName, List<Map<Number, Number>> newData) {
         // TODO Transform the data to the used one (XYSeries)
         if (isAppConcerned(appName)) {
             Log.d(APP_SERVICE_NAME, "New data available : " + newData.toString());

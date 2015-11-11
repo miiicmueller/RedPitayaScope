@@ -2,9 +2,17 @@ package com.apps.darkone.redpitayascope.application_services.oscilloscope;
 
 import android.util.Log;
 
+import com.androidplot.xy.SimpleXYSeries;
+import com.androidplot.xy.XYSeries;
 import com.apps.darkone.redpitayascope.application_services.AppServiceBase;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelEnum;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelGain;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOnChannelsValueListener;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOscilloscopeApp;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.OscilloscopeMode;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ProbeAttenuation;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TimeUnits;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TriggerEdge;
 import com.apps.darkone.redpitayascope.communication.CommunicationServiceFactory;
 import com.apps.darkone.redpitayascope.communication.commSAP.ICommunicationService;
 import com.apps.darkone.redpitayascope.communication.commSAP.IOnDataListener;
@@ -16,8 +24,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by DarkOne on 19.10.15.
@@ -116,12 +127,22 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
     private ICommunicationService mCommunicationService;
     private List<IOnChannelsValueListener> mOnChannelsValueListenersList;
 
+
+    private double channelsOffset[];
+
+
     public OscilloscopeServiceImpl() {
 
         super(APP_SERVICE_NAME);
 
         //Create the list
         mOnChannelsValueListenersList = new ArrayList<IOnChannelsValueListener>();
+
+        channelsOffset = new double[2];
+
+        for (int i = 0; i < channelsOffset.length; i++) {
+            channelsOffset[0] = 0.0;
+        }
 
         // Create the parameters
 
@@ -219,6 +240,7 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
 
         mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
 
+
         // Add the useful listeners
         mCommunicationService.addOnDataListener(this);
         mCommunicationService.addOnParamListener(this);
@@ -228,16 +250,6 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
     /**
      * Oscilloscope Methods
      */
-
-    @Override
-    public Double getChannel1MeanValue() {
-        return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, MEAS_AVG_CH1).getParamValue();
-    }
-
-    @Override
-    public Double getChannel2MeanValue() {
-        return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, MEAS_AVG_CH2).getParamValue();
-    }
 
     @Override
     public void setTimeLimits(Double xmin, Double xmax) {
@@ -261,6 +273,265 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         }
     }
 
+    @Override
+    public void setTriggerLevel(double triggerLevel) {
+        // Get the communication service instance
+        mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
+
+        // Create and post the request
+        JSONObject requestParams = null;
+
+        try {
+
+            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
+            requestParams = mParameterManager.changeParamInJSON(TRIG_LEVEL, triggerLevel, requestParams);
+
+            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+
+        } catch (JSONException e) {
+            Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
+        }
+    }
+
+    @Override
+    public void setTriggerEdge(TriggerEdge triggerEdge) {
+
+        int triggerEdgeVal = (triggerEdge == TriggerEdge.RISING) ? 0 : 1;
+
+        // Get the communication service instance
+        mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
+
+        // Create and post the request
+        JSONObject requestParams = null;
+
+        try {
+
+            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
+            requestParams = mParameterManager.changeParamInJSON(TRIG_EDGE, (double) triggerEdgeVal, requestParams);
+
+            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+
+        } catch (JSONException e) {
+            Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
+        }
+    }
+
+    @Override
+    public void setTriggerChannel(ChannelEnum channel) {
+
+        int triggerChannel = (channel == ChannelEnum.CHANNEL1) ? 0 : 1;
+
+        // Get the communication service instance
+        mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
+
+        // Create and post the request
+        JSONObject requestParams = null;
+
+        try {
+
+            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
+            requestParams = mParameterManager.changeParamInJSON(TRIG_SOURCE, (double) triggerChannel, requestParams);
+
+            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+
+        } catch (JSONException e) {
+            Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
+        }
+    }
+
+    @Override
+    public void setMode(OscilloscopeMode mode) {
+
+        int trigMode = 0;
+
+        switch (mode) {
+            case AUTO:
+                trigMode = 0;
+                break;
+            case NORMAL:
+                trigMode = 1;
+                break;
+            case SINGLE_SHOT:
+                trigMode = 0;
+            default:
+        }
+
+        // Get the communication service instance
+        mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
+
+        // Create and post the request
+        JSONObject requestParams = null;
+
+        try {
+
+            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
+            requestParams = mParameterManager.changeParamInJSON(TRIG_MODE, (double) trigMode, requestParams);
+
+            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+
+        } catch (JSONException e) {
+            Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
+        }
+    }
+
+    @Override
+    public void setTimeUnits(TimeUnits timeUnits) {
+
+        int timeUnitParam = 0;
+
+        switch (timeUnits) {
+            case NS:
+            case US:
+                timeUnitParam = 0;
+                break;
+            case MS:
+                timeUnitParam = 1;
+                break;
+            case S:
+                timeUnitParam = 2;
+                break;
+            default:
+        }
+
+        // Get the communication service instance
+        mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
+
+        // Create and post the request
+        JSONObject requestParams = null;
+
+        try {
+
+            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
+            requestParams = mParameterManager.changeParamInJSON(TIME_UNITS, (double) timeUnitParam, requestParams);
+
+            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+
+        } catch (JSONException e) {
+            Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
+        }
+
+    }
+
+    @Override
+    public void setAvergagingState(boolean avrgState) {
+
+        int averagingStateVal = (avrgState) ? 1 : 0;
+
+        // Get the communication service instance
+        mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
+
+        // Create and post the request
+        JSONObject requestParams = null;
+
+        try {
+
+            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
+            requestParams = mParameterManager.changeParamInJSON(EN_AVRG, (double) averagingStateVal, requestParams);
+
+            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+
+        } catch (JSONException e) {
+            Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
+        }
+    }
+
+    @Override
+    public void setChannelOffset(ChannelEnum channel, double offset) {
+
+        switch (channel) {
+            case CHANNEL1:
+                channelsOffset[0] = offset;
+                break;
+            case CHANNEL2:
+                channelsOffset[1] = offset;
+                break;
+            default:
+        }
+
+
+    }
+
+    @Override
+    public void setChannelProbeAtt(ChannelEnum channel, ProbeAttenuation attenuation) {
+
+        int channelProbeAtt = (attenuation == ProbeAttenuation.PROBE_ATT_1X) ? 0 : 1;
+
+
+        // Get the communication service instance
+        mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
+
+        // Create and post the request
+        JSONObject requestParams = null;
+
+        try {
+
+            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
+
+            switch (channel) {
+                case CHANNEL1:
+                    requestParams = mParameterManager.changeParamInJSON(PRB_ATT_CH1, (double) channelProbeAtt, requestParams);
+                    break;
+                case CHANNEL2:
+                    requestParams = mParameterManager.changeParamInJSON(PRB_ATT_CH2, (double) channelProbeAtt, requestParams);
+                    break;
+                default:
+            }
+
+            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+
+        } catch (JSONException e) {
+            Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
+        }
+
+
+    }
+
+    @Override
+    public void setChannelGain(ChannelEnum channel, ChannelGain gain) {
+
+        int channelGain = (gain == ChannelGain.LV) ? 0 : 1;
+
+
+        // Get the communication service instance
+        mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
+
+        // Create and post the request
+        JSONObject requestParams = null;
+
+        try {
+
+            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
+
+            switch (channel) {
+                case CHANNEL1:
+                    requestParams = mParameterManager.changeParamInJSON(GAIN_CH1, (double) channelGain, requestParams);
+                    break;
+                case CHANNEL2:
+                    requestParams = mParameterManager.changeParamInJSON(GAIN_CH2, (double) channelGain, requestParams);
+                    break;
+                default:
+            }
+
+            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+
+        } catch (JSONException e) {
+            Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
+        }
+
+
+    }
+
+    @Override
+    public void setChannelDivisionVoltage(ChannelEnum channel, double divisionVoltage) {
+        switch (channel) {
+            case CHANNEL1:
+                break;
+            case CHANNEL2:
+                break;
+            default:
+        }
+    }
+
 
     @Override
     public void addAppValuesListener(IOnChannelsValueListener onChannelsValueListener) {
@@ -273,13 +544,65 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
     }
 
     @Override
-    public void newDataAvailable(String appName, List<List<Map<Double, Double>>> newData) {
-        // TODO Transform the data to the used one (XYSeries)
+    public double getChannelMeanValue(ChannelEnum channel) {
+
+        switch (channel) {
+            case CHANNEL1:
+                return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, MEAS_AVG_CH1).getParamValue();
+            case CHANNEL2:
+                return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, MEAS_AVG_CH2).getParamValue();
+            default:
+                return 0.0;
+        }
+    }
+
+    @Override
+    public double getChannelFreq(ChannelEnum channel) {
+        switch (channel) {
+            case CHANNEL1:
+                return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, MEAS_FREQ_CH1).getParamValue();
+            case CHANNEL2:
+                return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, MEAS_FREQ_CH2).getParamValue();
+            default:
+                return 0.0;
+        }
+    }
+
+    @Override
+    public void newDataAvailable(String appName, List<Map<Number, Number>> newData) {
+
         if (isAppConcerned(appName)) {
-            Log.d(APP_SERVICE_NAME, "New data available : " + newData.toString());
+            int channel = 0;
+            Number[][][] channelsVals = new Number[2][][];
+
+            Iterator<Map<Number, Number>> it = newData.iterator();
+
+
+            while (it.hasNext()) {
+                Map<Number, Number> points = it.next();
+
+                Set<Number> setEntry = points.keySet();
+                int nbPoints = points.keySet().size();
+                int i = 0;
+                channelsVals[channel] = new Number[2][nbPoints];
+
+
+                Number iValWithOffset;
+
+                for (Number entry : setEntry) {
+
+                    iValWithOffset = channelsOffset[channel] + points.get(entry).doubleValue();
+
+                    channelsVals[channel][0][i] = entry;
+                    channelsVals[channel][1][i] = iValWithOffset;
+                    i++;
+                }
+                channel++;
+            }
 
             for (IOnChannelsValueListener listener : mOnChannelsValueListenersList) {
-                listener.onNewValues(null);
+
+                listener.onNewValues(channelsVals);
             }
         }
     }

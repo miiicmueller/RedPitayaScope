@@ -41,6 +41,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
     private boolean mIsRunning;
     private boolean mAppStartRequested;
     private boolean mAppStopRequested;
+    private boolean mResponseReceived;
 
 
     private int mConnectionState; // Give the connection state. In case we cannot connect to the server...
@@ -53,7 +54,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
     private BasicNetwork mNetwork;
 
     // Tools
-    private static final int POLL_TIME_MS = 150; // We are waiting X ms to get the datas
+    private static final int POLL_TIME_MS = 50; // We are waiting X ms to get the datas
     private static final String COMM_IMPL_TAG = "CommuncationImpl";
 
     private static final String JSON_FIELD_APP = "app";
@@ -63,6 +64,8 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
     private static final String JSON_FIELD_POINTS = "g1";
     private static final String JSON_FIELD_POINTS_CHAN = "data";
     private static final String JSON_FIELD_PARAMS = "params";
+
+    private final String STATUS_ERROR = "ERROR";
 
 
     public static final int HARWARE_CONNECTION_OK = 0;
@@ -115,7 +118,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
         Log.d(COMM_IMPL_TAG, "Starting connection thread...");
 
         // Instantiate the cache
-        this.mCache = new DiskBasedCache(this.mContext.getCacheDir(), 1024 * 1024); // 1MB cap
+        this.mCache = new DiskBasedCache(this.mContext.getCacheDir(), 50 * 1024 * 1024); // 1MB cap
 
         // Set up the network to use HttpURLConnection as the HTTP client.
         this.mNetwork = new BasicNetwork(new HurlStack());
@@ -196,7 +199,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
         // We need the if to not ask disconnection
         if (mCommState != CommunicationState.waitingForConnect) {
             this.mAppStopRequested = true;
-            while(mCommState != CommunicationState.waitingForConnect);
+            while (mCommState != CommunicationState.waitingForConnect) ;
         }
         // Callback all listener for this event
         notifyConnectionEvents(EventCodeEnum.DISCONNECTED, mAppName);
@@ -287,7 +290,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
     @Override
     public void run() {
 
-        String url;
+        StringBuffer url = new StringBuffer();
         JsonObjectRequest jsObjRequest;
 
         Log.d(COMM_IMPL_TAG, "Thread started");
@@ -299,7 +302,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
                     mConnectionState = HARDWARE_CONNECTION_PROBE;
                     // We do nothing here...
                     if (mAppStartRequested) {
-                        mCommState = CommunicationState.connecting;
+                        changeCommState(CommunicationState.connecting);
 
                         // Callback all listener for this event
                         notifyConnectionEvents(EventCodeEnum.STARTING_APP, mAppName);
@@ -309,19 +312,24 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
                 case connecting:
 
                     mAppStartRequested = false;
-
+                    // For performance reason
+                    url = new StringBuffer();
                     // Create the connection request
-                    url = "http://" + mBoardIpAdress + "/bazaar?start=" + mAppName;
+                    url.append("http://" + mBoardIpAdress + "/bazaar?start=" + mAppName);
 
                     if (mAppStopRequested) {
 
                         mAppStopRequested = false;
 
+                        // For performance reason
+                        url = new StringBuffer();
+                        url.append("http://" + mBoardIpAdress + "/bazaar?stop=" + mAppName);
+
                         Log.d(COMM_IMPL_TAG, "Connecting, but asked to disconnect...");
-                        mCommState = CommunicationState.disconnecting;
+                        changeCommState(CommunicationState.disconnecting);
                     } else {
                         jsObjRequest = new JsonObjectRequest
-                                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                                (Request.Method.GET, url.toString(), null, new Response.Listener<JSONObject>() {
 
                                     @Override
                                     public void onResponse(JSONObject response) {
@@ -372,7 +380,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
 
                         // Access the RequestQueue through your singleton class.
                         mRequestQueueGetData.add(jsObjRequest);
-                        mCommState = CommunicationState.waitConnectingResponse;
+                        changeCommState(CommunicationState.waitConnectingResponse);
                     }
                     break;
 
@@ -382,20 +390,26 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
 
                         // Retry the connection
                         mConnectionState = HARDWARE_CONNECTION_PROBE;
-                        mCommState = CommunicationState.connecting;
+                        changeCommState(CommunicationState.connecting);
 
                     } else if (mConnectionState == HARWARE_CONNECTION_OK) {
-                        mCommState = CommunicationState.running;
+
+
+                        //Only create once the string url
+
+                        url = new StringBuffer();
+                        url.append("http://" + mBoardIpAdress + "/data");
+
+                        changeCommState(CommunicationState.running);
                     }
                     break;
                 case running:
 
-
-                    // Create the connection request
-                    url = "http://" + mBoardIpAdress + "/data";
+                    // Init the response flag
+                    mResponseReceived = false;
 
                     jsObjRequest = new JsonObjectRequest
-                            (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                            (Request.Method.GET, url.toString(), null, new Response.Listener<JSONObject>() {
 
                                 @Override
                                 public void onResponse(JSONObject response) {
@@ -408,66 +422,77 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
                                     JSONObject jsonParamsObj;
 
 
-                                    List<List<Map<Double, Double>>> channelsDatasContainer;
-                                    List<Map<Double, Double>> channelDataList;
+                                    List<Map<Number, Number>> channelsDatasContainer;
                                     List<Map<String, Object>> paramsList;
 
+
+                                    //Set the flag that we receive the response
+                                    mResponseReceived = true;
 
                                     try {
                                         status = response.getString(JSON_FIELD_STATUS);
 
-                                        // Get the app id
-                                        jsonTmpObj = response.getJSONObject(JSON_FIELD_APP);
-                                        responseAppName = jsonTmpObj.getString(JSON_FIELD_APP_ID);
+                                        if (!status.equals(STATUS_ERROR)) {
 
 
-                                        // Get the dataset
-                                        jsonTmpObj = response.getJSONObject(JSON_FIELD_DATASET);
+                                            // Get the app id
+                                            jsonTmpObj = response.getJSONObject(JSON_FIELD_APP);
+                                            responseAppName = jsonTmpObj.getString(JSON_FIELD_APP_ID);
 
 
-                                        // Get the params
-                                        jsonParamsObj = jsonTmpObj.getJSONObject(JSON_FIELD_PARAMS);
+                                            // Get the dataset
+                                            jsonTmpObj = response.getJSONObject(JSON_FIELD_DATASET);
 
 
-                                        // We get the two channel datas
-                                        channelsDatasContainer = new ArrayList<>();
-                                        JSONArray array = jsonTmpObj.getJSONArray(JSON_FIELD_POINTS);
+                                            // Get the params
+                                            jsonParamsObj = jsonTmpObj.getJSONObject(JSON_FIELD_PARAMS);
 
-                                        for (int i = 0; i <
-                                                jsonTmpObj.getJSONArray(JSON_FIELD_POINTS).length(); i++) {
-                                            jsonObjDataChannels = array.getJSONObject(i).getJSONArray(JSON_FIELD_POINTS_CHAN);
 
-                                            Log.d(COMM_IMPL_TAG, "Received Ch" + i + " : " + jsonObjDataChannels.toString());
+                                            // We get the two channel datas
+                                            channelsDatasContainer = new ArrayList<>();
+                                            JSONArray array = jsonTmpObj.getJSONArray(JSON_FIELD_POINTS);
 
-                                            channelDataList = new ArrayList<>();
+                                            for (int i = 0; i <
+                                                    jsonTmpObj.getJSONArray(JSON_FIELD_POINTS).length(); i++) {
+                                                jsonObjDataChannels = array.getJSONObject(i).getJSONArray(JSON_FIELD_POINTS_CHAN);
 
-                                            for (int j = 0; j < jsonObjDataChannels.length(); j++) {
-                                                JSONArray dataTuple = jsonObjDataChannels.getJSONArray(j);
+//                                            Log.d(COMM_IMPL_TAG, "Received Ch" + i + " : " + jsonObjDataChannels.toString());
 
-                                                Map<Double, Double> dataTupleMap = new TreeMap<>();
-                                                // Add the point to the Map
-                                                dataTupleMap.put(dataTuple.getDouble(0), dataTuple.getDouble(1));
 
-                                                // Add the map to the list
-                                                channelDataList.add(dataTupleMap);
+                                                Map<Number, Number> dataTupleMap = new TreeMap<>();
+
+                                                for (int j = 0; j < jsonObjDataChannels.length(); j++) {
+                                                    JSONArray dataTuple = jsonObjDataChannels.getJSONArray(j);
+
+                                                    // Add the point to the Map
+                                                    dataTupleMap.put(dataTuple.getDouble(0), dataTuple.getDouble(1));
+                                                }
+
+                                                // Add the value to the container List
+                                                channelsDatasContainer.add(dataTupleMap);
                                             }
 
-                                            // Add the value to the container List
-                                            channelsDatasContainer.add(channelDataList);
+//                                        Log.d(COMM_IMPL_TAG, "Data status : " + status.toString());
+
+                                            // Callback the values
+                                            for (IOnDataListener listener : mDataListenerList) {
+                                                listener.newDataAvailable(responseAppName, channelsDatasContainer);
+                                            }
+
+                                            // Callback the params
+                                            for (IOnParamListener listener : mParamListenerList) {
+                                                listener.newParamsAvailable(responseAppName, jsonParamsObj);
+                                            }
+                                        } else {
+                                            // We get an error. Try to restart the App
+                                            mConnectionState = HARDWARE_CONNECTION_PROBE;
+                                            changeCommState(CommunicationState.connecting);
+
+                                            // Callback all listener for this event
+                                            notifyConnectionEvents(EventCodeEnum.CONNECTION_ERROR, mAppName);
+
+                                            return;
                                         }
-
-                                        Log.d(COMM_IMPL_TAG, "Data status : " + status.toString());
-
-                                        // Callback the values
-                                        for (IOnDataListener listener : mDataListenerList) {
-                                            listener.newDataAvailable(responseAppName, channelsDatasContainer);
-                                        }
-
-                                        // Callback the params
-                                        for (IOnParamListener listener : mParamListenerList) {
-                                            listener.newParamsAvailable(responseAppName, jsonParamsObj);
-                                        }
-
 
                                     } catch (JSONException e) {
                                         Log.e(COMM_IMPL_TAG, "Response: format error! " + e.toString());
@@ -475,6 +500,8 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
 
                                     // Connection was possible
                                     mConnectionState = HARWARE_CONNECTION_OK;
+
+                                    return;
 
                                 }
                             }, new Response.ErrorListener() {
@@ -488,7 +515,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
 
                                     // We try to reconnect
                                     mConnectionState = HARDWARE_CONNECTION_PROBE;
-                                    mCommState = CommunicationState.connecting;
+                                    changeCommState(CommunicationState.connecting);
 
                                 }
                             });
@@ -496,19 +523,37 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
                     // Access the RequestQueue through your singleton class.
                     mRequestQueueGetData.add(jsObjRequest);
 
+
+                    // Wait for the next request
+//                    try {
+//                        Thread.sleep(THREAD_WAIT_MS);
+//                    } catch (InterruptedException e) {
+//                        Log.e(COMM_IMPL_TAG, "Thread sleep error");
+//                    }
+
                     // Check if we want to stop the app
                     if (mAppStopRequested) {
-                        mCommState = CommunicationState.disconnecting;
+
+                        url = new StringBuffer();
+                        url.append("http://" + mBoardIpAdress + "/bazaar?stop=" + mAppName);
+
+                        changeCommState(CommunicationState.disconnecting);
                     }
                     break;
+
+
+//                case waitingRunnigResponse:
+//                    if (mResponseReceived) {
+//                        // Let do a new measure
+//                        changeCommState(CommunicationState.running);
+//                    }
+//                    break;
                 case disconnecting:
 
                     mAppStopRequested = false;
 
-                    // Create the connection request
-                    url = "http://" + mBoardIpAdress + "/bazaar?stop=" + mAppName;
                     jsObjRequest = new JsonObjectRequest
-                            (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                            (Request.Method.GET, url.toString(), null, new Response.Listener<JSONObject>() {
 
                                 @Override
                                 public void onResponse(JSONObject response) {
@@ -527,7 +572,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
 
                     // Access the RequestQueue through your singleton class.
                     mRequestQueueGetData.add(jsObjRequest);
-                    mCommState = CommunicationState.waitingForConnect;
+                    changeCommState(CommunicationState.waitingForConnect);
                     break;
                 default:
                     break;
@@ -542,5 +587,9 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
 
 
         Log.d(COMM_IMPL_TAG, "Thread stopped...");
+    }
+
+    private void changeCommState(CommunicationState newCommState) {
+        mCommState = newCommState;
     }
 }

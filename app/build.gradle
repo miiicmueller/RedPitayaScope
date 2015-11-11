@@ -8,6 +8,12 @@ android {
         unitTests.returnDefaultValues = true
     }
 
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+
     defaultConfig {
         applicationId "com.apps.darkone.redpitayascope"
         minSdkVersion 19
@@ -24,11 +30,9 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:23.0.1'
+    compile project(":AndroidPlot-Core")
     compile project(":volley")
-
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.hamcrest:hamcrest-library:1.1'
+    compile project(":glplot")
 
 }

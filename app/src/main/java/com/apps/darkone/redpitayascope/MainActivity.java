@@ -1,35 +1,32 @@
 package com.apps.darkone.redpitayascope;
 
 import android.app.Activity;
-import android.content.Context;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.ActionBar;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
 
+import com.apps.darkone.redpitayascope.app_fragments.OscilloscopeFragment;
 import com.apps.darkone.redpitayascope.app_service_sap.IAppService;
-import com.apps.darkone.redpitayascope.app_service_sap.IOnServiceListener;
 import com.apps.darkone.redpitayascope.application_services.AppServiceFactory;
 import com.apps.darkone.redpitayascope.application_services.AppServiceManager;
-import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOnChannelsValueListener;
+import com.apps.darkone.redpitayascope.menu.SettingsFragment;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks{
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -61,21 +58,14 @@ public class MainActivity extends AppCompatActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-
         // Setting ip the service manager
         mAppServiceManager = new AppServiceManager(this.getApplicationContext());
         mAppServiceManager.runServices("192.168.43.112");
         mAppServiceManager.setAppServiceFocus((IAppService) AppServiceFactory.getOscilloscopeInstance());
 
-
-        mExecutor =
-                new ScheduledThreadPoolExecutor(1);
-        this.mExecutor.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                AppServiceFactory.getOscilloscopeInstance().setTimeLimits(-100.0, 100.0);
-            }
-        }, 10000, 10000, TimeUnit.MILLISECONDS);
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 
     }
 
@@ -84,20 +74,20 @@ public class MainActivity extends AppCompatActivity
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                .replace(R.id.container, OscilloscopeFragment.newInstance())
                 .commit();
     }
 
     public void onSectionAttached(int number) {
         switch (number) {
             case 1:
-                mTitle = getString(R.string.title_section1);
+                mTitle = getString(R.string.title_oscilloscope_app_drawler);
                 break;
             case 2:
-                mTitle = getString(R.string.title_section2);
+                mTitle = getString(R.string.title_spectrum_app_drawler);
                 break;
             case 3:
-                mTitle = getString(R.string.title_section3);
+                mTitle = getString(R.string.title_decoder_app_drawler);
                 break;
         }
     }
@@ -120,6 +110,7 @@ public class MainActivity extends AppCompatActivity
             restoreActionBar();
             return true;
         }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -132,11 +123,21 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
+            mTitle = "Settings";
+            ActionBar actionBar = getSupportActionBar();
+            actionBar.setTitle(mTitle);
+            android.app.FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container,  new SettingsFragment())
+                    .commit();
+
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
 
     /**
      * A placeholder fragment containing a simple view.
@@ -172,13 +173,6 @@ public class MainActivity extends AppCompatActivity
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
             mTextView = (TextView) rootView.findViewById(R.id.ptsTxt);
-
-            AppServiceFactory.getOscilloscopeInstance().addAppValuesListener(new IOnChannelsValueListener() {
-                @Override
-                public void onNewValues(Object newValue) {
-                    mTextView.setText("Channel 1 mean : " + AppServiceFactory.getOscilloscopeInstance().getChannel1MeanValue() + "\n" + "Channel 2 mean : " + AppServiceFactory.getOscilloscopeInstance().getChannel2MeanValue());
-                }
-            });
 
             return rootView;
         }

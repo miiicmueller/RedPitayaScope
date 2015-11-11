@@ -7,38 +7,122 @@ public interface IOscilloscopeApp {
 
     /**
      * Add a callback method when new value from channels arrives
+     *
      * @param onChannelsValueListener
      */
     public void addAppValuesListener(IOnChannelsValueListener onChannelsValueListener);
 
     /**
      * Remove a callback method when new value from channels arrives
+     *
      * @param onChannelsValueListener
      */
     public void removeAppValuesListener(IOnChannelsValueListener onChannelsValueListener);
 
 
     /**
-     * Get the channel 1 mean value
+     * Get the channel  mean value
+     *
+     * @param channel
      * @return Channel 1 mean value
      */
-    public Double getChannel1MeanValue();
+    public double getChannelMeanValue(ChannelEnum channel);
 
     /**
-     * Get the channel 2 mean value
-     * @return Channel 2 mean value
+     * Get the channel mean frequency
+     *
+     * @param channel
+     * @return
      */
-    public Double getChannel2MeanValue();
+    public double getChannelFreq(ChannelEnum channel);
 
 
     /**
-     * FIXME ... only for debugging
+     * Set the time data range
+     *
      * @param xmin
      * @param xmax
      */
     public void setTimeLimits(Double xmin, Double xmax);
 
+    /**
+     * Set the redpitaya trigger level
+     *
+     * @param triggerLevel= Level in volts
+     */
+    public void setTriggerLevel(double triggerLevel);
 
-    // TODO @Matthieu. Construct the Interface
+
+    /**
+     * Set the redpitaya trigger edge
+     *
+     * @param triggerEdge
+     */
+    public void setTriggerEdge(TriggerEdge triggerEdge);
+
+
+    /**
+     * Set the trigger channel
+     *
+     * @param channel 1 = Ch1, 2 = Ch2
+     */
+    public void setTriggerChannel(ChannelEnum channel);
+
+    /**
+     * Set the oscilloscope mode
+     *
+     * @param mode
+     */
+    public void setMode(OscilloscopeMode mode);
+
+
+    /**
+     * Set the time units for the red pitaya
+     *
+     * @param timeUnits
+     */
+    public void setTimeUnits(TimeUnits timeUnits);
+
+
+    /**
+     * Set if we use averaging
+     *
+     * @param avrgState
+     */
+    public void setAvergagingState(boolean avrgState);
+
+
+    /**
+     * Set the channel offset
+     *
+     * @param channel
+     * @param offset
+     */
+    public void setChannelOffset(ChannelEnum channel, double offset);
+
+    /**
+     * Set the probe attenuation of the channel. 1X, 10X
+     *
+     * @param channel
+     * @param attenuation
+     */
+    public void setChannelProbeAtt(ChannelEnum channel, ProbeAttenuation attenuation);
+
+
+    /**
+     * Set the channel gain. HV, LV
+     *
+     * @param channel
+     * @param gain
+     */
+    public void setChannelGain(ChannelEnum channel, ChannelGain gain);
+
+
+    /**
+     * Set the division voltage. Ex.: 1V/div
+     * @param channel
+     * @param divisionVoltage
+     */
+    public void setChannelDivisionVoltage(ChannelEnum channel, double divisionVoltage);
 
 }
