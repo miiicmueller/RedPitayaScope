@@ -85,7 +85,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         this.actualTriggerLevel = 0.0;
 
 
-//         initialize our XYPlot reference:
+        //initialize our XYPlot reference:
         plot = (XYPlot) rootView.findViewById(R.id.mySimpleXYPlot);
 
 

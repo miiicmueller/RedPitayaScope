@@ -1,33 +1,102 @@
+<!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"--><!--android:layout_width="match_parent"--><!--android:layout_height="match_parent">-->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <com.androidplot.xy.XYPlot
         android:id="@+id/mySimpleXYPlot"
         androidPlot.domainLabel="Time"
-        androidPlot.renderMode="use_background_thread"
         androidPlot.domainLabelWidget.labelPaint.textSize="@dimen/domain_label_font_size"
         androidPlot.graphWidget.domainLabelPaint.textSize="@dimen/domain_tick_label_font_size"
         androidPlot.graphWidget.domainOriginLabelPaint.textSize="@dimen/domain_tick_label_font_size"
         androidPlot.graphWidget.gridLinePaint.color="#000000"
-        androidPlot.graphWidget.marginBottom="28dp"
-        androidPlot.graphWidget.marginLeft="10dp"
-        androidPlot.graphWidget.marginRight="13dp"
-        androidPlot.graphWidget.marginTop="13dp"
+        androidPlot.graphWidget.marginBottom="0dp"
+        androidPlot.graphWidget.marginLeft="15dp"
+        androidPlot.graphWidget.marginRight="0dp"
+        androidPlot.graphWidget.marginTop="0dp"
         androidPlot.graphWidget.rangeLabelPaint.textSize="@dimen/range_tick_label_font_size"
         androidPlot.graphWidget.rangeOriginLabelPaint.textSize="@dimen/range_tick_label_font_size"
-        androidPlot.legendWidget.heightMetric.value="25dp"
+        androidPlot.legendWidget.heightMetric.value="15dp"
         androidPlot.legendWidget.iconSizeMetrics.heightMetric.value="15dp"
         androidPlot.legendWidget.iconSizeMetrics.widthMetric.value="15dp"
         androidPlot.legendWidget.positionMetrics.anchor="right_bottom"
         androidPlot.legendWidget.textPaint.textSize="@dimen/legend_text_font_size"
         androidPlot.rangeLabel=""
         androidPlot.rangeLabelWidget.labelPaint.textSize="@dimen/range_label_font_size"
+        androidPlot.renderMode="use_background_thread"
         androidPlot.title=""
         androidPlot.titleWidget.labelPaint.textSize="@dimen/title_font_size"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_column="0"
+        android:layout_span="4"
+        android:layout_weight="0.2" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="0.8"
+        android:stretchColumns="*">
+
+        <TableRow
+            android:layout_weight="1.0"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/oscilloscopeMode"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_column="0"
+                android:background="#000000"
+                android:gravity="center"
+                android:text="AUTO"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/trigInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_column="1"
+                android:background="#000000"
+                android:gravity="center"
+                android:text="Trigger"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_column="2"
+                android:background="#000000"
+                android:gravity="center"
+                android:text="Small Text"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_column="3"
+                android:background="#000000"
+                android:gravity="center"
+                android:text="Small Text"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="#FFFFFF" />
+        </TableRow>
+
+    </TableLayout>
+
+
 </LinearLayout>
 
 
-    <!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"--><!--android:orientation="vertical"--><!--android:id="@+id/plot_container"--><!--android:layout_width="wrap_content"--><!--android:layout_height="match_parent"></LinearLayout>-->
+    <!--</FrameLayout>-->
+
+

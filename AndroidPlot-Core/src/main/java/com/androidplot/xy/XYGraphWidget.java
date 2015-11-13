@@ -96,7 +96,8 @@ public class XYGraphWidget extends Widget {
     private float domainLabelHorizontalOffset = 0.0f;
     private float rangeLabelHorizontalOffset = 1.0f;   // allows tweaking of text position
     private float rangeLabelVerticalOffset = 0.0f;  // allows tweaking of text position
-
+    private float channel1Offset = -1.0f;
+    private float channel2Offset = 1.0f;
     private int ticksPerRangeLabel = 1;
     private int ticksPerDomainLabel = 1;
     private float gridPaddingTop = 0;
@@ -109,6 +110,8 @@ public class XYGraphWidget extends Widget {
     private int rangeLabelSubTickExtension = 0;
     private Paint gridBackgroundPaint;
     private TriggerLevel triggerLevel;
+    private Paint channel1Paint;
+    private Paint channel2Paint;
     private Paint rangeGridLinePaint;
     private Paint rangeSubGridLinePaint;
     private Paint domainGridLinePaint;
@@ -206,6 +209,21 @@ public class XYGraphWidget extends Widget {
         axisValueLabelRegions = new ZHash<RectRegion, AxisValueLabelFormatter>();
         triggerLevel = new TriggerLevel();
         triggerLevel.getTriggerPaint().setColor(Color.YELLOW);
+
+        channel1Paint = new Paint();
+        channel1Paint.setColor(Color.YELLOW);
+        channel1Paint.setStrokeWidth(PixelUtils.dpToPix(2));
+        channel1Paint.setAntiAlias(true);
+        channel1Paint.setTextAlign(Paint.Align.CENTER);
+        channel1Paint.setTextSize(PixelUtils.dpToPix(10));
+
+
+        channel2Paint = new Paint();
+        channel2Paint.setColor(Color.RED);
+        channel2Paint.setStrokeWidth(PixelUtils.dpToPix(2));
+        channel2Paint.setAntiAlias(true);
+        channel2Paint.setTextAlign(Paint.Align.CENTER);
+        channel2Paint.setTextSize(PixelUtils.dpToPix(10));
     }
 
     public XYGraphWidget(LayoutManager layoutManager, XYPlot plot, SizeMetrics sizeMetrics) {
@@ -430,6 +448,7 @@ public class XYGraphWidget extends Widget {
                 drawData(canvas);
                 drawCursors(canvas);
                 drawTrigger(canvas);
+                drawChannelsOffset(canvas);
                 if (isDrawMarkersEnabled()) {
                     drawMarkers(canvas);
                 }
@@ -479,6 +498,59 @@ public class XYGraphWidget extends Widget {
         canvas.drawPath(path, triggerLevel.getTriggerPaint());
         canvas.restoreToCount(canvasState);
     }
+
+    private void drawChannelsOffset(Canvas canvas) {
+
+
+        double levelPathLength = PixelUtils.dpToPix(6);
+
+
+        float chan1LevelX = ValPixConverter.valToPix(0.0, plot
+                        .getCalculatedMinX().doubleValue(), plot
+                        .getCalculatedMaxX().doubleValue(), paddedGridRect.width(),
+                false);
+        chan1LevelX += paddedGridRect.left;
+
+
+        float chan1LevelY = ValPixConverter.valToPix(channel1Offset, plot
+                        .getCalculatedMinY().doubleValue(), plot
+                        .getCalculatedMaxY().doubleValue(),
+                paddedGridRect.height(), true);
+        chan1LevelY += paddedGridRect.top;
+
+
+        float chan2LevelX = ValPixConverter.valToPix(0.0, plot
+                        .getCalculatedMinX().doubleValue(), plot
+                        .getCalculatedMaxX().doubleValue(), paddedGridRect.width(),
+                false);
+        chan2LevelX += paddedGridRect.left;
+
+
+        float chan2LevelY = ValPixConverter.valToPix(channel2Offset, plot
+                        .getCalculatedMinY().doubleValue(), plot
+                        .getCalculatedMaxY().doubleValue(),
+                paddedGridRect.height(), true);
+        chan2LevelY += paddedGridRect.top;
+
+
+        int canvasState = canvas.save();
+
+        double yOffsetChan1 = (chan1LevelY);
+        double xOffsetChan1 = (chan1LevelX - levelPathLength);
+
+        double yOffsetChan2 = (chan2LevelY);
+        double xOffsetChan2 = (chan2LevelX - levelPathLength);
+
+
+        canvas.drawLine((float) xOffsetChan1, (float) yOffsetChan1, (float) (xOffsetChan1 + levelPathLength), (float) yOffsetChan1, channel1Paint);
+        canvas.drawLine((float) xOffsetChan2, (float) yOffsetChan2, (float) (xOffsetChan2 + levelPathLength), (float) yOffsetChan2, channel2Paint);
+
+        canvas.drawText("C1", (float) (xOffsetChan1 - channel1Paint.measureText("C1")), (float) (yOffsetChan1 + (PixelUtils.dpToPix(10) / 2.0)), channel1Paint);
+        canvas.drawText("C2", (float) (xOffsetChan2 - channel1Paint.measureText("C2")), (float) (yOffsetChan2 + (PixelUtils.dpToPix(10) / 2.0)), channel2Paint);
+
+        canvas.restoreToCount(canvasState);
+    }
+
 
     private RectF getGridRect(RectF widgetRect) {
         return new RectF(widgetRect.left + ((rangeAxisLeft) ? rangeLabelWidth : 1),
@@ -554,8 +626,8 @@ public class XYGraphWidget extends Widget {
                     yPix = gridRect.top - domainLabelTickExtension
                             - domainLabelVerticalOffset;
                 }
-                drawTickText(canvas, XYAxisType.DOMAIN, xVal, xPix + domainLabelHorizontalOffset, yPix,
-                        labelPaint);
+//                drawTickText(canvas, XYAxisType.DOMAIN, xVal, xPix + domainLabelHorizontalOffset, yPix,
+//                        labelPaint);
             }
         } else if (linePaint != null && (domainSubTick || domainLabelSubTickExtension > 0)) {
             if (domainAxisBottom) {
@@ -589,8 +661,8 @@ public class XYGraphWidget extends Widget {
                     xPix = gridRect.right
                             + (rangeLabelTickExtension + rangeLabelHorizontalOffset);
                 }
-                drawTickText(canvas, XYAxisType.RANGE, yVal, xPix, yPix - rangeLabelVerticalOffset,
-                        labelPaint);
+//                drawTickText(canvas, XYAxisType.RANGE, yVal, xPix, yPix - rangeLabelVerticalOffset,
+//                        labelPaint);
             }
         } else if (linePaint != null && (rangeSubTick || rangeLabelSubTickExtension > 0)) {
             if (rangeAxisLeft) {
@@ -1028,6 +1100,16 @@ public class XYGraphWidget extends Widget {
 
         this.triggerLevel.setTriggerLevel(level);
     }
+
+
+    public void setChannel1Offset(float offset) {
+        channel1Offset = offset;
+    }
+
+    public void setChannel2Offset(float offset) {
+        channel2Offset = offset;
+    }
+
 
     public void setGridBackgroundPaint(Paint gridBackgroundPaint) {
         this.gridBackgroundPaint = gridBackgroundPaint;
