@@ -37,26 +37,268 @@
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="0.8"
+        android:layout_weight="0.9"
         android:stretchColumns="*">
 
         <TableRow
             android:layout_weight="1.0"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
+            android:background="#000000"
             android:gravity="center">
 
-            <TextView
-                android:id="@+id/oscilloscopeMode"
-                android:layout_width="wrap_content"
+            <!-- Premier bouton-->
+            <TableLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_column="0"
-                android:background="#000000"
-                android:gravity="center"
-                android:text="AUTO"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="#FFFFFF" />
+                android:orientation="vertical"
+                android:id="@+id/oscMode">
 
+                <TextView
+                    android:id="@+id/oscModeTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:background="#000000"
+                    android:gravity="top|left"
+                    android:text="AUTO"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/oscModeLine1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:background="#000000"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:background="#000000"
+                    android:id="@+id/oscModeLine2"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:background="#000000"
+                    android:id="@+id/oscModeLine3"
+                    android:textColor="#FFFFFF" />
+
+            </TableLayout>
+
+
+            <!--Deuxieme bouton-->
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:id="@+id/trig">
+
+                <TextView
+                    android:id="@+id/trigTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:background="#000000"
+                    android:gravity="top|left"
+                    android:text="Trigger"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/trigLine1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:background="#000000"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:id="@+id/trigLine2"
+                    android:background="#000000"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:id="@+id/trigLine3"
+                    android:background="#000000"
+                    android:textColor="#FFFFFF" />
+
+            </TableLayout>
+
+            <!--Troisième bouton-->
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:id="@+id/timeBase">
+
+                <TextView
+                    android:id="@+id/timeBaseTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:background="#000000"
+                    android:gravity="top|left"
+                    android:text="TimeBase"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/timeBaseLine1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:background="#000000"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:background="#000000"
+                    android:id="@+id/timeBaseLine2"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:background="#000000"
+                    android:id="@+id/timeBaseLine3"
+                    android:textColor="#FFFFFF" />
+
+            </TableLayout>
+
+            <!--Quatrième bouton-->
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:id="@+id/chan1">
+
+                <TextView
+                    android:id="@+id/chan1Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:background="#000000"
+                    android:gravity="top|left"
+                    android:text="C1"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/chan1Line1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:background="#000000"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:background="#000000"
+                    android:id="@+id/chan1Line2"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:background="#000000"
+                    android:id="@+id/chan1Line3"
+                    android:textColor="#FFFFFF" />
+
+            </TableLayout>
+
+            <!--Cinquième bouton-->
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:id="@+id/chan2">
+
+                <TextView
+                    android:id="@+id/chan2Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:background="#000000"
+                    android:gravity="top|left"
+                    android:text="C2"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/chan2Line1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:background="#000000"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:background="#000000"
+                    android:id="@+id/chan2Line2"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:textSize="10sp"
+                    android:background="#000000"
+                    android:id="@+id/chan2Line3"
+                    android:textColor="#FFFFFF" />
+
+            </TableLayout>
+
+<!--
             <TextView
                 android:id="@+id/trigInfo"
                 android:layout_width="wrap_content"
@@ -69,13 +311,24 @@
                 android:textColor="#FFFFFF" />
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/timeInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_column="2"
                 android:background="#000000"
                 android:gravity="center"
-                android:text="Small Text"
+                android:text="TimeBase"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_column="3"
+                android:background="#000000"
+                android:gravity="center"
+                android:text="C1"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="#FFFFFF" />
 
@@ -83,12 +336,13 @@
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_column="3"
+                android:layout_column="4"
                 android:background="#000000"
                 android:gravity="center"
-                android:text="Small Text"
+                android:text="C2"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="#FFFFFF" />
+-->
         </TableRow>
 
     </TableLayout>

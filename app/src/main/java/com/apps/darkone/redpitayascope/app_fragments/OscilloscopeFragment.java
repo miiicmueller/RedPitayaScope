@@ -152,6 +152,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
         mRedrawer.start();
 
+        myActionbar = getS
 
         return rootView;
     }
@@ -179,5 +180,6 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         mOscilloscopeSerieCh1.updateFromXYSerie(newValuesArray[0][0], newValuesArray[0][1]);
         mOscilloscopeSerieCh2.updateFromXYSerie(newValuesArray[1][0], newValuesArray[1][1]);
     }
+
 
 }
