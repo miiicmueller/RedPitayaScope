@@ -7,10 +7,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GestureDetectorCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -33,7 +36,7 @@ import java.util.Arrays;
 /**
  * Created by DarkOne on 02.11.15.
  */
-public class OscilloscopeFragment extends Fragment implements IOnChannelsValueListener {
+public class OscilloscopeFragment extends Fragment implements IOnChannelsValueListener, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener{
 
     private Context mContext;
     private XYPlot plot;
@@ -50,9 +53,10 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
     private Redrawer mRedrawer;
 
-
     private static final String OSC_SERIE_NAME = "";
     private GestureDetectorCompat mDetector;
+
+   private ActionBar myActionbar;
 
     public static OscilloscopeFragment newInstance() {
         OscilloscopeFragment settingFragment = new OscilloscopeFragment();
@@ -152,7 +156,21 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
         mRedrawer.start();
 
-        myActionbar = getS
+        myActionbar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        myActionbar.hide();
+
+        mDetector = new GestureDetectorCompat(mContext, this);
+        mDetector.setOnDoubleTapListener(this);
+
+
+        rootView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                mDetector.onTouchEvent(event);
+                return true;
+            }
+        });
 
         return rootView;
     }
@@ -181,5 +199,64 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         mOscilloscopeSerieCh2.updateFromXYSerie(newValuesArray[1][0], newValuesArray[1][1]);
     }
 
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        Log.d("DEBUG_TAG", "On Single TAP Up Event!");
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        Log.d("DEBUG_TAG", "On Scroll Event!");
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+        Log.d("DEBUG_TAG", "LongPress Event!");
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        Log.d("DEBUG_TAG", "On Flint!");
+        return false;
+    }
+
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+        Log.d("DEBUG_TAG", "Double TAP!");
+        return false;
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent e) {
+        Log.d("DEBUG_TAG", "Double TAP Event!");
+        return false;
+    }
+
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        Log.d("DEBUG_TAG", "Single TAP Confirmed!");
+        if(myActionbar.isShowing())
+        {
+            myActionbar.hide();
+        }
+        else
+        {
+            myActionbar.show();
+        }
+        return false;
+    }
 
 }

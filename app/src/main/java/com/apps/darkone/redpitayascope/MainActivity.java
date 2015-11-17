@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
@@ -45,11 +46,26 @@ public class MainActivity extends AppCompatActivity
 
     private AppServiceManager mAppServiceManager;
     private Button mButton;
-    private ActionBar myActionbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+        getWindow().requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY);
+
         super.onCreate(savedInstanceState);
+
+        // setup immersive mode
+        getWindow().getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
+
+
+
         setContentView(R.layout.activity_main);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
@@ -60,21 +76,6 @@ public class MainActivity extends AppCompatActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-
-        // setup immersive mode
-        getWindow().getDecorView().setSystemUiVisibility(
-//                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        );
-
-//        // setup actionbar
-//        myActionbar = getSupportActionBar();
-//        myActionbar.hide();
 
 
         // Setting ip the service manager
