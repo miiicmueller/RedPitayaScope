@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
@@ -46,6 +47,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -60,7 +64,9 @@ public class MainActivity extends AppCompatActivity
 
         // Setting ip the service manager
         mAppServiceManager = new AppServiceManager(this.getApplicationContext());
+
         mAppServiceManager.runServices("192.168.43.112");
+
         mAppServiceManager.setAppServiceFocus((IAppService) AppServiceFactory.getOscilloscopeInstance());
 
         getWindow().setFlags(

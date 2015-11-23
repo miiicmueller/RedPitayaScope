@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.LinearLayout;
 
 import com.androidplot.Plot;
@@ -152,6 +153,13 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
         mRedrawer.start();
 
+        int uiOptions = getActivity().getWindow().getDecorView().getSystemUiVisibility();
+        int newUiOptions = uiOptions;
+
+        newUiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        newUiOptions |= View.SYSTEM_UI_FLAG_FULLSCREEN;
+        newUiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        getActivity().getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
 
         return rootView;
     }
@@ -159,6 +167,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
     }
 
