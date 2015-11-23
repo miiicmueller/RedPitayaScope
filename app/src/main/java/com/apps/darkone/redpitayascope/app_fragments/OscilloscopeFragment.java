@@ -17,6 +17,8 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TextView;
 
 import com.androidplot.Plot;
 import com.androidplot.util.Redrawer;
@@ -57,7 +59,14 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     private GestureDetectorCompat mDetector;
     private ScaleGestureDetector mScaleDetector;
 
-   private ActionBar myActionbar;
+    private ActionBar myActionbar;
+
+    // boutons
+    private TableLayout butOscMode;
+    private TableLayout butTrigSettings;
+    private TableLayout butTimeSettings;
+    private TableLayout butC1Settings;
+    private TableLayout butC2Settings;
 
     public static OscilloscopeFragment newInstance() {
         OscilloscopeFragment settingFragment = new OscilloscopeFragment();
@@ -162,16 +171,45 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
         // Gesture and detectors
         // --------------------
+        // Set gesture detector & doubleTap
         mDetector = new GestureDetectorCompat(mContext, this);
         mDetector.setOnDoubleTapListener(this);
 
+        // Set scale detector
         mScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener());
+
+        // Set des gestures sur les boutons
+        // ---------------------------------
+        butOscMode = (TableLayout) rootView.findViewById(R.id.oscMode);
+        butOscMode.setOnTouchListener(new View.OnTouchListener(){
+            @Override
+            public boolean onTouch(View v, MotionEvent event)
+            {
+                switch(event.getAction())
+                {
+                    case (MotionEvent.ACTION_UP):
+                        Log.d("DEBUG_TAG", "On button release OscMode Event!");
+                        break;
+                }
+                Log.d("DEBUG_TAG", "On Touch OscMode Event!");
+                return true;
+            }
+
+        });
+
+
+        butTrigSettings = (TableLayout) rootView.findViewById(R.id.trig);
+        butTimeSettings = (TableLayout) rootView.findViewById(R.id.timeBase);
+        butC1Settings = (TableLayout) rootView.findViewById(R.id.chan1);
+        butC2Settings = (TableLayout) rootView.findViewById(R.id.chan2);
+        // Link objects to the touchlistener
         rootView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
                 mScaleDetector.onTouchEvent(event);
                 mDetector.onTouchEvent(event);
+
                 return true;
             }
         });
@@ -223,11 +261,13 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         Log.d("DEBUG_TAG", "On Scroll Event!");
+        //TODO appeler le callback on scroll event
         return false;
     }
 
     @Override
     public void onLongPress(MotionEvent e) {
+        // TODO appeler le callback logpressgesture
         Log.d("DEBUG_TAG", "LongPress Event!");
     }
 
@@ -246,6 +286,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     @Override
     public boolean onDoubleTapEvent(MotionEvent e) {
         Log.d("DEBUG_TAG", "Double TAP Event!");
+        // TODO appeler le callback doubletap
         return false;
     }
 
