@@ -55,6 +55,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
     private static final String OSC_SERIE_NAME = "";
     private GestureDetectorCompat mDetector;
+    private ScaleGestureDetector mScaleDetector;
 
    private ActionBar myActionbar;
 
@@ -159,14 +160,17 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         myActionbar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         myActionbar.hide();
 
+        // Gesture and detectors
+        // --------------------
         mDetector = new GestureDetectorCompat(mContext, this);
         mDetector.setOnDoubleTapListener(this);
 
-
+        mScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener());
         rootView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
+                mScaleDetector.onTouchEvent(event);
                 mDetector.onTouchEvent(event);
                 return true;
             }
@@ -257,6 +261,40 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
             myActionbar.show();
         }
         return false;
+    }
+
+
+
+
+
+
+
+
+
+
+    private class ScaleListener
+            extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+
+            if(detector.getCurrentSpanX() > detector.getCurrentSpanY())
+            {
+                //TODO appeler le callback scaleX
+                //mScaleFactorX *= detector.getScaleFactor();
+            }else
+            {
+                //TODO appeler le callback scaleY
+                //mScaleFactorY *= detector.getScaleFactor();
+            }
+
+            // Don't let the object get too small or too large.
+            //mScaleFactorX = Math.max(0.1f, Math.min(mScaleFactorX, 5.0f));
+            //mScaleFactorY = Math.max(0.1f, Math.min(mScaleFactorY, 5.0f));
+
+            //Log.d("DEBUG_TAG", String.format("Scale factor:\tX = %f\tY = %f", mScaleFactorX, mScaleFactorY));
+
+            return true;
+        }
     }
 
 }
