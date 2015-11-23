@@ -7,10 +7,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GestureDetectorCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -34,7 +37,7 @@ import java.util.Arrays;
 /**
  * Created by DarkOne on 02.11.15.
  */
-public class OscilloscopeFragment extends Fragment implements IOnChannelsValueListener {
+public class OscilloscopeFragment extends Fragment implements IOnChannelsValueListener, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener{
 
     private Context mContext;
     private XYPlot plot;
@@ -54,6 +57,9 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
     private static final String OSC_SERIE_NAME = "";
     private GestureDetectorCompat mDetector;
+    private ScaleGestureDetector mScaleDetector;
+
+   private ActionBar myActionbar;
 
     public static OscilloscopeFragment newInstance() {
         OscilloscopeFragment settingFragment = new OscilloscopeFragment();
@@ -153,13 +159,24 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
         mRedrawer.start();
 
-        int uiOptions = getActivity().getWindow().getDecorView().getSystemUiVisibility();
-        int newUiOptions = uiOptions;
+        myActionbar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        myActionbar.hide();
 
-        newUiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        newUiOptions |= View.SYSTEM_UI_FLAG_FULLSCREEN;
-        newUiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        getActivity().getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
+        // Gesture and detectors
+        // --------------------
+        mDetector = new GestureDetectorCompat(mContext, this);
+        mDetector.setOnDoubleTapListener(this);
+
+        mScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener());
+        rootView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                mScaleDetector.onTouchEvent(event);
+                mDetector.onTouchEvent(event);
+                return true;
+            }
+        });
 
         return rootView;
     }
@@ -187,6 +204,100 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     public void onNewValues(Number[][][] newValuesArray) {
         mOscilloscopeSerieCh1.updateFromXYSerie(newValuesArray[0][0], newValuesArray[0][1]);
         mOscilloscopeSerieCh2.updateFromXYSerie(newValuesArray[1][0], newValuesArray[1][1]);
+    }
+
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        Log.d("DEBUG_TAG", "On Single TAP Up Event!");
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        Log.d("DEBUG_TAG", "On Scroll Event!");
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+        Log.d("DEBUG_TAG", "LongPress Event!");
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        Log.d("DEBUG_TAG", "On Flint!");
+        return false;
+    }
+
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+        Log.d("DEBUG_TAG", "Double TAP!");
+        return false;
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent e) {
+        Log.d("DEBUG_TAG", "Double TAP Event!");
+        return false;
+    }
+
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        Log.d("DEBUG_TAG", "Single TAP Confirmed!");
+        if(myActionbar.isShowing())
+        {
+            myActionbar.hide();
+        }
+        else
+        {
+            myActionbar.show();
+        }
+        return false;
+    }
+
+
+
+
+
+
+
+
+
+
+    private class ScaleListener
+            extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+
+            if(detector.getCurrentSpanX() > detector.getCurrentSpanY())
+            {
+                //TODO appeler le callback scaleX
+                //mScaleFactorX *= detector.getScaleFactor();
+            }else
+            {
+                //TODO appeler le callback scaleY
+                //mScaleFactorY *= detector.getScaleFactor();
+            }
+
+            // Don't let the object get too small or too large.
+            //mScaleFactorX = Math.max(0.1f, Math.min(mScaleFactorX, 5.0f));
+            //mScaleFactorY = Math.max(0.1f, Math.min(mScaleFactorY, 5.0f));
+
+            //Log.d("DEBUG_TAG", String.format("Scale factor:\tX = %f\tY = %f", mScaleFactorX, mScaleFactorY));
+
+            return true;
+        }
     }
 
 }
