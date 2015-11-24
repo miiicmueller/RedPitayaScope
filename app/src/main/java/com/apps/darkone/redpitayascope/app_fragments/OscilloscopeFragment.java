@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -54,6 +55,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     private OscilloscopeTimeValueSerie mOscilloscopeSerieCh2;
 
     private Redrawer mRedrawer;
+
 
     private static final String OSC_SERIE_NAME = "";
     private GestureDetectorCompat mDetector;
@@ -159,15 +161,11 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
                 Arrays.asList(new Plot[]{
                                 plot
                         }
-
                 ),
                 20, false);
 
 
         mRedrawer.start();
-
-        myActionbar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-        myActionbar.hide();
 
         // Gesture and detectors
         // --------------------
@@ -220,6 +218,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
     }
 
@@ -303,13 +302,6 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         }
         return false;
     }
-
-
-
-
-
-
-
 
 
 
