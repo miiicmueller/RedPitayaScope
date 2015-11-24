@@ -29,7 +29,7 @@ import com.apps.darkone.redpitayascope.menu.SettingsFragment;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks{
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -53,16 +53,13 @@ public class MainActivity extends AppCompatActivity
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
         super.onCreate(savedInstanceState);
+
         // setup immersive mode
         getWindow().getDecorView().setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         );
-
 
 
         setContentView(R.layout.activity_main);
@@ -89,9 +86,6 @@ public class MainActivity extends AppCompatActivity
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 
     }
-
-
-
 
 
     @Override
@@ -154,7 +148,7 @@ public class MainActivity extends AppCompatActivity
             actionBar.setTitle(mTitle);
             android.app.FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
-                    .replace(R.id.container,  new SettingsFragment())
+                    .replace(R.id.container, new SettingsFragment())
                     .commit();
 
             return true;
