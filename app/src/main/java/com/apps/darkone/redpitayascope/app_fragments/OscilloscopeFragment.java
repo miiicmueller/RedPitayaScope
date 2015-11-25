@@ -37,7 +37,7 @@ import java.util.Arrays;
 /**
  * Created by DarkOne on 02.11.15.
  */
-public class OscilloscopeFragment extends Fragment implements IOnChannelsValueListener, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener{
+public class OscilloscopeFragment extends Fragment implements IOnChannelsValueListener, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
     private Context mContext;
     private XYPlot plot;
@@ -59,7 +59,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     private GestureDetectorCompat mDetector;
     private ScaleGestureDetector mScaleDetector;
 
-   private ActionBar myActionbar;
+    private ActionBar myActionbar;
 
     public static OscilloscopeFragment newInstance() {
         OscilloscopeFragment settingFragment = new OscilloscopeFragment();
@@ -158,6 +158,10 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
         mRedrawer.start();
 
+        myActionbar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+
+
+
         // Gesture and detectors
         // --------------------
         mDetector = new GestureDetectorCompat(mContext, this);
@@ -250,18 +254,15 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
+
         Log.d("DEBUG_TAG", "Single TAP Confirmed!");
-        if(myActionbar.isShowing())
-        {
+        if (myActionbar.isShowing()) {
             myActionbar.hide();
-        }
-        else
-        {
+        } else {
             myActionbar.show();
         }
         return false;
     }
-
 
 
     private class ScaleListener
@@ -269,12 +270,10 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
 
-            if(detector.getCurrentSpanX() > detector.getCurrentSpanY())
-            {
+            if (detector.getCurrentSpanX() > detector.getCurrentSpanY()) {
                 //TODO appeler le callback scaleX
                 //mScaleFactorX *= detector.getScaleFactor();
-            }else
-            {
+            } else {
                 //TODO appeler le callback scaleY
                 //mScaleFactorY *= detector.getScaleFactor();
             }
