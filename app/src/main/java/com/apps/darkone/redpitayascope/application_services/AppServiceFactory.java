@@ -1,5 +1,7 @@
 package com.apps.darkone.redpitayascope.application_services;
 
+import android.content.Context;
+
 import com.apps.darkone.redpitayascope.app_service_sap.IAppService;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.OscilloscopeServiceImpl;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOscilloscopeApp;
@@ -13,6 +15,9 @@ public class AppServiceFactory {
 
     private static IAppService mOscilloApp;
     private static IAppService mSpectrumApp;
+
+
+    private static AppServiceManager mAppServiceManager;
 
 
     public static IOscilloscopeApp getOscilloscopeInstance()
@@ -33,6 +38,17 @@ public class AppServiceFactory {
         }
 
         return (ISpectrumApp) mSpectrumApp;
+    }
+
+
+    public static AppServiceManager getAppServiceManager(Context context)
+    {
+        if(null == mAppServiceManager)
+        {
+            mAppServiceManager = new AppServiceManager(context);
+        }
+
+        return  mAppServiceManager;
     }
 
 }

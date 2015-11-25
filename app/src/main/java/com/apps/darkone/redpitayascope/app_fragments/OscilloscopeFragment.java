@@ -4,7 +4,6 @@ package com.apps.darkone.redpitayascope.app_fragments;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBar;
@@ -16,33 +15,30 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
-import android.widget.TextView;
 
 import com.androidplot.Plot;
 import com.androidplot.util.Redrawer;
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
-import com.androidplot.xy.PointLabelFormatter;
 import com.androidplot.xy.XYPlot;
-import com.apps.darkone.glplot.SignalChartView;
 import com.apps.darkone.redpitayascope.R;
-import com.apps.darkone.redpitayascope.application_services.AppServiceFactory;
+import com.apps.darkone.redpitayascope.app_controller.OscilloscopeFragmentControllerApp;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.OscilloscopeTimeValueSerie;
-import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOnChannelsValueListener;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelEnum;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOscilloscopeApp;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.OscilloscopeMode;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TriggerEdge;
 
 import java.util.Arrays;
 
 /**
  * Created by DarkOne on 02.11.15.
  */
-public class OscilloscopeFragment extends Fragment implements IOnChannelsValueListener, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener{
+public class OscilloscopeFragment extends Fragment implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener, IAppFragmentView {
 
     private Context mContext;
-    private XYPlot plot;
+    private XYPlot mOscPlot;
     private IOscilloscopeApp mOscilloscopeApp;
     private LineAndPointFormatter mChannelFormaterCh1;
     private LineAndPointFormatter mChannelFormaterCh2;
@@ -69,6 +65,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     private TableLayout butTimeSettings;
     private TableLayout butC1Settings;
     private TableLayout butC2Settings;
+    private OscilloscopeFragmentControllerApp mOscilloscopeFragmentController;
 
     public static OscilloscopeFragment newInstance() {
         OscilloscopeFragment settingFragment = new OscilloscopeFragment();
@@ -80,10 +77,6 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         // TODO Auto-generated method stub
         super.onAttach(context);
         mContext = context;
-
-        // Add the listener for the new value
-        mOscilloscopeApp = AppServiceFactory.getOscilloscopeInstance();
-        mOscilloscopeApp.addAppValuesListener(this);
 
     }
 
@@ -102,31 +95,31 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
 
         //initialize our XYPlot reference:
-        plot = (XYPlot) rootView.findViewById(R.id.mySimpleXYPlot);
+        mOscPlot = (XYPlot) rootView.findViewById(R.id.mySimpleXYPlot);
 
 
         // reduce the number of range labels
-        plot.setBackgroundPaint(null);
-        plot.setBorderPaint(null);
-        plot.setBackground(null);
-        plot.setLayerPaint(null);
-        plot.setRenderMode(Plot.RenderMode.USE_BACKGROUND_THREAD);
-        plot.setTicksPerRangeLabel(3);
-        plot.getGraphWidget().
+        mOscPlot.setBackgroundPaint(null);
+        mOscPlot.setBorderPaint(null);
+        mOscPlot.setBackground(null);
+        mOscPlot.setLayerPaint(null);
+        mOscPlot.setRenderMode(Plot.RenderMode.USE_BACKGROUND_THREAD);
+        mOscPlot.setTicksPerRangeLabel(3);
+        mOscPlot.getGraphWidget().
 
                 setDomainLabelOrientation(-45);
 
-        plot.setDomainBoundaries(0, BoundaryMode.FIXED, 131, BoundaryMode.FIXED);
-        plot.setRangeBoundaries(-5, BoundaryMode.FIXED, 5, BoundaryMode.FIXED);
-        plot.getGraphWidget().
+        mOscPlot.setDomainBoundaries(0, BoundaryMode.FIXED, 131, BoundaryMode.FIXED);
+        mOscPlot.setRangeBoundaries(-5, BoundaryMode.FIXED, 5, BoundaryMode.FIXED);
+        mOscPlot.getGraphWidget().
 
                 setGridBackgroundPaint(null);
 
-        plot.getGraphWidget().
+        mOscPlot.getGraphWidget().
 
                 setClippingEnabled(true);
 
-        plot.setDomainLabel(timeUnits);
+        mOscPlot.setDomainLabel(timeUnits);
 
 
         mChannelFormaterCh1 = new
@@ -146,20 +139,20 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
                 OscilloscopeTimeValueSerie(OSC_SERIE_NAME);
 
-        plot.addSeries(mOscilloscopeSerieCh1, mChannelFormaterCh1);
+        mOscPlot.addSeries(mOscilloscopeSerieCh1, mChannelFormaterCh1);
 
         mOscilloscopeSerieCh2 = new
 
                 OscilloscopeTimeValueSerie(OSC_SERIE_NAME);
 
-        plot.addSeries(mOscilloscopeSerieCh2, mChannelFormaterCh2);
+        mOscPlot.addSeries(mOscilloscopeSerieCh2, mChannelFormaterCh2);
 
 
         mRedrawer = new
 
                 Redrawer(
                 Arrays.asList(new Plot[]{
-                                plot
+                                mOscPlot
                         }
                 ),
                 20, false);
@@ -167,8 +160,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
         mRedrawer.start();
 
-        myActionbar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-
+        myActionbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
 
         // Gesture and detectors
@@ -183,12 +175,10 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         // Set des gestures sur les boutons
         // ---------------------------------
         butOscMode = (TableLayout) rootView.findViewById(R.id.oscMode);
-        butOscMode.setOnTouchListener(new View.OnTouchListener(){
+        butOscMode.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event)
-            {
-                switch(event.getAction())
-                {
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
                     case (MotionEvent.ACTION_UP):
                         Log.d("DEBUG_TAG", "On button release OscMode Event!");
                         break;
@@ -216,6 +206,11 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
             }
         });
 
+
+        // View controller instance and start
+        mOscilloscopeFragmentController = new OscilloscopeFragmentControllerApp(this, this.mContext);
+        mOscilloscopeFragmentController.startController();
+
         return rootView;
     }
 
@@ -230,20 +225,55 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     @Override
     public void onDestroyView() {
 
-        mOscilloscopeApp = AppServiceFactory.getOscilloscopeInstance();
-        this.mOscilloscopeApp.removeAppValuesListener(this);
-
         mRedrawer.finish();
+        mOscilloscopeFragmentController.stopController();
 
         super.onDestroyView();
     }
 
+
+    /**
+     * UPDATE METHODS
+     */
+
     @Override
-    public void onNewValues(Number[][][] newValuesArray) {
+    public void updateGraphValues(Number[][][] newValuesArray) {
+
+        // TODO implements the case when a channel is disable
+
         mOscilloscopeSerieCh1.updateFromXYSerie(newValuesArray[0][0], newValuesArray[0][1]);
         mOscilloscopeSerieCh2.updateFromXYSerie(newValuesArray[1][0], newValuesArray[1][1]);
     }
 
+    @Override
+    public void updateTimeRange(int tMin, int tMax) {
+        mOscPlot.setDomainBoundaries(tMin, BoundaryMode.FIXED, tMax, BoundaryMode.FIXED);
+    }
+
+    @Override
+    public void updateTriggerValue(float triggerValue) {
+
+    }
+
+    @Override
+    public void updateTriggerMode(TriggerEdge trigEdge) {
+
+    }
+
+    @Override
+    public void updateSelectedChannel(ChannelEnum[] selectedChannel) {
+
+    }
+
+    @Override
+    public void updateOscMode(OscilloscopeMode mode) {
+
+    }
+
+
+    /**
+     * TOUCH METHODS
+     */
 
     @Override
     public boolean onDown(MotionEvent e) {
@@ -306,18 +336,15 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     }
 
 
-
     private class ScaleListener
             extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
 
-            if(detector.getCurrentSpanX() > detector.getCurrentSpanY())
-            {
+            if (detector.getCurrentSpanX() > detector.getCurrentSpanY()) {
                 //TODO appeler le callback scaleX
                 //mScaleFactorX *= detector.getScaleFactor();
-            }else
-            {
+            } else {
                 //TODO appeler le callback scaleY
                 //mScaleFactorY *= detector.getScaleFactor();
             }
