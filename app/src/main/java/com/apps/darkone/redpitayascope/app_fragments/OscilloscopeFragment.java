@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.ScaleGestureDetectorCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -29,6 +30,7 @@ import com.androidplot.xy.PointLabelFormatter;
 import com.androidplot.xy.XYPlot;
 import com.apps.darkone.glplot.SignalChartView;
 import com.apps.darkone.redpitayascope.R;
+import com.apps.darkone.redpitayascope.app_controler.OscilloscopeFragmentController;
 import com.apps.darkone.redpitayascope.application_services.AppServiceFactory;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.OscilloscopeTimeValueSerie;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOnChannelsValueListener;
@@ -39,7 +41,7 @@ import java.util.Arrays;
 /**
  * Created by DarkOne on 02.11.15.
  */
-public class OscilloscopeFragment extends Fragment implements IOnChannelsValueListener, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener{
+public class OscilloscopeFragment extends Fragment implements IOnChannelsValueListener, iFragmentUpdate {
 
     private Context mContext;
     private XYPlot plot;
@@ -47,7 +49,6 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     private LineAndPointFormatter mChannelFormaterCh1;
     private LineAndPointFormatter mChannelFormaterCh2;
     private String timeUnits;
-    private GestureDetector.SimpleOnGestureListener mGestureListener;
     private double actualTriggerLevel;
 
 
@@ -58,8 +59,6 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
 
     private static final String OSC_SERIE_NAME = "";
-    private GestureDetectorCompat mDetector;
-    private ScaleGestureDetector mScaleDetector;
 
     private ActionBar myActionbar;
 
@@ -69,6 +68,17 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     private TableLayout butTimeSettings;
     private TableLayout butC1Settings;
     private TableLayout butC2Settings;
+
+    private GestureDetectorCompat butOscModeDetector;
+    private GestureDetectorCompat butTrigSettingsDetector;
+    private GestureDetectorCompat butTimeSettingsDetector;
+    private GestureDetectorCompat butC1SettingsDetector;
+    private GestureDetectorCompat butC2SettingsDetector;
+    private GestureDetectorCompat XYPlotDetector;
+    private ScaleGestureDetectorCompat XYPlotScaleDetector;
+
+    private iTouchInterface oscilloscopeFragmentController;
+
 
     public static OscilloscopeFragment newInstance() {
         OscilloscopeFragment settingFragment = new OscilloscopeFragment();
@@ -167,29 +177,218 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
         mRedrawer.start();
 
-        // Gesture and detectors
-        // --------------------
-        // Set gesture detector & doubleTap
-        mDetector = new GestureDetectorCompat(mContext, this);
-        mDetector.setOnDoubleTapListener(this);
+        myActionbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
-        // Set scale detector
-        mScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener());
+
+        // butOscModeDetector gesture detector
+        butOscModeDetector = new GestureDetectorCompat(mContext, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e)
+            {
+                return false;
+            }
+            
+        });
+
+
+
+        // butTrigSettingsDetector gesture detector
+        butTrigSettingsDetector = new GestureDetector(mContext, new GestureDetector.OnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public void onShowPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                return false;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                return false;
+            }
+        });
+
+        // butTimeSettingsDetector gesture detector
+        butTimeSettingsDetector = new GestureDetector(mContext, new GestureDetector.OnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public void onShowPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                return false;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                return false;
+            }
+        });
+
+        // butC1SettingsDetector gesture detector
+        butC1SettingsDetector = new GestureDetector(mContext, new GestureDetector.OnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public void onShowPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                return false;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                return false;
+            }
+        });
+
+        // butC2SettingsDetector gesture detector
+        butC2SettingsDetector = new GestureDetector(mContext, new GestureDetector.OnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public void onShowPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                return false;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                return false;
+            }
+        });
+
+        // XYPlot gesture detector
+        XYPlotDetector = new GestureDetectorCompat(mContext, new GestureDetector.OnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public void onShowPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                return false;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                return false;
+            }
+        }
+
+
+                // XYPlot gesture scale detector
+                XYPlotScaleDetector = new ScaleGestureDetector(mContext, new ScaleGestureDetector.OnScaleGestureListener() {
+                    @Override
+                    public boolean onScale(ScaleGestureDetector detector) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onScaleBegin(ScaleGestureDetector detector) {
+                        return false;
+                    }
+
+                    @Override
+                    public void onScaleEnd(ScaleGestureDetector detector) {
+
+                    }
+                });
 
         // Set des gestures sur les boutons
         // ---------------------------------
         butOscMode = (TableLayout) rootView.findViewById(R.id.oscMode);
-        butOscMode.setOnTouchListener(new View.OnTouchListener(){
+        butOscMode.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event)
-            {
-                switch(event.getAction())
-                {
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
                     case (MotionEvent.ACTION_UP):
                         Log.d("DEBUG_TAG", "On button release OscMode Event!");
                         break;
                 }
                 Log.d("DEBUG_TAG", "On Touch OscMode Event!");
+
                 return true;
             }
 
@@ -201,16 +400,11 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         butC1Settings = (TableLayout) rootView.findViewById(R.id.chan1);
         butC2Settings = (TableLayout) rootView.findViewById(R.id.chan2);
         // Link objects to the touchlistener
-        rootView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
+        rootView.setOnTouchListener(this);
 
-                mScaleDetector.onTouchEvent(event);
-                mDetector.onTouchEvent(event);
 
-                return true;
-            }
-        });
+        oscilloscopeFragmentController = (iTouchInterface) new OscilloscopeFragmentController(this); // this = iFragmentInterface
+
 
         return rootView;
     }
@@ -220,6 +414,11 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+    }
+
+    private void touchAnalyse(View v, MotionEvent event) {
+
+
     }
 
 
@@ -292,17 +491,19 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
         Log.d("DEBUG_TAG", "Single TAP Confirmed!");
-        if(myActionbar.isShowing())
-        {
+        if (myActionbar.isShowing()) {
             myActionbar.hide();
-        }
-        else
-        {
+        } else {
             myActionbar.show();
         }
         return false;
     }
 
+
+    @Override
+    public void update() {
+        Log.d("DEBUG_TAG", "Update()");
+    }
 
 
     private class ScaleListener
@@ -310,12 +511,10 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
 
-            if(detector.getCurrentSpanX() > detector.getCurrentSpanY())
-            {
+            if (detector.getCurrentSpanX() > detector.getCurrentSpanY()) {
                 //TODO appeler le callback scaleX
                 //mScaleFactorX *= detector.getScaleFactor();
-            }else
-            {
+            } else {
                 //TODO appeler le callback scaleY
                 //mScaleFactorY *= detector.getScaleFactor();
             }
