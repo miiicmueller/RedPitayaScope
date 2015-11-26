@@ -4,7 +4,6 @@ package com.apps.darkone.redpitayascope.app_fragments;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ScaleGestureDetectorCompat;
@@ -17,34 +16,33 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
-import android.widget.TextView;
 
 import com.androidplot.Plot;
 import com.androidplot.util.Redrawer;
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
-import com.androidplot.xy.PointLabelFormatter;
 import com.androidplot.xy.XYPlot;
-import com.apps.darkone.glplot.SignalChartView;
 import com.apps.darkone.redpitayascope.R;
-import com.apps.darkone.redpitayascope.app_controler.OscilloscopeFragmentController;
-import com.apps.darkone.redpitayascope.application_services.AppServiceFactory;
+import com.apps.darkone.redpitayascope.app_controller.ITouchAppViewController;
+import com.apps.darkone.redpitayascope.app_controller.OscilloscopeFragmentControllerApp;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.OscilloscopeTimeValueSerie;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelEnum;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOnChannelsValueListener;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOscilloscopeApp;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.OscilloscopeMode;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TriggerEdge;
 
 import java.util.Arrays;
 
 /**
  * Created by DarkOne on 02.11.15.
  */
-public class OscilloscopeFragment extends Fragment implements IOnChannelsValueListener, iFragmentUpdate {
+public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
+
 
     private Context mContext;
-    private XYPlot plot;
+    private XYPlot mOscPlot;
     private IOscilloscopeApp mOscilloscopeApp;
     private LineAndPointFormatter mChannelFormaterCh1;
     private LineAndPointFormatter mChannelFormaterCh2;
@@ -68,6 +66,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     private TableLayout butTimeSettings;
     private TableLayout butC1Settings;
     private TableLayout butC2Settings;
+    private OscilloscopeFragmentControllerApp mOscilloscopeFragmentController;
 
     private GestureDetectorCompat butOscModeDetector;
     private GestureDetectorCompat butTrigSettingsDetector;
@@ -75,9 +74,9 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     private GestureDetectorCompat butC1SettingsDetector;
     private GestureDetectorCompat butC2SettingsDetector;
     private GestureDetectorCompat XYPlotDetector;
-    private ScaleGestureDetectorCompat XYPlotScaleDetector;
+    private ScaleGestureDetector XYPlotScaleDetector;
 
-    private iTouchInterface oscilloscopeFragmentController;
+    private ITouchAppViewController oscilloscopeFragmentController;
 
 
     public static OscilloscopeFragment newInstance() {
@@ -90,10 +89,6 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         // TODO Auto-generated method stub
         super.onAttach(context);
         mContext = context;
-
-        // Add the listener for the new value
-        mOscilloscopeApp = AppServiceFactory.getOscilloscopeInstance();
-        mOscilloscopeApp.addAppValuesListener(this);
 
     }
 
@@ -112,31 +107,31 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
 
         //initialize our XYPlot reference:
-        plot = (XYPlot) rootView.findViewById(R.id.mySimpleXYPlot);
+        mOscPlot = (XYPlot) rootView.findViewById(R.id.mySimpleXYPlot);
 
 
         // reduce the number of range labels
-        plot.setBackgroundPaint(null);
-        plot.setBorderPaint(null);
-        plot.setBackground(null);
-        plot.setLayerPaint(null);
-        plot.setRenderMode(Plot.RenderMode.USE_BACKGROUND_THREAD);
-        plot.setTicksPerRangeLabel(3);
-        plot.getGraphWidget().
+        mOscPlot.setBackgroundPaint(null);
+        mOscPlot.setBorderPaint(null);
+        mOscPlot.setBackground(null);
+        mOscPlot.setLayerPaint(null);
+        mOscPlot.setRenderMode(Plot.RenderMode.USE_BACKGROUND_THREAD);
+        mOscPlot.setTicksPerRangeLabel(3);
+        mOscPlot.getGraphWidget().
 
                 setDomainLabelOrientation(-45);
 
-        plot.setDomainBoundaries(0, BoundaryMode.FIXED, 131, BoundaryMode.FIXED);
-        plot.setRangeBoundaries(-5, BoundaryMode.FIXED, 5, BoundaryMode.FIXED);
-        plot.getGraphWidget().
+        mOscPlot.setDomainBoundaries(0, BoundaryMode.FIXED, 131, BoundaryMode.FIXED);
+        mOscPlot.setRangeBoundaries(-5, BoundaryMode.FIXED, 5, BoundaryMode.FIXED);
+        mOscPlot.getGraphWidget().
 
                 setGridBackgroundPaint(null);
 
-        plot.getGraphWidget().
+        mOscPlot.getGraphWidget().
 
                 setClippingEnabled(true);
 
-        plot.setDomainLabel(timeUnits);
+        mOscPlot.setDomainLabel(timeUnits);
 
 
         mChannelFormaterCh1 = new
@@ -156,20 +151,20 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
 
                 OscilloscopeTimeValueSerie(OSC_SERIE_NAME);
 
-        plot.addSeries(mOscilloscopeSerieCh1, mChannelFormaterCh1);
+        mOscPlot.addSeries(mOscilloscopeSerieCh1, mChannelFormaterCh1);
 
         mOscilloscopeSerieCh2 = new
 
                 OscilloscopeTimeValueSerie(OSC_SERIE_NAME);
 
-        plot.addSeries(mOscilloscopeSerieCh2, mChannelFormaterCh2);
+        mOscPlot.addSeries(mOscilloscopeSerieCh2, mChannelFormaterCh2);
 
 
         mRedrawer = new
 
                 Redrawer(
                 Arrays.asList(new Plot[]{
-                                plot
+                                mOscPlot
                         }
                 ),
                 20, false);
@@ -183,17 +178,15 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         // butOscModeDetector gesture detector
         butOscModeDetector = new GestureDetectorCompat(mContext, new GestureDetector.SimpleOnGestureListener() {
             @Override
-            public boolean onDoubleTap(MotionEvent e)
-            {
+            public boolean onDoubleTap(MotionEvent e) {
                 return false;
             }
-            
+
         });
 
 
-
         // butTrigSettingsDetector gesture detector
-        butTrigSettingsDetector = new GestureDetector(mContext, new GestureDetector.OnGestureListener() {
+        butTrigSettingsDetector = new GestureDetectorCompat(mContext, new GestureDetector.OnGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
                 return false;
@@ -226,7 +219,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         });
 
         // butTimeSettingsDetector gesture detector
-        butTimeSettingsDetector = new GestureDetector(mContext, new GestureDetector.OnGestureListener() {
+        butTimeSettingsDetector = new GestureDetectorCompat(mContext, new GestureDetector.OnGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
                 return false;
@@ -259,7 +252,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         });
 
         // butC1SettingsDetector gesture detector
-        butC1SettingsDetector = new GestureDetector(mContext, new GestureDetector.OnGestureListener() {
+        butC1SettingsDetector = new GestureDetectorCompat(mContext, new GestureDetector.OnGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
                 return false;
@@ -292,7 +285,7 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         });
 
         // butC2SettingsDetector gesture detector
-        butC2SettingsDetector = new GestureDetector(mContext, new GestureDetector.OnGestureListener() {
+        butC2SettingsDetector = new GestureDetectorCompat(mContext, new GestureDetector.OnGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
                 return false;
@@ -355,38 +348,36 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
                 return false;
             }
-        }
+        });
 
 
-                // XYPlot gesture scale detector
-                XYPlotScaleDetector = new ScaleGestureDetector(mContext, new ScaleGestureDetector.OnScaleGestureListener() {
-                    @Override
-                    public boolean onScale(ScaleGestureDetector detector) {
-                        return false;
-                    }
+        // XYPlot gesture scale detector
+        XYPlotScaleDetector = new ScaleGestureDetector(mContext, new ScaleGestureDetector.OnScaleGestureListener() {
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                return false;
+            }
 
-                    @Override
-                    public boolean onScaleBegin(ScaleGestureDetector detector) {
-                        return false;
-                    }
+            @Override
+            public boolean onScaleBegin(ScaleGestureDetector detector) {
+                return false;
+            }
 
-                    @Override
-                    public void onScaleEnd(ScaleGestureDetector detector) {
+            @Override
+            public void onScaleEnd(ScaleGestureDetector detector) {
 
-                    }
-                });
+            }
+        });
 
-        // Set des gestures sur les boutons
-        // ---------------------------------
-        butOscMode = (TableLayout) rootView.findViewById(R.id.oscMode);
+                // Set des gestures sur les boutons
+                // ---------------------------------
+                butOscMode = (TableLayout) rootView.findViewById(R.id.oscMode);
+
         butOscMode.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case (MotionEvent.ACTION_UP):
-                        Log.d("DEBUG_TAG", "On button release OscMode Event!");
-                        break;
-                }
+
+                butOscModeDetector.onTouchEvent(event);
                 Log.d("DEBUG_TAG", "On Touch OscMode Event!");
 
                 return true;
@@ -399,12 +390,15 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
         butTimeSettings = (TableLayout) rootView.findViewById(R.id.timeBase);
         butC1Settings = (TableLayout) rootView.findViewById(R.id.chan1);
         butC2Settings = (TableLayout) rootView.findViewById(R.id.chan2);
-        // Link objects to the touchlistener
-        rootView.setOnTouchListener(this);
 
 
-        oscilloscopeFragmentController = (iTouchInterface) new OscilloscopeFragmentController(this); // this = iFragmentInterface
 
+        oscilloscopeFragmentController = (ITouchAppViewController) new OscilloscopeFragmentControllerApp(this,mContext); // this = iFragmentInterface
+
+
+        // View controller instance and start
+        mOscilloscopeFragmentController = new OscilloscopeFragmentControllerApp(this, this.mContext);
+        mOscilloscopeFragmentController.startController();
 
         return rootView;
     }
@@ -425,108 +419,138 @@ public class OscilloscopeFragment extends Fragment implements IOnChannelsValueLi
     @Override
     public void onDestroyView() {
 
-        mOscilloscopeApp = AppServiceFactory.getOscilloscopeInstance();
-        this.mOscilloscopeApp.removeAppValuesListener(this);
-
         mRedrawer.finish();
+        mOscilloscopeFragmentController.stopController();
 
         super.onDestroyView();
     }
 
+
+    /**
+     * UPDATE METHODS
+     */
+
     @Override
-    public void onNewValues(Number[][][] newValuesArray) {
+    public void updateGraphValues(Number[][][] newValuesArray) {
+
+        // TODO implements the case when a channel is disable
+
         mOscilloscopeSerieCh1.updateFromXYSerie(newValuesArray[0][0], newValuesArray[0][1]);
         mOscilloscopeSerieCh2.updateFromXYSerie(newValuesArray[1][0], newValuesArray[1][1]);
     }
 
-
     @Override
-    public boolean onDown(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public void onShowPress(MotionEvent e) {
-
+    public void updateTimeRange(int tMin, int tMax) {
+        mOscPlot.setDomainBoundaries(tMin, BoundaryMode.FIXED, tMax, BoundaryMode.FIXED);
     }
 
     @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-        Log.d("DEBUG_TAG", "On Single TAP Up Event!");
-        return false;
+    public void updateTriggerValue(float triggerValue) {
+
     }
 
     @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        Log.d("DEBUG_TAG", "On Scroll Event!");
-        //TODO appeler le callback on scroll event
-        return false;
+    public void updateTriggerMode(TriggerEdge trigEdge) {
+
     }
 
     @Override
-    public void onLongPress(MotionEvent e) {
-        // TODO appeler le callback logpressgesture
-        Log.d("DEBUG_TAG", "LongPress Event!");
+    public void updateSelectedChannel(ChannelEnum[] selectedChannel) {
+
     }
 
     @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        Log.d("DEBUG_TAG", "On Flint!");
-        return false;
-    }
+    public void updateOscMode(OscilloscopeMode mode) {
 
-    @Override
-    public boolean onDoubleTap(MotionEvent e) {
-        Log.d("DEBUG_TAG", "Double TAP!");
-        return false;
-    }
-
-    @Override
-    public boolean onDoubleTapEvent(MotionEvent e) {
-        Log.d("DEBUG_TAG", "Double TAP Event!");
-        // TODO appeler le callback doubletap
-        return false;
-    }
-
-    @Override
-    public boolean onSingleTapConfirmed(MotionEvent e) {
-        Log.d("DEBUG_TAG", "Single TAP Confirmed!");
-        if (myActionbar.isShowing()) {
-            myActionbar.hide();
-        } else {
-            myActionbar.show();
-        }
-        return false;
     }
 
 
-    @Override
-    public void update() {
-        Log.d("DEBUG_TAG", "Update()");
-    }
+    /**
+     * TOUCH METHODS
+     */
 
-
-    private class ScaleListener
-            extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-
-            if (detector.getCurrentSpanX() > detector.getCurrentSpanY()) {
-                //TODO appeler le callback scaleX
-                //mScaleFactorX *= detector.getScaleFactor();
-            } else {
-                //TODO appeler le callback scaleY
-                //mScaleFactorY *= detector.getScaleFactor();
-            }
-
-            // Don't let the object get too small or too large.
-            //mScaleFactorX = Math.max(0.1f, Math.min(mScaleFactorX, 5.0f));
-            //mScaleFactorY = Math.max(0.1f, Math.min(mScaleFactorY, 5.0f));
-
-            //Log.d("DEBUG_TAG", String.format("Scale factor:\tX = %f\tY = %f", mScaleFactorX, mScaleFactorY));
-
-            return true;
-        }
-    }
+//    @Override
+//    public boolean onDown(MotionEvent e) {
+//        return false;
+//    }
+//
+//    @Override
+//    public void onShowPress(MotionEvent e) {
+//
+//    }
+//
+//    @Override
+//    public boolean onSingleTapUp(MotionEvent e) {
+//        Log.d("DEBUG_TAG", "On Single TAP Up Event!");
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+//        Log.d("DEBUG_TAG", "On Scroll Event!");
+//        //TODO appeler le callback on scroll event
+//        return false;
+//    }
+//
+//    @Override
+//    public void onLongPress(MotionEvent e) {
+//        // TODO appeler le callback logpressgesture
+//        Log.d("DEBUG_TAG", "LongPress Event!");
+//    }
+//
+//    @Override
+//    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+//        Log.d("DEBUG_TAG", "On Flint!");
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean onDoubleTap(MotionEvent e) {
+//        Log.d("DEBUG_TAG", "Double TAP!");
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean onDoubleTapEvent(MotionEvent e) {
+//        Log.d("DEBUG_TAG", "Double TAP Event!");
+//        // TODO appeler le callback doubletap
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean onSingleTapConfirmed(MotionEvent e) {
+//
+//        Log.d("DEBUG_TAG", "Single TAP Confirmed!");
+//        if (myActionbar.isShowing()) {
+//            myActionbar.hide();
+//        } else {
+//            myActionbar.show();
+//        }
+//        return false;
+//    }
+//
+//
+//    private class ScaleListener
+//            extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+//        @Override
+//        public boolean onScale(ScaleGestureDetector detector) {
+//
+//            if (detector.getCurrentSpanX() > detector.getCurrentSpanY()) {
+//                //TODO appeler le callback scaleX
+//                //mScaleFactorX *= detector.getScaleFactor();
+//            } else {
+//                //TODO appeler le callback scaleY
+//                //mScaleFactorY *= detector.getScaleFactor();
+//            }
+//
+//            // Don't let the object get too small or too large.
+//            //mScaleFactorX = Math.max(0.1f, Math.min(mScaleFactorX, 5.0f));
+//            //mScaleFactorY = Math.max(0.1f, Math.min(mScaleFactorY, 5.0f));
+//
+//            //Log.d("DEBUG_TAG", String.format("Scale factor:\tX = %f\tY = %f", mScaleFactorX, mScaleFactorY));
+//
+//            return true;
+//        }
+//    }
 
 }

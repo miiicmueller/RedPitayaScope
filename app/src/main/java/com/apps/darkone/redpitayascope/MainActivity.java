@@ -75,11 +75,8 @@ public class MainActivity extends AppCompatActivity
 
 
         // Setting ip the service manager
-        mAppServiceManager = new AppServiceManager(this.getApplicationContext());
-
+        mAppServiceManager = AppServiceFactory.getAppServiceManager(this.getApplicationContext());
         mAppServiceManager.runServices("192.168.43.112");
-
-        mAppServiceManager.setAppServiceFocus((IAppService) AppServiceFactory.getOscilloscopeInstance());
 
         getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
