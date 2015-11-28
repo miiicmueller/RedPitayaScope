@@ -175,223 +175,161 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         myActionbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
 
-        // butOscModeDetector gesture detector
-        butOscModeDetector = new GestureDetectorCompat(mContext, new GestureDetector.SimpleOnGestureListener() {
+//        // butOscModeDetector gesture detector
+//        butOscModeDetector = new GestureDetectorCompat(mContext, new GestureDetector.SimpleOnGestureListener() {
+//            @Override
+//            public boolean onDoubleTap(MotionEvent e) {
+//                return false;
+//            }
+//
+//        });
+
+        // ---------------------------------------------------------------------------------------------------
+        // Set des gestures sur les boutons et le graphe
+        // ---------------------------------------------------------------------------------------------------
+
+        butOscMode = (TableLayout) rootView.findViewById(R.id.oscMode);
+        butOscModeDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
-                return false;
-            }
-
-        });
-
-
-        // butTrigSettingsDetector gesture detector
-        butTrigSettingsDetector = new GestureDetectorCompat(mContext, new GestureDetector.OnGestureListener() {
-            @Override
-            public boolean onDown(MotionEvent e) {
-                return false;
+                Log.d("DEBUG_TAG", "On DoubleTap OscMode Event!");
+                return super.onDoubleTap(e);
             }
 
             @Override
-            public void onShowPress(MotionEvent e) {
-
-            }
-
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                return false;
-            }
-
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                return false;
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On SingleTapConfirmed OscMode Event!");
+                return super.onSingleTapConfirmed(e);
             }
 
             @Override
             public void onLongPress(MotionEvent e) {
-
-            }
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                return false;
+                Log.d("DEBUG_TAG", "On Longpress OscMode Event!");
+                super.onLongPress(e);
             }
         });
-
-        // butTimeSettingsDetector gesture detector
-        butTimeSettingsDetector = new GestureDetectorCompat(mContext, new GestureDetector.OnGestureListener() {
-            @Override
-            public boolean onDown(MotionEvent e) {
-                return false;
-            }
-
-            @Override
-            public void onShowPress(MotionEvent e) {
-
-            }
-
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                return false;
-            }
-
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                return false;
-            }
-
-            @Override
-            public void onLongPress(MotionEvent e) {
-
-            }
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                return false;
-            }
-        });
-
-        // butC1SettingsDetector gesture detector
-        butC1SettingsDetector = new GestureDetectorCompat(mContext, new GestureDetector.OnGestureListener() {
-            @Override
-            public boolean onDown(MotionEvent e) {
-                return false;
-            }
-
-            @Override
-            public void onShowPress(MotionEvent e) {
-
-            }
-
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                return false;
-            }
-
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                return false;
-            }
-
-            @Override
-            public void onLongPress(MotionEvent e) {
-
-            }
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                return false;
-            }
-        });
-
-        // butC2SettingsDetector gesture detector
-        butC2SettingsDetector = new GestureDetectorCompat(mContext, new GestureDetector.OnGestureListener() {
-            @Override
-            public boolean onDown(MotionEvent e) {
-                return false;
-            }
-
-            @Override
-            public void onShowPress(MotionEvent e) {
-
-            }
-
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                return false;
-            }
-
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                return false;
-            }
-
-            @Override
-            public void onLongPress(MotionEvent e) {
-
-            }
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                return false;
-            }
-        });
-
-        // XYPlot gesture detector
-        XYPlotDetector = new GestureDetectorCompat(mContext, new GestureDetector.OnGestureListener() {
-            @Override
-            public boolean onDown(MotionEvent e) {
-                return false;
-            }
-
-            @Override
-            public void onShowPress(MotionEvent e) {
-
-            }
-
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                return false;
-            }
-
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                return false;
-            }
-
-            @Override
-            public void onLongPress(MotionEvent e) {
-
-            }
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                return false;
-            }
-        });
-
-
-        // XYPlot gesture scale detector
-        XYPlotScaleDetector = new ScaleGestureDetector(mContext, new ScaleGestureDetector.OnScaleGestureListener() {
-            @Override
-            public boolean onScale(ScaleGestureDetector detector) {
-                return false;
-            }
-
-            @Override
-            public boolean onScaleBegin(ScaleGestureDetector detector) {
-                return false;
-            }
-
-            @Override
-            public void onScaleEnd(ScaleGestureDetector detector) {
-
-            }
-        });
-
-                // Set des gestures sur les boutons
-                // ---------------------------------
-                butOscMode = (TableLayout) rootView.findViewById(R.id.oscMode);
-
         butOscMode.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-
                 butOscModeDetector.onTouchEvent(event);
-                Log.d("DEBUG_TAG", "On Touch OscMode Event!");
-
                 return true;
             }
-
         });
-
-
+        // ---------------------
         butTrigSettings = (TableLayout) rootView.findViewById(R.id.trig);
+        butTrigSettingsDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On DoubleTap butTrigSettings Event!");
+                return super.onDoubleTap(e);
+            }
+
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On SingleTapConfirmed butTrigSettings Event!");
+                return super.onSingleTapConfirmed(e);
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On Longpress butTrigSettings Event!");
+                super.onLongPress(e);
+            }
+        });
+        butTrigSettings.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                butTrigSettingsDetector.onTouchEvent(event);
+                return true;
+            }
+        });
+        // ---------------------
         butTimeSettings = (TableLayout) rootView.findViewById(R.id.timeBase);
+        butTimeSettingsDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On DoubleTap butTimeSettings Event!");
+                return super.onDoubleTap(e);
+            }
+
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On SingleTapConfirmed butTimeSettings Event!");
+                return super.onSingleTapConfirmed(e);
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On Longpress butTimeSettings Event!");
+                super.onLongPress(e);
+            }
+        });
+        butTimeSettings.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                butTimeSettingsDetector.onTouchEvent(event);
+                return true;
+            }
+        });
+        // ---------------------
         butC1Settings = (TableLayout) rootView.findViewById(R.id.chan1);
+        butC1SettingsDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On DoubleTap butC1Settings Event!");
+                return super.onDoubleTap(e);
+            }
+
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On SingleTapConfirmed butC1Settings Event!");
+                return super.onSingleTapConfirmed(e);
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On Longpress butC1Settings Event!");
+                super.onLongPress(e);
+            }
+        });
+        butC1Settings.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                butC1SettingsDetector.onTouchEvent(event);
+                return true;
+            }
+        });
+        // ---------------------
         butC2Settings = (TableLayout) rootView.findViewById(R.id.chan2);
+        butC2SettingsDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On DoubleTap butC2Settings Event!");
+                return super.onDoubleTap(e);
+            }
 
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On SingleTapConfirmed butC2Settings Event!");
+                return super.onSingleTapConfirmed(e);
+            }
 
+            @Override
+            public void onLongPress(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On Longpress butC2Settings Event!");
+                super.onLongPress(e);
+            }
+        });
+        butC2Settings.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                butC2SettingsDetector.onTouchEvent(event);
+                return true;
+            }
+        });
+        // ---------------------------------------------------------------------------------------------------
+        // END Set des gestures sur les boutons
+        // ---------------------------------------------------------------------------------------------------
 
         oscilloscopeFragmentController = (ITouchAppViewController) new OscilloscopeFragmentControllerApp(this,mContext); // this = iFragmentInterface
 
@@ -464,93 +402,28 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     }
 
+    // Extend of the gestureDetectorListener
+    // -------------------------------------
 
-    /**
-     * TOUCH METHODS
-     */
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private static final String DEBUG_TAG = "Gestures";
 
-//    @Override
-//    public boolean onDown(MotionEvent e) {
-//        return false;
-//    }
-//
-//    @Override
-//    public void onShowPress(MotionEvent e) {
-//
-//    }
-//
-//    @Override
-//    public boolean onSingleTapUp(MotionEvent e) {
-//        Log.d("DEBUG_TAG", "On Single TAP Up Event!");
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-//        Log.d("DEBUG_TAG", "On Scroll Event!");
-//        //TODO appeler le callback on scroll event
-//        return false;
-//    }
-//
-//    @Override
-//    public void onLongPress(MotionEvent e) {
-//        // TODO appeler le callback logpressgesture
-//        Log.d("DEBUG_TAG", "LongPress Event!");
-//    }
-//
-//    @Override
-//    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-//        Log.d("DEBUG_TAG", "On Flint!");
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean onDoubleTap(MotionEvent e) {
-//        Log.d("DEBUG_TAG", "Double TAP!");
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean onDoubleTapEvent(MotionEvent e) {
-//        Log.d("DEBUG_TAG", "Double TAP Event!");
-//        // TODO appeler le callback doubletap
-//        return false;
-//    }
-//
-//    @Override
-//    public boolean onSingleTapConfirmed(MotionEvent e) {
-//
-//        Log.d("DEBUG_TAG", "Single TAP Confirmed!");
-//        if (myActionbar.isShowing()) {
-//            myActionbar.hide();
-//        } else {
-//            myActionbar.show();
-//        }
-//        return false;
-//    }
-//
-//
-//    private class ScaleListener
-//            extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-//        @Override
-//        public boolean onScale(ScaleGestureDetector detector) {
-//
-//            if (detector.getCurrentSpanX() > detector.getCurrentSpanY()) {
-//                //TODO appeler le callback scaleX
-//                //mScaleFactorX *= detector.getScaleFactor();
-//            } else {
-//                //TODO appeler le callback scaleY
-//                //mScaleFactorY *= detector.getScaleFactor();
-//            }
-//
-//            // Don't let the object get too small or too large.
-//            //mScaleFactorX = Math.max(0.1f, Math.min(mScaleFactorX, 5.0f));
-//            //mScaleFactorY = Math.max(0.1f, Math.min(mScaleFactorY, 5.0f));
-//
-//            //Log.d("DEBUG_TAG", String.format("Scale factor:\tX = %f\tY = %f", mScaleFactorX, mScaleFactorY));
-//
-//            return true;
-//        }
-//    }
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d(DEBUG_TAG,"onDown: " + event.toString());
+            return true;
+        }
 
+        @Override
+        public boolean onFling(MotionEvent event1, MotionEvent event2,
+                               float velocityX, float velocityY) {
+            Log.d(DEBUG_TAG, "onFling: " + event1.toString()+event2.toString());
+            return true;
+        }
+
+        @Override
+        public boolean onDoubleTapEvent(MotionEvent e) {
+            return super.onDoubleTapEvent(e);
+        }
+    }
 }
