@@ -17,4 +17,7 @@
     </style>
 
     <drawable name="actionbar_background">#aa39c9c9</drawable>
+    <color name="button_background_unpressed">#aa39c9c9</color>
+    <color name="button_background_pressed">#aa008080</color>
+    <color name="button_text_color">#000000</color>
 </resources>

@@ -174,21 +174,16 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         myActionbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
-
-//        // butOscModeDetector gesture detector
-//        butOscModeDetector = new GestureDetectorCompat(mContext, new GestureDetector.SimpleOnGestureListener() {
-//            @Override
-//            public boolean onDoubleTap(MotionEvent e) {
-//                return false;
-//            }
-//
-//        });
-
         // ---------------------------------------------------------------------------------------------------
         // Set des gestures sur les boutons et le graphe
+        // Technical reference: http://developer.android.com/training/gestures/detector.html
         // ---------------------------------------------------------------------------------------------------
 
+        // Get object reference
         butOscMode = (TableLayout) rootView.findViewById(R.id.oscMode);
+        // Set background color
+        //butOscMode.setBackgroundColor(0xaa39c9c9);
+        // Set gesture detector
         butOscModeDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
@@ -207,6 +202,20 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 Log.d("DEBUG_TAG", "On Longpress OscMode Event!");
                 super.onLongPress(e);
             }
+
+            @Override
+            public boolean onDown(MotionEvent event) {
+                // set background color when pressed0x009090
+                butOscMode.setBackgroundColor(0xaa008080);
+                return super.onDown(event);
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                // set background color when pressed
+                butOscMode.setBackgroundColor(0xaa39c9c9);
+                return super.onSingleTapUp(e);
+            }
         });
         butOscMode.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -216,7 +225,9 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             }
         });
         // ---------------------
+        // Get object reference
         butTrigSettings = (TableLayout) rootView.findViewById(R.id.trig);
+        // Set gesture detector
         butTrigSettingsDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
@@ -234,6 +245,20 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             public void onLongPress(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On Longpress butTrigSettings Event!");
                 super.onLongPress(e);
+            }
+
+            @Override
+            public boolean onDown(MotionEvent event) {
+                // set background color when pressed0x009090
+                butTrigSettings.setBackgroundColor(0xaa008080);
+                return super.onDown(event);
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                // set background color when pressed
+                butTrigSettings.setBackgroundColor(0xaa39c9c9);
+                return super.onSingleTapUp(e);
             }
         });
         butTrigSettings.setOnTouchListener(new View.OnTouchListener() {
@@ -263,6 +288,20 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 Log.d("DEBUG_TAG", "On Longpress butTimeSettings Event!");
                 super.onLongPress(e);
             }
+
+            @Override
+            public boolean onDown(MotionEvent event) {
+                // set background color when pressed0x009090
+                butTimeSettings.setBackgroundColor(0xaa008080);
+                return super.onDown(event);
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                // set background color when pressed
+                butTimeSettings.setBackgroundColor(0xaa39c9c9);
+                return super.onSingleTapUp(e);
+            }
         });
         butTimeSettings.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -291,6 +330,20 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 Log.d("DEBUG_TAG", "On Longpress butC1Settings Event!");
                 super.onLongPress(e);
             }
+
+            @Override
+            public boolean onDown(MotionEvent event) {
+                // set background color when pressed0x009090
+                butC1Settings.setBackgroundColor(0xaa008080);
+                return super.onDown(event);
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                // set background color when pressed
+                butC1Settings.setBackgroundColor(0xaa39c9c9);
+                return super.onSingleTapUp(e);
+            }
         });
         butC1Settings.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -318,6 +371,20 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             public void onLongPress(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On Longpress butC2Settings Event!");
                 super.onLongPress(e);
+            }
+
+            @Override
+            public boolean onDown(MotionEvent event) {
+                // set background color when pressed0x009090
+                butC2Settings.setBackgroundColor(0xaa008080);
+                return super.onDown(event);
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                // set background color when pressed
+                butC2Settings.setBackgroundColor(0xaa39c9c9);
+                return super.onSingleTapUp(e);
             }
         });
         butC2Settings.setOnTouchListener(new View.OnTouchListener() {
@@ -367,9 +434,9 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         // END Set des gestures sur les boutons et le grahpe
         // ---------------------------------------------------------------------------------------------------
 
+
+
         oscilloscopeFragmentController = (ITouchAppViewController) new OscilloscopeFragmentControllerApp(this,mContext); // this = iFragmentInterface
-
-
         // View controller instance and start
         mOscilloscopeFragmentController = new OscilloscopeFragmentControllerApp(this, this.mContext);
         mOscilloscopeFragmentController.startController();
