@@ -327,8 +327,44 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 return true;
             }
         });
+        // ---------------------
+        // mOscPlot = (TableLayout) rootView.findViewById(R.id.chan2); // This line has been done above...
+        XYPlotDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On DoubleTap mOscPlot Event!");
+                return super.onDoubleTap(e);
+            }
+
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On SingleTapConfirmed mOscPlot Event!");
+                // Show/Hide the action bar
+                if(myActionbar.isShowing())
+                {
+                    myActionbar.hide();
+                }else
+                {
+                    myActionbar.show();
+                }
+                return super.onSingleTapConfirmed(e);
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On Longpress mOscPlot Event!");
+                super.onLongPress(e);
+            }
+        });
+        mOscPlot.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                XYPlotDetector.onTouchEvent(event);
+                return true;
+            }
+        });
         // ---------------------------------------------------------------------------------------------------
-        // END Set des gestures sur les boutons
+        // END Set des gestures sur les boutons et le grahpe
         // ---------------------------------------------------------------------------------------------------
 
         oscilloscopeFragmentController = (ITouchAppViewController) new OscilloscopeFragmentControllerApp(this,mContext); // this = iFragmentInterface
@@ -365,7 +401,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
 
     /**
-     * UPDATE METHODS
+     * UPDATE METHODS OF THE GRAPHE
      */
 
     @Override
@@ -402,9 +438,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     }
 
-    // Extend of the gestureDetectorListener
+    // Internal class: Extend of the gestureDetectorListener
     // -------------------------------------
-
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
         private static final String DEBUG_TAG = "Gestures";
 
