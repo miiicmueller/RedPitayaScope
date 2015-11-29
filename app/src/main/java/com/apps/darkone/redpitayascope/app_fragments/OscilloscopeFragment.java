@@ -386,6 +386,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 butC2Settings.setBackgroundColor(0xaa39c9c9);
                 return super.onSingleTapUp(e);
             }
+
         });
         butC2Settings.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -423,15 +424,33 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 super.onLongPress(e);
             }
         });
+
+        XYPlotScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener(){
+            @Override
+            public boolean onScaleBegin(ScaleGestureDetector detector) {
+                return super.onScaleBegin(detector);
+            }
+
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                return super.onScale(detector);
+            }
+
+            @Override
+            public void onScaleEnd(ScaleGestureDetector detector) {
+                super.onScaleEnd(detector);
+            }
+        });
         mOscPlot.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 XYPlotDetector.onTouchEvent(event);
+                XYPlotScaleDetector.onTouchEvent(event);
                 return true;
             }
         });
         // ---------------------------------------------------------------------------------------------------
-        // END Set des gestures sur les boutons et le grahpe
+        // END Set des gestures sur les boutons et le graphe
         // ---------------------------------------------------------------------------------------------------
 
 
@@ -505,8 +524,9 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     }
 
+    // ----------------------------------------------------------------------------------
     // Internal class: Extend of the gestureDetectorListener
-    // -------------------------------------
+    // ----------------------------------------------------------------------------------
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
         private static final String DEBUG_TAG = "Gestures";
 
@@ -526,6 +546,37 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         @Override
         public boolean onDoubleTapEvent(MotionEvent e) {
             return super.onDoubleTapEvent(e);
+        }
+    }
+
+    // ----------------------------------------------------------------------------------
+    // Internal class: Extend of the ScaleGestureListener
+    // ----------------------------------------------------------------------------------
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+
+//            if(detector.getCurrentSpanX() > detector.getCurrentSpanY())
+//            {
+//                mScaleFactorX *= detector.getScaleFactor();
+//            }else
+//            {
+//                mScaleFactorY *= detector.getScaleFactor();
+//            }
+
+            Log.d("DEBUG_TAG", "Scale action");
+
+            return true;
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            return super.onScaleBegin(detector);
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            super.onScaleEnd(detector);
         }
     }
 }
