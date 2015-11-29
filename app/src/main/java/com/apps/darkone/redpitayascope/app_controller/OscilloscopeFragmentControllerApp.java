@@ -48,21 +48,126 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         mOscilloscopeApp.removeAppValuesListener(this);
     }
 
-
     @Override
-    public void onScaleFactorX(float scaleFactorValue) {
+    public void butOscModeOnDoubleTap() {
 
     }
 
     @Override
-    public void onScaleFactorY(float scaleFactorValue) {
+    public void butOscModeOnSingleTapConfirmed() {
 
     }
 
     @Override
-    public void onDoubleTapGesture() {
+    public void butOscModeOnLongPress() {
 
     }
+
+    @Override
+    public void butTrigSettingsOnDoubleTap() {
+
+    }
+
+    @Override
+    public void butTrigSettingsOnSingleTapConfirmed() {
+
+    }
+
+    @Override
+    public void butTrigSettingsOnLongPress() {
+
+    }
+
+    @Override
+    public void butTimeSettingsOnDoubleTap() {
+
+    }
+
+    @Override
+    public void butTimeSettingsOnSingleTapConfirmed() {
+
+    }
+
+    @Override
+    public void butTimeSettingsOnLongPress() {
+
+    }
+
+    @Override
+    public void butC1SettingsOnDoubleTap() {
+
+    }
+
+    @Override
+    public void butC1SettingsOnSingleTapConfirmed() {
+
+    }
+
+    @Override
+    public void butC1SettingsOnLongPress() {
+
+    }
+
+    @Override
+    public void butC2SettingsOnDoubleTap() {
+
+    }
+
+    @Override
+    public void butC2SettingsOnSingleTapConfirmed() {
+
+    }
+
+    @Override
+    public void butC2SettingsOnLongPress() {
+
+    }
+
+    @Override
+    public void mOscPlotOnDoubleTap() {
+
+    }
+
+    @Override
+    public void mOscPlotOnSingleTapConfirmed() {
+
+    }
+
+    @Override
+    public void mOscPlotOnLongPress() {
+
+    }
+
+    @Override
+    public void mOscPlotOnScroll(float distanceX, float distanceY) {
+
+    }
+
+    @Override
+    public void mOscPlotOnFling(float velocityX, float velocityY) {
+
+    }
+
+    @Override
+    public void mOscPlotOnScaleBegin() {
+
+    }
+
+    @Override
+    public void mOscPlotOnScaleX(float X) {
+
+    }
+
+    @Override
+    public void mOscPlotOnScaleY(float Y) {
+
+    }
+
+    @Override
+    public void mOscPlotOnScaleEnd() {
+
+    }
+
 
     @Override
     public void onNewValues(Number[][][] newValuesArray) {

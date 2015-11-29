@@ -188,18 +188,24 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap OscMode Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butOscModeOnDoubleTap();
                 return super.onDoubleTap(e);
             }
 
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On SingleTapConfirmed OscMode Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butOscModeOnSingleTapConfirmed();
                 return super.onSingleTapConfirmed(e);
             }
 
             @Override
             public void onLongPress(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On Longpress OscMode Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butOscModeOnLongPress();
                 super.onLongPress(e);
             }
 
@@ -216,6 +222,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 butOscMode.setBackgroundColor(0xaa39c9c9);
                 return super.onSingleTapUp(e);
             }
+
         });
         butOscMode.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -232,18 +239,24 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap butTrigSettings Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butTrigSettingsOnDoubleTap();
                 return super.onDoubleTap(e);
             }
 
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On SingleTapConfirmed butTrigSettings Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butTrigSettingsOnSingleTapConfirmed();
                 return super.onSingleTapConfirmed(e);
             }
 
             @Override
             public void onLongPress(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On Longpress butTrigSettings Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butTrigSettingsOnLongPress();
                 super.onLongPress(e);
             }
 
@@ -274,18 +287,24 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap butTimeSettings Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butTimeSettingsOnDoubleTap();
                 return super.onDoubleTap(e);
             }
 
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On SingleTapConfirmed butTimeSettings Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butTimeSettingsOnSingleTapConfirmed();
                 return super.onSingleTapConfirmed(e);
             }
 
             @Override
             public void onLongPress(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On Longpress butTimeSettings Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butTimeSettingsOnLongPress();
                 super.onLongPress(e);
             }
 
@@ -316,18 +335,24 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap butC1Settings Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butC1SettingsOnDoubleTap();
                 return super.onDoubleTap(e);
             }
 
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On SingleTapConfirmed butC1Settings Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butC1SettingsOnSingleTapConfirmed();
                 return super.onSingleTapConfirmed(e);
             }
 
             @Override
             public void onLongPress(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On Longpress butC1Settings Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butC1SettingsOnLongPress();
                 super.onLongPress(e);
             }
 
@@ -358,18 +383,24 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap butC2Settings Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butC2SettingsOnDoubleTap();
                 return super.onDoubleTap(e);
             }
 
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On SingleTapConfirmed butC2Settings Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butC2SettingsOnSingleTapConfirmed();
                 return super.onSingleTapConfirmed(e);
             }
 
             @Override
             public void onLongPress(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On Longpress butC2Settings Event!");
+                // Callback interface
+                oscilloscopeFragmentController.butC2SettingsOnLongPress();
                 super.onLongPress(e);
             }
 
@@ -401,12 +432,16 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap mOscPlot Event!");
+                // Callback interface
+                oscilloscopeFragmentController.mOscPlotOnDoubleTap();
                 return super.onDoubleTap(e);
             }
 
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On SingleTapConfirmed mOscPlot Event!");
+                // Callback interface
+                oscilloscopeFragmentController.mOscPlotOnSingleTapConfirmed();
                 // Show/Hide the action bar
                 if(myActionbar.isShowing())
                 {
@@ -421,23 +456,59 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             @Override
             public void onLongPress(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On Longpress mOscPlot Event!");
+                // Callback interface
+                oscilloscopeFragmentController.mOscPlotOnLongPress();
                 super.onLongPress(e);
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                Log.d("DEBUG_TAG", "On onScroll mOscPlot Event!");
+                // Callback interface
+                oscilloscopeFragmentController.mOscPlotOnScroll(distanceX, distanceY);
+                return super.onScroll(e1, e2, distanceX, distanceY);
+            }
+
+            @Override
+            public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
+                Log.d("DEBUG_TAG", "On onFling mOscPlot Event!");
+                // Callback interface
+                oscilloscopeFragmentController.mOscPlotOnFling(velocityX, velocityY);
+                return super.onFling(event1, event2, velocityX, velocityY);
             }
         });
 
         XYPlotScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener(){
             @Override
             public boolean onScaleBegin(ScaleGestureDetector detector) {
+                // Callback interface
+                oscilloscopeFragmentController.mOscPlotOnScaleBegin();
+                Log.d("DEBUG_TAG", "Scale action begin");
                 return super.onScaleBegin(detector);
             }
 
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
+
+                if(detector.getCurrentSpanX() > detector.getCurrentSpanY())
+                {
+                    // the scalefactor is applied for X, callback interface
+                    Log.d("DEBUG_TAG", "Scale action X");
+                    oscilloscopeFragmentController.mOscPlotOnScaleX(detector.getScaleFactor());
+                }else
+                {
+                    // the scalefactor is applied for Y, callback interface
+                    Log.d("DEBUG_TAG", "Scale action Y");
+                    oscilloscopeFragmentController.mOscPlotOnScaleY(detector.getScaleFactor());
+                }
                 return super.onScale(detector);
             }
 
             @Override
             public void onScaleEnd(ScaleGestureDetector detector) {
+                // Callback interface
+                oscilloscopeFragmentController.mOscPlotOnScaleEnd();
+                Log.d("DEBUG_TAG", "Scale action End");
                 super.onScaleEnd(detector);
             }
         });
@@ -539,7 +610,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         @Override
         public boolean onFling(MotionEvent event1, MotionEvent event2,
                                float velocityX, float velocityY) {
-            Log.d(DEBUG_TAG, "onFling: " + event1.toString()+event2.toString());
             return true;
         }
 
@@ -547,6 +617,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         public boolean onDoubleTapEvent(MotionEvent e) {
             return super.onDoubleTapEvent(e);
         }
+
+
     }
 
     // ----------------------------------------------------------------------------------
@@ -555,17 +627,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-
-//            if(detector.getCurrentSpanX() > detector.getCurrentSpanY())
-//            {
-//                mScaleFactorX *= detector.getScaleFactor();
-//            }else
-//            {
-//                mScaleFactorY *= detector.getScaleFactor();
-//            }
-
-            Log.d("DEBUG_TAG", "Scale action");
-
             return true;
         }
 
