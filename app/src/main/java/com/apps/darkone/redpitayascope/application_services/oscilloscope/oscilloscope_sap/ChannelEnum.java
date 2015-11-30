@@ -4,5 +4,5 @@ package com.apps.darkone.redpitayascope.application_services.oscilloscope.oscill
  * Created by DarkOne on 11.11.15.
  */
 public enum ChannelEnum {
-    CHANNEL1, CHANNEL2
+    CHANNEL1, CHANNEL2, NONE
 }

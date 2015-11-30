@@ -4,6 +4,9 @@ import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscillo
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.OscilloscopeMode;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TriggerEdge;
 
+import java.util.List;
+import java.util.Vector;
+
 /**
  * Created by DarkOne on 25.11.15.
  */
@@ -43,7 +46,14 @@ public interface IAppFragmentView {
      * Update the selected channels
      * @param selectedChannel
      */
-    public void updateSelectedChannel(ChannelEnum[] selectedChannel);
+    public void updateSelectedChannel(ChannelEnum selectedChannel);
+
+
+    /**
+     * Update the enabled channels
+     * @param selectedChannel
+     */
+    public void updateEnabledChannels(Vector<ChannelEnum> selectedChannel);
 
 
     /**
