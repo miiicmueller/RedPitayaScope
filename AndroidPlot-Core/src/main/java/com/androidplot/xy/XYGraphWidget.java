@@ -463,12 +463,7 @@ public class XYGraphWidget extends Widget {
         double triggerTriangleHeight = PixelUtils.dpToPix(6);
         double triggerTriangleMid = PixelUtils.dpToPix(2);
 
-
-        float triggerX = ValPixConverter.valToPix(0.0, plot
-                        .getCalculatedMinX().doubleValue(), plot
-                        .getCalculatedMaxX().doubleValue(), paddedGridRect.width(),
-                false);
-        triggerX += paddedGridRect.left;
+        float triggerX =  gridRect.left ;
 
 
         float triggerY = ValPixConverter.valToPix(triggerLevel.getTriggerLevel(), plot
@@ -479,7 +474,7 @@ public class XYGraphWidget extends Widget {
 
         int canvasState = canvas.save();
 
-        int yOffset = (int) (triggerY + triggerTriangleMid);
+        int yOffset = (int) (triggerY - triggerTriangleMid);
         int xOffset = (int) (triggerX - triggerTriangleHeight);
 
 
@@ -505,13 +500,7 @@ public class XYGraphWidget extends Widget {
         double levelPathLength = PixelUtils.dpToPix(6);
 
 
-        float chan1LevelX = ValPixConverter.valToPix(0.0, plot
-                        .getCalculatedMinX().doubleValue(), plot
-                        .getCalculatedMaxX().doubleValue(), paddedGridRect.width(),
-                false);
-        chan1LevelX += paddedGridRect.left;
-
-
+        float chan1LevelX = gridRect.left;
         float chan1LevelY = ValPixConverter.valToPix(channel1Offset, plot
                         .getCalculatedMinY().doubleValue(), plot
                         .getCalculatedMaxY().doubleValue(),
@@ -519,11 +508,7 @@ public class XYGraphWidget extends Widget {
         chan1LevelY += paddedGridRect.top;
 
 
-        float chan2LevelX = ValPixConverter.valToPix(0.0, plot
-                        .getCalculatedMinX().doubleValue(), plot
-                        .getCalculatedMaxX().doubleValue(), paddedGridRect.width(),
-                false);
-        chan2LevelX += paddedGridRect.left;
+        float chan2LevelX = gridRect.left;
 
 
         float chan2LevelY = ValPixConverter.valToPix(channel2Offset, plot

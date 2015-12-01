@@ -5,6 +5,7 @@ import android.util.Log;
 import com.androidplot.xy.SimpleXYSeries;
 import com.androidplot.xy.XYSeries;
 import com.apps.darkone.redpitayascope.application_services.AppServiceBase;
+import com.apps.darkone.redpitayascope.application_services.IOnAppParamsListener;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelEnum;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelGain;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOnChannelsValueListener;
@@ -29,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 /**
  * Created by DarkOne on 19.10.15.
@@ -127,7 +129,6 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
     private ICommunicationService mCommunicationService;
     private List<IOnChannelsValueListener> mOnChannelsValueListenersList;
 
-
     private double channelsOffset[];
 
 
@@ -157,8 +158,8 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         mParameterManager.addParameter(APP_SERVICE_NAME, TRIG_DELAY, 0.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, TRIG_LEVEL, 0.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, SINGLE_BTN, 0.0, false);
-        mParameterManager.addParameter(APP_SERVICE_NAME, TIME_RANGE, 0.0, false);
-        mParameterManager.addParameter(APP_SERVICE_NAME, TIME_UNITS, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, TIME_RANGE, 0.0, true);
+        mParameterManager.addParameter(APP_SERVICE_NAME, TIME_UNITS, 0.0, true);
         mParameterManager.addParameter(APP_SERVICE_NAME, EN_AVRG, 0.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, AUTO_FLAG, 0.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, YMIN, 0.0, false);
@@ -196,10 +197,10 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         mParameterManager.addParameter(APP_SERVICE_NAME, SCALE_CH2, 1.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, GEN_TRIG_MODE_CH1, 0.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_TYPE_CH1, 0.0, false);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_ENABLE_CH1, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_ENABLE_CH1, 1.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SINGLE_CH1, 0.0, false);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_AMP_CH1, 0.0, false);
-        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_FREQ_CH1, 0.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_AMP_CH1, 2.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_FREQ_CH1, 20000.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_DCOFF_CH1, 0.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, GEN_TRIG_MODE_CH2, 0.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_TYPE_CH2, 0.0, false);
@@ -244,6 +245,7 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         // Add the useful listeners
         mCommunicationService.addOnDataListener(this);
         mCommunicationService.addOnParamListener(this);
+
     }
 
 
@@ -262,15 +264,27 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
 
         try {
 
-            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
-            requestParams = mParameterManager.changeParamInJSON(XMAX, xmax, requestParams);
-            requestParams = mParameterManager.changeParamInJSON(XMIN, xmin, requestParams);
 
-            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+            mParameterManager.changeParamForAll(APP_SERVICE_NAME, XMAX, xmax);
+            mParameterManager.changeParamForAll(APP_SERVICE_NAME, XMIN, xmin);
+            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
+            postParamSafe(requestParams);
 
         } catch (JSONException e) {
             Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
         }
+    }
+
+
+    @Override
+    public double[] getTimeLimits() {
+
+        double[] timeLim = new double[2];
+
+        timeLim[0] = (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, XMIN).getParamValue();
+        timeLim[1] = (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, XMAX).getParamValue();
+
+        return timeLim;
     }
 
     @Override
@@ -282,11 +296,9 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         JSONObject requestParams = null;
 
         try {
-
+            mParameterManager.changeParamForAll(APP_SERVICE_NAME, TRIG_LEVEL, triggerLevel);
             requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
-            requestParams = mParameterManager.changeParamInJSON(TRIG_LEVEL, triggerLevel, requestParams);
-
-            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+            postParamSafe(requestParams);
 
         } catch (JSONException e) {
             Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
@@ -305,11 +317,9 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         JSONObject requestParams = null;
 
         try {
-
+            mParameterManager.changeParamForAll(APP_SERVICE_NAME, TRIG_EDGE, (double) triggerEdgeVal);
             requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
-            requestParams = mParameterManager.changeParamInJSON(TRIG_EDGE, (double) triggerEdgeVal, requestParams);
-
-            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+            postParamSafe(requestParams);
 
         } catch (JSONException e) {
             Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
@@ -328,11 +338,9 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         JSONObject requestParams = null;
 
         try {
-
+            mParameterManager.changeParamForAll(APP_SERVICE_NAME, TRIG_SOURCE, (double) triggerChannel);
             requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
-            requestParams = mParameterManager.changeParamInJSON(TRIG_SOURCE, (double) triggerChannel, requestParams);
-
-            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+            postParamSafe(requestParams);
 
         } catch (JSONException e) {
             Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
@@ -364,16 +372,16 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
 
         try {
 
+            mParameterManager.changeParamForAll(APP_SERVICE_NAME, TRIG_MODE, (double) trigMode);
             requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
-            requestParams = mParameterManager.changeParamInJSON(TRIG_MODE, (double) trigMode, requestParams);
-
-            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+            postParamSafe(requestParams);
 
         } catch (JSONException e) {
             Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
         }
     }
 
+    @Deprecated
     @Override
     public void setTimeUnits(TimeUnits timeUnits) {
 
@@ -400,11 +408,9 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         JSONObject requestParams = null;
 
         try {
-
+            mParameterManager.changeParamForAll(APP_SERVICE_NAME, TIME_UNITS, (double) timeUnitParam);
             requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
-            requestParams = mParameterManager.changeParamInJSON(TIME_UNITS, (double) timeUnitParam, requestParams);
-
-            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+            postParamSafe(requestParams);
 
         } catch (JSONException e) {
             Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
@@ -424,11 +430,9 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         JSONObject requestParams = null;
 
         try {
-
-            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
-            requestParams = mParameterManager.changeParamInJSON(EN_AVRG, (double) averagingStateVal, requestParams);
-
-            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+            mParameterManager.changeParamForAll(APP_SERVICE_NAME, EN_AVRG, (double) averagingStateVal);
+            mParameterManager.getJsonObject(APP_SERVICE_NAME);
+            postParamSafe(requestParams);
 
         } catch (JSONException e) {
             Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
@@ -465,19 +469,18 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
 
         try {
 
-            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
-
             switch (channel) {
                 case CHANNEL1:
-                    requestParams = mParameterManager.changeParamInJSON(PRB_ATT_CH1, (double) channelProbeAtt, requestParams);
+                    mParameterManager.changeParamForAll(APP_SERVICE_NAME, PRB_ATT_CH1, (double) channelProbeAtt);
                     break;
                 case CHANNEL2:
-                    requestParams = mParameterManager.changeParamInJSON(PRB_ATT_CH2, (double) channelProbeAtt, requestParams);
+                    mParameterManager.changeParamForAll(APP_SERVICE_NAME, PRB_ATT_CH2, (double) channelProbeAtt);
                     break;
                 default:
             }
 
-            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
+            postParamSafe(requestParams);
 
         } catch (JSONException e) {
             Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());
@@ -500,19 +503,18 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
 
         try {
 
-            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
-
             switch (channel) {
                 case CHANNEL1:
-                    requestParams = mParameterManager.changeParamInJSON(GAIN_CH1, (double) channelGain, requestParams);
+                    mParameterManager.changeParamForAll(APP_SERVICE_NAME, GAIN_CH1, (double) channelGain);
                     break;
                 case CHANNEL2:
-                    requestParams = mParameterManager.changeParamInJSON(GAIN_CH2, (double) channelGain, requestParams);
+                    mParameterManager.changeParamForAll(APP_SERVICE_NAME, GAIN_CH2, (double) channelGain);
                     break;
                 default:
             }
 
-            mCommunicationService.asyncNewParamsPost(APP_SERVICE_NAME, requestParams);
+            requestParams = mParameterManager.getJsonObject(APP_SERVICE_NAME);
+            postParamSafe(requestParams);
 
         } catch (JSONException e) {
             Log.e(APP_SERVICE_NAME, "Asych. parameters post error : " + e.toString());

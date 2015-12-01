@@ -1,5 +1,6 @@
 package com.apps.darkone.redpitayascope.communication;
 
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
@@ -32,4 +33,8 @@ public class JSONObjectParamsRequest extends JsonObjectRequest {
         return PROTOCOL_CONTENT_TYPE;
     }
 
+    @Override
+    public Priority getPriority() {
+        return Priority.IMMEDIATE;
+    }
 }

@@ -46,6 +46,13 @@ public interface IOscilloscopeApp {
     public void setTimeLimits(Double xmin, Double xmax);
 
     /**
+     * Get the actual time limits
+     * @return
+     */
+    public double[] getTimeLimits();
+
+
+    /**
      * Set the redpitaya trigger level
      *
      * @param triggerLevel= Level in volts

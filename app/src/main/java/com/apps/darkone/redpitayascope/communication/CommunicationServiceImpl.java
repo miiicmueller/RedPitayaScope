@@ -12,6 +12,7 @@ import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
 import com.apps.darkone.redpitayascope.communication.commSAP.ICommunicationService;
 import com.apps.darkone.redpitayascope.communication.commSAP.IOnConnectionListener;
 import com.apps.darkone.redpitayascope.communication.commSAP.IOnDataListener;
@@ -25,6 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by DarkOne on 06.10.15.
@@ -85,7 +90,6 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
         this.mIsRunning = false;
         this.mAppName = "";
         mConnectionState = HARDWARE_CONNECTION_PROBE;
-
 
         Log.d(COMM_IMPL_TAG, "CommunicationServiceImpl created");
     }
@@ -231,7 +235,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
     }
 
     @Override
-    public void asyncNewParamsPost(String appName, final JSONObject params) {
+    public boolean asyncNewParamsPost(String appName, final JSONObject params) {
 
         // First check if the app is the running one + service is UP + communication state is running
         if (mAppName.equals(appName) && isServiceRunning() && mCommState == CommunicationState.running) {
@@ -245,18 +249,69 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
 
                         @Override
                         public void onResponse(JSONObject response) {
-                            Log.d(COMM_IMPL_TAG, "POST response OK");
+                            Log.d(COMM_IMPL_TAG, "POST response : " + response);
+
+                            String status;
+                            String responseAppName;
+                            JSONObject jsonTmpObj;
+
+                            JSONArray jsonObjDataChannels;
+                            JSONObject jsonParamsObj;
+
+
+                            List<Map<Number, Number>> channelsDatasContainer;
+                            List<Map<String, Object>> paramsList;
+
+
+                            //Set the flag that we receive the response
+                            mResponseReceived = true;
+
+                            try {
+                                status = response.getString(JSON_FIELD_STATUS);
+
+                                if (!status.equals(STATUS_ERROR)) {
+
+
+                                    // Get the app id
+                                    jsonTmpObj = response.getJSONObject(JSON_FIELD_APP);
+                                    responseAppName = jsonTmpObj.getString(JSON_FIELD_APP_ID);
+
+                                    // Get the dataset
+                                    jsonTmpObj = response.getJSONObject(JSON_FIELD_DATASET);
+
+                                    // Get the params
+                                    jsonParamsObj = jsonTmpObj.getJSONObject(JSON_FIELD_PARAMS);
+
+
+                                    // Callback the params
+                                    for (IOnParamListener listener : mParamListenerList) {
+                                        listener.newParamsAvailable(responseAppName, jsonParamsObj);
+                                    }
+                                }
+                                else
+                                {
+                                    Log.d(COMM_IMPL_TAG, "POST Params error!");
+                                }
+                            } catch (JSONException e) {
+                                Log.e(COMM_IMPL_TAG, "Response: format error! " + e.toString());
+                            }
+
                         }
                     }, new Response.ErrorListener() {
 
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             Log.d(COMM_IMPL_TAG, "POST Error" + error.toString());
+
                         }
                     });
 
             mRequestQueuePost.add(jsObjRequest);
+            mRequestQueuePost.start();
+            return true;
         }
+
+        return false;
     }
 
     @Override
@@ -479,10 +534,10 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
                                                 listener.newDataAvailable(responseAppName, channelsDatasContainer);
                                             }
 
-                                            // Callback the params
-                                            for (IOnParamListener listener : mParamListenerList) {
-                                                listener.newParamsAvailable(responseAppName, jsonParamsObj);
-                                            }
+//                                            // Callback the params
+//                                            for (IOnParamListener listener : mParamListenerList) {
+//                                                listener.newParamsAvailable(responseAppName, jsonParamsObj);
+//                                            }
                                         } else {
                                             // We get an error. Try to restart the App
                                             mConnectionState = HARDWARE_CONNECTION_PROBE;

@@ -91,8 +91,7 @@ public class AppServiceBase implements IAppService, IOnConnectionListener, IOnPa
     }
 
     @Override
-    public void setOnAppParamsListener(IOnAppParamsListener appParamsListener)
-    {
+    public void setOnAppParamsListener(IOnAppParamsListener appParamsListener) {
         this.mOnAppParamsListener = appParamsListener;
     }
 
@@ -112,6 +111,10 @@ public class AppServiceBase implements IAppService, IOnConnectionListener, IOnPa
         return this.getAppServiceName().equals(appNameToCheck);
     }
 
+    protected void postParamSafe(JSONObject requestParams) {
+        // We can update the parameters
+        mCommunicationService.asyncNewParamsPost(this.mAppName, requestParams);
+    }
 
     @Override
     public void newParamsAvailable(String appName, JSONObject newParams) {
@@ -121,12 +124,12 @@ public class AppServiceBase implements IAppService, IOnConnectionListener, IOnPa
             // Always upload the parameters
             mParameterManager.updateParamsFromJson(appName, newParams);
 
-            if (!mParameterManager.isParamsChanges(appName, newParams)) {
-                Log.d(appName, "New params available...");
+//            if (!mParameterManager.isParamsChanges(appName, newParams)) {
+//                Log.d(appName, "New params available...");
 
                 // Tell listener that new params are available
                 notifyParameterUpdated();
-            }
+//            }
         }
     }
 
@@ -169,8 +172,7 @@ public class AppServiceBase implements IAppService, IOnConnectionListener, IOnPa
 
 
     private void notifyParameterUpdated() {
-        if(mOnAppParamsListener != null)
-        {
+        if (mOnAppParamsListener != null) {
             mOnAppParamsListener.onParametersUpdated();
         }
     }

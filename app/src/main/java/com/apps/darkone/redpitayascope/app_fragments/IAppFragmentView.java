@@ -2,6 +2,7 @@ package com.apps.darkone.redpitayascope.app_fragments;
 
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelEnum;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.OscilloscopeMode;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TimeUnits;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TriggerEdge;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public interface IAppFragmentView {
      * @param tMin
      * @param tMax
      */
-    public void updateTimeRange(int tMin, int tMax);
+    public void updateTimeRange(double tMin, double tMax);
 
 
     /**
@@ -61,6 +62,22 @@ public interface IAppFragmentView {
      * @param mode
      */
     public void updateOscMode(OscilloscopeMode mode);
+
+
+    /**
+     * Update the channels offset
+     * @param channel
+     * @param offset
+     */
+    public void updateChannelsOffset(ChannelEnum channel, double offset);
+
+
+    /**
+     * Update the time units
+     * @param timeUnits
+     */
+    public void updateOscilloscopeTimeUnits(TimeUnits timeUnits);
+
 
 }
 

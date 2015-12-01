@@ -30,6 +30,7 @@ import com.apps.darkone.redpitayascope.application_services.oscilloscope.Oscillo
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelEnum;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOscilloscopeApp;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.OscilloscopeMode;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TimeUnits;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TriggerEdge;
 
 import java.util.Arrays;
@@ -52,6 +53,9 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     private OscilloscopeTimeValueSerie mOscilloscopeSerieCh1;
     private OscilloscopeTimeValueSerie mOscilloscopeSerieCh2;
+    private boolean mChannel1Enabled;
+    private boolean mChannel2Enabled;
+
 
     private Redrawer mRedrawer;
 
@@ -102,7 +106,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         this.timeUnits = "ms";
         this.actualTriggerLevel = 0.0;
-
+        this.mChannel1Enabled = false;
+        this.mChannel2Enabled = false;
 
         //initialize our XYPlot reference:
         mOscPlot = (XYPlot) rootView.findViewById(R.id.mySimpleXYPlot);
@@ -188,6 +193,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 Log.d("DEBUG_TAG", "On DoubleTap OscMode Event!");
                 // Callback interface
                 mOscilloscopeFragmentController.butOscModeOnDoubleTap();
+                butOscMode.setBackgroundColor(0xaa39c9c9);
                 return super.onDoubleTap(e);
             }
 
@@ -196,6 +202,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 Log.d("DEBUG_TAG", "On SingleTapConfirmed OscMode Event!");
                 // Callback interface
                 mOscilloscopeFragmentController.butOscModeOnSingleTapConfirmed();
+                butOscMode.setBackgroundColor(0xaa39c9c9);
                 return super.onSingleTapConfirmed(e);
             }
 
@@ -204,20 +211,22 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 Log.d("DEBUG_TAG", "On Longpress OscMode Event!");
                 // Callback interface
                 mOscilloscopeFragmentController.butOscModeOnLongPress();
+                butOscMode.setBackgroundColor(0xaa39c9c9);
                 super.onLongPress(e);
             }
 
             @Override
             public boolean onDown(MotionEvent event) {
+                Log.d("DEBUG_TAG", "On Down OscMode Event!");
                 // set background color when pressed0x009090
-                butOscMode.setBackgroundColor(0xaa008080);
                 return super.onDown(event);
             }
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
+                Log.d("DEBUG_TAG", "On SingleTapUp OscMode Event!");
                 // set background color when pressed
-                butOscMode.setBackgroundColor(0xaa39c9c9);
+                butOscMode.setBackgroundColor(0xaa008080);
                 return super.onSingleTapUp(e);
             }
 
@@ -546,12 +555,17 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     }
 
+    @Override
+    public void onStop() {
+        mRedrawer.finish();
+        mOscilloscopeFragmentController.stopController();
+
+        super.onStop();
+    }
 
     @Override
     public void onDestroyView() {
 
-        mRedrawer.finish();
-        mOscilloscopeFragmentController.stopController();
 
         super.onDestroyView();
     }
@@ -564,14 +578,21 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     @Override
     public void updateGraphValues(Number[][][] newValuesArray) {
 
-        // TODO implements the case when a channel is disable
+        mRedrawer.pause();
+        mOscilloscopeSerieCh1.clear();
+        mOscilloscopeSerieCh2.clear();
 
-        mOscilloscopeSerieCh1.updateFromXYSerie(newValuesArray[0][0], newValuesArray[0][1]);
-        mOscilloscopeSerieCh2.updateFromXYSerie(newValuesArray[1][0], newValuesArray[1][1]);
+        if (this.mChannel1Enabled) {
+            mOscilloscopeSerieCh1.updateFromXYSerie(newValuesArray[0][0], newValuesArray[0][1]);
+        }
+        if (this.mChannel2Enabled) {
+            mOscilloscopeSerieCh2.updateFromXYSerie(newValuesArray[1][0], newValuesArray[1][1]);
+        }
+        mRedrawer.start();
     }
 
     @Override
-    public void updateTimeRange(int tMin, int tMax) {
+    public void updateTimeRange(double tMin, double tMax) {
         mOscPlot.setDomainBoundaries(tMin, BoundaryMode.FIXED, tMax, BoundaryMode.FIXED);
     }
 
@@ -593,6 +614,19 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     @Override
     public void updateEnabledChannels(Vector<ChannelEnum> enabledChannel) {
         Log.d("DEBUG_TAG", "Enabled channels " + enabledChannel);
+
+        this.mChannel1Enabled = false;
+        this.mChannel2Enabled = false;
+
+        for (ChannelEnum channel : enabledChannel) {
+            if (channel == ChannelEnum.CHANNEL1) {
+                this.mChannel1Enabled = true;
+            } else if (channel == ChannelEnum.CHANNEL2) {
+                this.mChannel2Enabled = true;
+            }
+
+        }
+
     }
 
     @Override
@@ -614,6 +648,45 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             default:
                 break;
         }
+    }
+
+    @Override
+    public void updateChannelsOffset(ChannelEnum channel, double offset) {
+
+        switch (channel) {
+            case CHANNEL1:
+                this.mOscPlot.getGraphWidget().setChannel1Offset((float) offset);
+                break;
+            case CHANNEL2:
+                this.mOscPlot.getGraphWidget().setChannel2Offset((float) offset);
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    @Override
+    public void updateOscilloscopeTimeUnits(TimeUnits timeUnits) {
+
+        switch (timeUnits)
+        {
+            case  NS:
+                this.mOscPlot.setDomainLabel("ns");
+                break;
+            case US:
+                this.mOscPlot.setDomainLabel("us");
+                break;
+            case MS:
+                this.mOscPlot.setDomainLabel("ms");
+                break;
+            case S:
+                this.mOscPlot.setDomainLabel("s");
+                break;
+            default :
+                break;
+        }
+
     }
 
     // ----------------------------------------------------------------------------------

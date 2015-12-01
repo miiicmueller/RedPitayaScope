@@ -38,6 +38,12 @@ public class OscilloscopeTimeValueSerie implements XYSeries {
     }
 
 
+    public void clear()
+    {
+        mSerieSize = 0;
+    }
+
+
     @Override
     public int size() {
         return mSerieSize;
@@ -47,7 +53,8 @@ public class OscilloscopeTimeValueSerie implements XYSeries {
     public Number getX(int index) {
 
         if (index >= mSerieSize) {
-            throw new IllegalArgumentException();
+            //throw new IllegalArgumentException();
+            return 0.0;
         }
         return xBuffer[index];
     }
@@ -55,7 +62,8 @@ public class OscilloscopeTimeValueSerie implements XYSeries {
     @Override
     public Number getY(int index) {
         if (index >= mSerieSize) {
-            throw new IllegalArgumentException();
+            //throw new IllegalArgumentException();
+            return 0.0;
         }
         return yBuffer[index];
     }

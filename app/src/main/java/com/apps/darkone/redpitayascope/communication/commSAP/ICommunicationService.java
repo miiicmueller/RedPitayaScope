@@ -88,8 +88,7 @@ public interface ICommunicationService {
      * @param appName : Application name
      * @param params : parameters to post
      */
-    public void asyncNewParamsPost(String appName, JSONObject params);
-
+    public boolean asyncNewParamsPost(String appName, JSONObject params);
 
     /**
      * Add a listener to be called when some event occur with the communication

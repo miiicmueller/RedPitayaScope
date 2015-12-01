@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.Semaphore;
 
 /**
  * Created by DarkOne on 09.10.15.
@@ -18,7 +19,7 @@ public class ParameterManager {
 
     // Tools
     private Map<String, List<Parameter<Double>>> mAppsParameters;
-
+    private Semaphore semaphore;
 
     private static final String LOG_TAG = "ParameterManager";
 
@@ -28,6 +29,8 @@ public class ParameterManager {
         if (null == this.mAppsParameters) {
             this.mAppsParameters = new TreeMap<>();
         }
+
+        this.semaphore = new Semaphore(1);
     }
 
 
@@ -124,17 +127,26 @@ public class ParameterManager {
 
         if (this.isParamsAlreadyPresent(appName)) {
 
-            // Itération sur la liste
-            for (Parameter<Double> parameter : this.mAppsParameters.get(appName)) {
+            try {
+                this.semaphore.acquire();
+                // Itération sur la liste
+                for (Parameter<Double> parameter : this.mAppsParameters.get(appName)) {
 
-                try {
-                    parameter.setParamValue(newParams.getDouble(parameter.getParamName()));
-                    Log.d(LOG_TAG, "Parameter " + parameter.getParamName() + " updated!");
-                } catch (JSONException e) {
-                    Log.e(LOG_TAG, "JSON parse error. The parameter " + parameter.getParamName() + " may not exsit...");
+                    try {
+                        parameter.setParamValue(newParams.getDouble(parameter.getParamName()));
+                        Log.d(LOG_TAG, "Parameter " + parameter.getParamName() + " updated!");
+                    } catch (JSONException e) {
+                        Log.e(LOG_TAG, "JSON parse error. The parameter " + parameter.getParamName() + " may not exsit...");
+                    }
+
+
                 }
+                this.semaphore.release();
+                return true;
+
+            } catch (InterruptedException e) {
+                Log.e(LOG_TAG, "Semaphore take error : " + e);
             }
-            return true;
         }
         return false;
     }
@@ -173,6 +185,30 @@ public class ParameterManager {
         }
 
         return getJsonObject(paramList);
+    }
+
+
+    public void changeParamForAll(String appName, String paramName, Double newParamValue) {
+
+        if (this.isParamsAlreadyPresent(appName)) {
+
+            try {
+                this.semaphore.acquire();
+                // Itération sur la liste
+                for (Parameter<Double> parameter : this.mAppsParameters.get(appName)) {
+
+                    if (parameter.getParamName().equals(paramName)) {
+                        parameter.setParamValue(newParamValue);
+                    }
+
+                }
+                this.semaphore.release();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
+        }
     }
 
 
