@@ -1,10 +1,11 @@
 <resources>
 
     <!-- Application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
         <item name="android:actionBarStyle">@style/MyActionBar</item>
         <item name="android:windowActionBarOverlay">true</item>
-        <!-- Support library compatibility -->
+        // Support library compatibility
         <item name="actionBarStyle">@style/MyActionBar</item>
         <item name="windowActionBarOverlay">true</item>
     </style>
@@ -16,8 +17,8 @@
         <item name="background">@drawable/actionbar_background</item>
     </style>
 
-    <drawable name="actionbar_background">#aa39c9c9</drawable>
-    <color name="button_background_unpressed">#aa39c9c9</color>
+    <drawable name="actionbar_background">#2196F3</drawable>
+    <color name="button_background_unpressed">#2196F3</color>
     <color name="button_background_pressed">#aa008080</color>
     <color name="button_text_color">#000000</color>
 </resources>

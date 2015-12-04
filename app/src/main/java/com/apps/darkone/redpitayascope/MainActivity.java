@@ -1,27 +1,24 @@
 package com.apps.darkone.redpitayascope;
 
 import android.app.Activity;
-import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.widget.DrawerLayout;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-
 import com.apps.darkone.redpitayascope.app_fragments.OscilloscopeFragment;
-import com.apps.darkone.redpitayascope.app_service_sap.IAppService;
 import com.apps.darkone.redpitayascope.application_services.AppServiceFactory;
 import com.apps.darkone.redpitayascope.application_services.AppServiceManager;
 import com.apps.darkone.redpitayascope.menu.SettingsFragment;
@@ -42,6 +39,7 @@ public class MainActivity extends AppCompatActivity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+    private boolean mDrawerItemSelected ;
 
 
     private AppServiceManager mAppServiceManager;
@@ -64,6 +62,14 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
 
+
+        // Set a toolbar to replace the action bar.
+        Toolbar toolbar = (Toolbar) findViewById(R.id.maintoolbar);
+        setSupportActionBar(toolbar);
+
+        Toolbar toolbarBottom = (Toolbar) findViewById(R.id.toolbar_bottom);
+
+
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -76,22 +82,41 @@ public class MainActivity extends AppCompatActivity
 
         // Setting ip the service manager
         mAppServiceManager = AppServiceFactory.getAppServiceManager(this.getApplicationContext());
-        mAppServiceManager.runServices("192.168.3.158");
+        mAppServiceManager.runServices("192.168.43.112");
 
         getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 
-    }
+        mDrawerItemSelected = false;
 
+        // First fragment
 
-    @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container, OscilloscopeFragment.newInstance())
                 .commit();
+    }
+
+
+
+    @Override
+    public void onNavigationDrawerItemSelected(int position) {
+
+        mDrawerItemSelected = true;
+    }
+
+    @Override
+    public void onNavigationDrawerClosed() {
+        if(mDrawerItemSelected)
+        {
+            mDrawerItemSelected = false;
+            // update the main content by replacing fragments
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, OscilloscopeFragment.newInstance())
+                    .commit();
+        }
     }
 
     public void onSectionAttached(int number) {
@@ -118,10 +143,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         if (!mNavigationDrawerFragment.isDrawerOpen()) {
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
+            // decide what to show in the action bar
+
             getMenuInflater().inflate(R.menu.main, menu);
             restoreActionBar();
             return true;

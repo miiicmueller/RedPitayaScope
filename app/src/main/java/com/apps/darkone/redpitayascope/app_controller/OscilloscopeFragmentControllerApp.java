@@ -35,7 +35,7 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     private double[] mGraphTimeValue;
     private double mTriggerDelay;
     private double mTriggerLevel;
-    private TimeUnits mGraphTimeUnit ;
+    private TimeUnits mGraphTimeUnit;
 
     private static final int CHANNEL_COUNT = 2;
     private static final String OSC_VIEW_CONTROLLER_TAG = "OSC_VIEW_CTRL";
@@ -85,7 +85,6 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mAppFragmentView.updateOscilloscopeTimeUnits(this.mGraphTimeUnit);
 
 
-
         //Update the model
         this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
         this.mOscilloscopeApp.setTimeUnits(this.mGraphTimeUnit);
@@ -94,14 +93,14 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mOscilloscopeApp.setChannelGain(ChannelEnum.CHANNEL2, ChannelGain.HV);
 
 
-        ((AppServiceBase)this.mOscilloscopeApp).setOnAppParamsListener(new IOnAppParamsListener() {
+        ((AppServiceBase) this.mOscilloscopeApp).setOnAppParamsListener(new IOnAppParamsListener() {
             @Override
             public void onParametersUpdated() {
                 double[] lim = mOscilloscopeApp.getTimeLimits();
 
                 mGraphTimeValue[0] = lim[0];
                 mGraphTimeValue[1] = lim[1];
-                mAppFragmentView.updateTimeRange(mGraphTimeValue[0],mGraphTimeValue[1]);
+                //mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1]);
 
             }
         });
@@ -319,9 +318,7 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
             this.mTriggerDelay += (distanceX * ratio / (110.0));
             this.mGraphTimeValue[0] += (distanceX * ratio / 110.0);
             this.mGraphTimeValue[1] += (distanceX * ratio / 110.0);
-            this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
-
-
+            //this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
 
 
         } else if (scrollAngle < 20.0) {
@@ -383,56 +380,55 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mGraphTimeValue[1] = rescalePoint + deltaPRescaleRight;
 
         double ndivision = 9;
-        double distance = getTimeRangeDelta() / ndivision ;
+        double distance = getTimeRangeDelta() / ndivision;
 
         //Check the time units
-        switch(this.mGraphTimeUnit)
-        {
-            case S:
-                if(distance <= 0.1)
-                {
-                    this.mGraphTimeUnit = TimeUnits.MS;
-                    this.mGraphTimeValue[0] *= 1000.0;
-                    this.mGraphTimeValue[1] *= 1000.0;
-                }
-                break;
-            case MS:
-                if(distance >= 1000.0)
-                {
-                    this.mGraphTimeUnit = TimeUnits.S;
-                    this.mGraphTimeValue[0] /= 1000.0;
-                    this.mGraphTimeValue[1] /= 1000.0;
-                }
-                else if(distance <= 0.1)
-                {
-                    this.mGraphTimeUnit = TimeUnits.US;
-                    this.mGraphTimeValue[0] *= 1000.0;
-                    this.mGraphTimeValue[1] *= 1000.0;
-                }
-                break;
-            case US:
-                if(distance >= 1000.0)
-                {
-                    this.mGraphTimeUnit = TimeUnits.MS;
-                    this.mGraphTimeValue[0] /= 1000.0;
-                    this.mGraphTimeValue[1] /= 1000.0;
-                }
-                else if(distance <= 0.1)
-                {
-                    this.mGraphTimeUnit = TimeUnits.NS;
-                }
-                break;
-            case NS:
-                if(distance >= 1000.0)
-                {
-                    this.mGraphTimeUnit = TimeUnits.US;
-                }
-                break;
-        }
+//        switch(this.mGraphTimeUnit)
+//        {
+//            case S:
+//                if(distance <= 0.1)
+//                {
+//                    this.mGraphTimeUnit = TimeUnits.MS;
+//                    this.mGraphTimeValue[0] *= 1000.0;
+//                    this.mGraphTimeValue[1] *= 1000.0;
+//                }
+//                break;
+//            case MS:
+//                if(distance >= 1000.0)
+//                {
+//                    this.mGraphTimeUnit = TimeUnits.S;
+//                    this.mGraphTimeValue[0] /= 1000.0;
+//                    this.mGraphTimeValue[1] /= 1000.0;
+//                }
+//                else if(distance <= 0.1)
+//                {
+//                    this.mGraphTimeUnit = TimeUnits.US;
+//                    this.mGraphTimeValue[0] *= 1000.0;
+//                    this.mGraphTimeValue[1] *= 1000.0;
+//                }
+//                break;
+//            case US:
+//                if(distance >= 1000.0)
+//                {
+//                    this.mGraphTimeUnit = TimeUnits.MS;
+//                    this.mGraphTimeValue[0] /= 1000.0;
+//                    this.mGraphTimeValue[1] /= 1000.0;
+//                }
+//                else if(distance <= 0.1)
+//                {
+//                    this.mGraphTimeUnit = TimeUnits.NS;
+//                }
+//                break;
+//            case NS:
+//                if(distance >= 1000.0)
+//                {
+//                    this.mGraphTimeUnit = TimeUnits.US;
+//                }
+//                break;
+//        }
 
-        this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
-//        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1]);
-//        this.mAppFragmentView.updateOscilloscopeTimeUnits(this.mGraphTimeUnit);
+        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1]);
+        this.mAppFragmentView.updateOscilloscopeTimeUnits(this.mGraphTimeUnit);
     }
 
     @Override
@@ -442,7 +438,8 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
 
     @Override
     public void mOscPlotOnScaleEnd() {
-
+        Log.d(OSC_VIEW_CONTROLLER_TAG, "Scale end");
+        this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
     }
 
 
@@ -457,17 +454,12 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
      */
 
 
-
-    private double getTimeRangeDelta()
-    {
+    private double getTimeRangeDelta() {
         return this.mGraphTimeValue[1] - this.mGraphTimeValue[0];
     }
 
 
-
-
-    private void resetValues()
-    {
+    private void resetValues() {
         this.mChannelsOffset[0] = 0.0;
         this.mChannelsOffset[1] = 0.0;
 
