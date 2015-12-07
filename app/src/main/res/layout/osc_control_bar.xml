@@ -14,7 +14,8 @@
 
         <!-- Premier bouton-->
         <TableLayout
-            android:background="@color/button_background_unpressed"
+            android:background="@drawable/osc_bar_layout_selector"
+            android:clickable="true"
             android:id="@+id/oscMode"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
@@ -27,6 +28,7 @@
                 android:layout_width="fill_parent"
                 android:gravity="center"
                 android:text="AUTO"
+                android:duplicateParentState="true"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/button_text_color" />
         </TableLayout>
@@ -34,8 +36,9 @@
 
         <!--Deuxieme bouton-->
         <TableLayout
-            android:background="@color/button_background_unpressed"
             android:id="@+id/trig"
+            android:background="@drawable/osc_bar_layout_selector"
+            android:clickable="true"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:orientation="vertical">
@@ -81,7 +84,8 @@
 
         <!--Troisième bouton-->
         <TableLayout
-            android:background="@color/button_background_unpressed"
+            android:background="@drawable/osc_bar_layout_selector"
+            android:clickable="true"
             android:id="@+id/timeBase"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
@@ -128,7 +132,8 @@
 
         <!--Quatrième bouton-->
         <TableLayout
-            android:background="@color/button_background_unpressed"
+            android:background="@drawable/osc_bar_layout_selector"
+            android:clickable="true"
             android:id="@+id/chan1"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
@@ -175,7 +180,8 @@
 
         <!--Cinquième bouton-->
         <TableLayout
-            android:background="@color/button_background_unpressed"
+            android:background="@drawable/osc_bar_layout_selector"
+            android:clickable="true"
             android:id="@+id/chan2"
             android:layout_height="match_parent"
             android:layout_width="match_parent"

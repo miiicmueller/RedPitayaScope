@@ -8,6 +8,7 @@
         // Support library compatibility
         <item name="actionBarStyle">@style/MyActionBar</item>
         <item name="windowActionBarOverlay">true</item>
+        <item name="colorAccent">#2196F3</item>
     </style>
 
     <!-- ACTION BAR STYLES -->
@@ -19,6 +20,7 @@
 
     <drawable name="actionbar_background">#2196F3</drawable>
     <color name="button_background_unpressed">#2196F3</color>
-    <color name="button_background_pressed">#aa008080</color>
+    <color name="button_background_focused">#5bb5fc</color>
+    <color name="button_background_pressed">#076cbc</color>
     <color name="button_text_color">#000000</color>
 </resources>

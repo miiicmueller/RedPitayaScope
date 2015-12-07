@@ -4,6 +4,7 @@ package com.apps.darkone.redpitayascope.app_fragments;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBar;
@@ -69,7 +70,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     private ActionBar mMainActionBar;
     private Toolbar mMainToolBar;
     private Toolbar mBottomActionBar;
-    boolean mToolBarVisible ;
+    boolean mToolBarVisible;
 
 
     // boutons
@@ -80,13 +81,15 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     private TableLayout butC2Settings;
     private ITouchAppViewController mOscilloscopeFragmentController;
 
-    private GestureDetectorCompat butOscModeDetector;
-    private GestureDetectorCompat butTrigSettingsDetector;
-    private GestureDetectorCompat butTimeSettingsDetector;
-    private GestureDetectorCompat butC1SettingsDetector;
-    private GestureDetectorCompat butC2SettingsDetector;
-    private GestureDetectorCompat XYPlotDetector;
-    private ScaleGestureDetector XYPlotScaleDetector;
+    private GestureDetectorCompat mButOscModeDetector;
+    private GestureDetectorCompat mButTrigSettingsDetector;
+    private GestureDetectorCompat mButTimeSettingsDetector;
+    private GestureDetectorCompat mButC1SettingsDetector;
+    private GestureDetectorCompat mButC2SettingsDetector;
+    private GestureDetectorCompat mXYPlotDetector;
+    private ScaleGestureDetector mXYPlotScaleDetector;
+    private FloatingActionButton mSingleShotBtn;
+    private boolean singleShotButtonHidden;
 
 
     public static OscilloscopeFragment newInstance() {
@@ -193,13 +196,24 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         mToolBarVisible = true;
         LinearLayout layout = (LinearLayout) mBottomActionBar.findViewById(R.id.toolbar_bottom_layer);
-        layout.setBackgroundColor(0x2196F3);
+        layout.setBackgroundColor(this.mContext.getResources().getColor(R.color.button_background_pressed));
         View osc_toolbar = inflater.inflate(R.layout.osc_control_bar, layout, false);
-        osc_toolbar.setBackgroundColor(0x2196F3);
+        osc_toolbar.setBackgroundColor(this.mContext.getResources().getColor(R.color.button_background_pressed));
         layout.removeAllViews();
         layout.addView(osc_toolbar);
 
 
+        // Single shot floating action button
+        mSingleShotBtn = (FloatingActionButton) rootView.findViewById(R.id.single_shot_btn);
+        mSingleShotBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.d("DEBUG_TAG", "Button pressed");
+            }
+        });
+
+        //Hide the button
+        hideSingleShotButton(mSingleShotBtn);
+        mSingleShotBtn.hide();
 
         // ---------------------------------------------------------------------------------------------------
         // Set des gestures sur les boutons et le graphe
@@ -208,16 +222,14 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         // Get object reference
         butOscMode = (TableLayout) osc_toolbar.findViewById(R.id.oscMode);
-        // Set background color
-        //butOscMode.setBackgroundColor(0x2196F3);
+
         // Set gesture detector
-        butOscModeDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
+        mButOscModeDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap OscMode Event!");
                 // Callback interface
                 mOscilloscopeFragmentController.butOscModeOnDoubleTap();
-                butOscMode.setBackgroundColor(0x2196F3);
                 return super.onDoubleTap(e);
             }
 
@@ -226,7 +238,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 Log.d("DEBUG_TAG", "On SingleTapConfirmed OscMode Event!");
                 // Callback interface
                 mOscilloscopeFragmentController.butOscModeOnSingleTapConfirmed();
-                butOscMode.setBackgroundColor(0x2196F3);
+
                 return super.onSingleTapConfirmed(e);
             }
 
@@ -235,14 +247,14 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 Log.d("DEBUG_TAG", "On Longpress OscMode Event!");
                 // Callback interface
                 mOscilloscopeFragmentController.butOscModeOnLongPress();
-                butOscMode.setBackgroundColor(0x2196F3);
+
                 super.onLongPress(e);
             }
 
             @Override
             public boolean onDown(MotionEvent event) {
                 Log.d("DEBUG_TAG", "On Down OscMode Event!");
-                // set background color when pressed0x009090
+
                 return super.onDown(event);
             }
 
@@ -250,7 +262,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             public boolean onSingleTapUp(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On SingleTapUp OscMode Event!");
                 // set background color when pressed
-                butOscMode.setBackgroundColor(0xaa008080);
                 return super.onSingleTapUp(e);
             }
 
@@ -258,15 +269,17 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         butOscMode.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                butOscModeDetector.onTouchEvent(event);
-                return true;
+                mButOscModeDetector.onTouchEvent(event);
+                return false;
             }
         });
+
+
         // ---------------------
         // Get object reference
         butTrigSettings = (TableLayout) osc_toolbar.findViewById(R.id.trig);
         // Set gesture detector
-        butTrigSettingsDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
+        mButTrigSettingsDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap butTrigSettings Event!");
@@ -293,28 +306,24 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
             @Override
             public boolean onDown(MotionEvent event) {
-                // set background color when pressed0x009090
-                butTrigSettings.setBackgroundColor(0xaa008080);
                 return super.onDown(event);
             }
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
-                // set background color when pressed
-                butTrigSettings.setBackgroundColor(0x2196F3);
                 return super.onSingleTapUp(e);
             }
         });
         butTrigSettings.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                butTrigSettingsDetector.onTouchEvent(event);
-                return true;
+                mButTrigSettingsDetector.onTouchEvent(event);
+                return false;
             }
         });
         // ---------------------
         butTimeSettings = (TableLayout) osc_toolbar.findViewById(R.id.timeBase);
-        butTimeSettingsDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
+        mButTimeSettingsDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap butTimeSettings Event!");
@@ -341,28 +350,24 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
             @Override
             public boolean onDown(MotionEvent event) {
-                // set background color when pressed0x009090
-                butTimeSettings.setBackgroundColor(0xaa008080);
                 return super.onDown(event);
             }
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
-                // set background color when pressed
-                butTimeSettings.setBackgroundColor(0x2196F3);
                 return super.onSingleTapUp(e);
             }
         });
         butTimeSettings.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                butTimeSettingsDetector.onTouchEvent(event);
-                return true;
+                mButTimeSettingsDetector.onTouchEvent(event);
+                return false;
             }
         });
         // ---------------------
         butC1Settings = (TableLayout) osc_toolbar.findViewById(R.id.chan1);
-        butC1SettingsDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
+        mButC1SettingsDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap butC1Settings Event!");
@@ -389,28 +394,24 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
             @Override
             public boolean onDown(MotionEvent event) {
-                // set background color when pressed0x009090
-                butC1Settings.setBackgroundColor(0xaa008080);
                 return super.onDown(event);
             }
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
-                // set background color when pressed
-                butC1Settings.setBackgroundColor(0x2196F3);
                 return super.onSingleTapUp(e);
             }
         });
         butC1Settings.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                butC1SettingsDetector.onTouchEvent(event);
-                return true;
+                mButC1SettingsDetector.onTouchEvent(event);
+                return false;
             }
         });
         // ---------------------
         butC2Settings = (TableLayout) osc_toolbar.findViewById(R.id.chan2);
-        butC2SettingsDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
+        mButC2SettingsDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap butC2Settings Event!");
@@ -437,15 +438,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
             @Override
             public boolean onDown(MotionEvent event) {
-                // set background color when pressed0x009090
-                butC2Settings.setBackgroundColor(0xaa008080);
                 return super.onDown(event);
             }
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
-                // set background color when pressed
-                butC2Settings.setBackgroundColor(0x2196F3);
                 return super.onSingleTapUp(e);
             }
 
@@ -453,13 +450,13 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         butC2Settings.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                butC2SettingsDetector.onTouchEvent(event);
-                return true;
+                mButC2SettingsDetector.onTouchEvent(event);
+                return false;
             }
         });
         // ---------------------
         // mOscPlot = (TableLayout) rootView.findViewById(R.id.chan2); // This line has been done above...
-        XYPlotDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
+        mXYPlotDetector = new GestureDetectorCompat(mContext, new MyGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap mOscPlot Event!");
@@ -480,17 +477,14 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                     mToolBarVisible = false;
                     mMainToolBar.animate().translationX(-mMainToolBar.getRight()).setInterpolator(new AccelerateInterpolator((float) 2.0)).start();
                     mBottomActionBar.animate().translationX(mBottomActionBar.getRight()).setInterpolator(new AccelerateInterpolator((float) 2.0)).start();
-//                    mMainActionBar.hide();
                 } else {
 
                     // If the bar was hidden
-                    if(!mMainActionBar.isShowing())
-                    {
+                    if (!mMainActionBar.isShowing()) {
                         mMainActionBar.show();
                     }
 
                     mToolBarVisible = true;
-//                    mMainActionBar.show();
                     mMainToolBar.animate().translationX(0).setInterpolator(new DecelerateInterpolator((float) 2.0)).start();
                     mBottomActionBar.animate().translationX(0).setInterpolator(new DecelerateInterpolator((float) 2.0)).start();
                 }
@@ -522,7 +516,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             }
         });
 
-        XYPlotScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener() {
+        mXYPlotScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener() {
             @Override
             public boolean onScaleBegin(ScaleGestureDetector detector) {
                 // Callback interface
@@ -557,8 +551,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         mOscPlot.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                XYPlotDetector.onTouchEvent(event);
-                XYPlotScaleDetector.onTouchEvent(event);
+                mXYPlotDetector.onTouchEvent(event);
+                mXYPlotScaleDetector.onTouchEvent(event);
                 return true;
             }
         });
@@ -567,11 +561,22 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         // ---------------------------------------------------------------------------------------------------
 
 
-        Log.d("DEBUG_TAG","onCreateView end");
+        Log.d("DEBUG_TAG", "onCreateView end");
 
         return rootView;
     }
 
+
+    private void hideSingleShotButton(FloatingActionButton btn) {
+        btn.animate().translationY(-btn.getBottom()).setInterpolator(new AccelerateInterpolator((float) 2.0)).start();
+    }
+
+
+    private void showSingleShotButton(FloatingActionButton btn) {
+        mSingleShotBtn.show();
+        btn.animate().translationY(-mOscPlot.getHeight() / 2.f).setInterpolator(new DecelerateInterpolator((float) 2.0)).start();
+
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -583,7 +588,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     @Override
     public void onStart() {
         super.onStart();
-        Log.d("DEBUG_TAG","OnStart");
+        Log.d("DEBUG_TAG", "OnStart");
         // View controller instance and start
         mOscilloscopeFragmentController = (ITouchAppViewController) new OscilloscopeFragmentControllerApp(this, mContext);
 //        mOscilloscopeFragmentController.startController();
@@ -600,7 +605,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         super.onStop();
         Log.d("DEBUG_TAG", "OnStop");
         mRedrawer.finish();
-      //  mOscilloscopeFragmentController.stopController();
+        //  mOscilloscopeFragmentController.stopController();
     }
 
     @Override
@@ -675,12 +680,15 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         switch (mode) {
             case AUTO:
+                hideSingleShotButton(mSingleShotBtn);
                 modeTextView.setText("AUTO");
                 break;
             case NORMAL:
+                hideSingleShotButton(mSingleShotBtn);
                 modeTextView.setText("NORMAL");
                 break;
             case SINGLE_SHOT:
+                showSingleShotButton(mSingleShotBtn);
                 modeTextView.setText("SINGLE");
                 break;
             default:

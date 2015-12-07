@@ -1,5 +1,7 @@
 package com.apps.darkone.redpitayascope.app_controller;
 
+import android.view.View;
+
 /**
  * Created by Matthieu on 23.11.2015.
  */
@@ -46,6 +48,7 @@ public interface ITouchAppViewController {
     public void butC2SettingsOnDoubleTap();
     public void butC2SettingsOnSingleTapConfirmed();
     public void butC2SettingsOnLongPress();
+
     /**
      * Callbacks du graphe mOscPlot
      */
@@ -58,5 +61,14 @@ public interface ITouchAppViewController {
     public void mOscPlotOnScaleX(float X);
     public void mOscPlotOnScaleY(float Y);
     public void mOscPlotOnScaleEnd();
+
+
+    /**
+     * Methodes pour les boutons
+     */
+    public  void buttonPressed(View view);
+    public  void buttonReleased(View view);
+
+
 
 }

@@ -2,7 +2,9 @@ package com.apps.darkone.redpitayascope.app_controller;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.View;
 
+import com.apps.darkone.redpitayascope.R;
 import com.apps.darkone.redpitayascope.app_fragments.IAppFragmentView;
 import com.apps.darkone.redpitayascope.app_service_sap.IAppService;
 import com.apps.darkone.redpitayascope.application_services.AppServiceBase;
@@ -440,6 +442,16 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     public void mOscPlotOnScaleEnd() {
         Log.d(OSC_VIEW_CONTROLLER_TAG, "Scale end");
         this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
+    }
+
+    @Override
+    public void buttonPressed(View view) {
+        view.setBackgroundColor(this.mContext.getResources().getColor(R.color.button_background_pressed));
+    }
+
+    @Override
+    public void buttonReleased(View view) {
+        view.setBackgroundColor(this.mContext.getResources().getColor(R.color.button_background_unpressed));
     }
 
 

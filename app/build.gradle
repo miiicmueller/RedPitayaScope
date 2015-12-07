@@ -34,5 +34,6 @@ dependencies {
     compile project(":AndroidPlot-Core")
     compile project(":volley")
     compile project(":glplot")
+    compile 'com.android.support:design:23.1.1'
 
 }
