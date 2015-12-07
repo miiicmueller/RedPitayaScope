@@ -8,6 +8,10 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
+
+        <uses-sdk xmlns:tools="http://schemas.android.com/tools"
+            tools:overrideLibrary="android.support.v14.preference" />
+
         <activity
             android:name=".MainActivity"
             android:screenOrientation="landscape"

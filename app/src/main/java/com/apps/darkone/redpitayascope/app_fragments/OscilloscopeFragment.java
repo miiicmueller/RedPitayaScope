@@ -587,12 +587,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     @Override
     public void onStart() {
-        super.onStart();
         Log.d("DEBUG_TAG", "OnStart");
         // View controller instance and start
         mOscilloscopeFragmentController = (ITouchAppViewController) new OscilloscopeFragmentControllerApp(this, mContext);
 //        mOscilloscopeFragmentController.startController();
-
+        super.onStart();
     }
 
     private void touchAnalyse(View v, MotionEvent event) {

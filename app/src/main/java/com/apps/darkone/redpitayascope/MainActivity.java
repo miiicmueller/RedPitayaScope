@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity
             mTitle = "Settings";
             ActionBar actionBar = getSupportActionBar();
             actionBar.setTitle(mTitle);
-            android.app.FragmentManager fragmentManager = getFragmentManager();
+            FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, new SettingsFragment())
                     .commit();
@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
 
-        return super.onOptionsItemSelected(item);
+        return true ; // super.onOptionsItemSelected(item);
     }
 
 
