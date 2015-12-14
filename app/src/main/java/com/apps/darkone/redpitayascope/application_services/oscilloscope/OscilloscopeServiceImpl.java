@@ -2,10 +2,7 @@ package com.apps.darkone.redpitayascope.application_services.oscilloscope;
 
 import android.util.Log;
 
-import com.androidplot.xy.SimpleXYSeries;
-import com.androidplot.xy.XYSeries;
 import com.apps.darkone.redpitayascope.application_services.AppServiceBase;
-import com.apps.darkone.redpitayascope.application_services.IOnAppParamsListener;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelEnum;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelGain;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOnChannelsValueListener;
@@ -17,20 +14,15 @@ import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscillo
 import com.apps.darkone.redpitayascope.communication.CommunicationServiceFactory;
 import com.apps.darkone.redpitayascope.communication.commSAP.ICommunicationService;
 import com.apps.darkone.redpitayascope.communication.commSAP.IOnDataListener;
-import com.apps.darkone.redpitayascope.communication.commSAP.IOnParamListener;
-import com.apps.darkone.redpitayascope.parameters.ParameterManager;
-import com.apps.darkone.redpitayascope.parameters.ParameterManagerFactory;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Semaphore;
 
 /**
  * Created by DarkOne on 19.10.15.
@@ -288,6 +280,24 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
     }
 
     @Override
+    public TimeUnits getTimeUnits() {
+
+        Double timeUnits = (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, TIME_UNITS).getParamValue();
+
+        switch (timeUnits.intValue()) {
+            case 0:
+               return TimeUnits.US ;
+            case 1:
+                return TimeUnits.MS ;
+            case 2:
+                return TimeUnits.S ;
+            default:
+        }
+
+        return TimeUnits.US;
+    }
+
+    @Override
     public void setTriggerLevel(double triggerLevel) {
         // Get the communication service instance
         mCommunicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
@@ -381,7 +391,6 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         }
     }
 
-    @Deprecated
     @Override
     public void setTimeUnits(TimeUnits timeUnits) {
 
@@ -417,6 +426,8 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         }
 
     }
+
+
 
     @Override
     public void setAvergagingState(boolean avrgState) {
@@ -553,6 +564,18 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
                 return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, MEAS_AVG_CH1).getParamValue();
             case CHANNEL2:
                 return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, MEAS_AVG_CH2).getParamValue();
+            default:
+                return 0.0;
+        }
+    }
+
+    @Override
+    public double getChannelAmplitude(ChannelEnum channel) {
+        switch (channel) {
+            case CHANNEL1:
+                return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, MEAS_AMP_CH1).getParamValue();
+            case CHANNEL2:
+                return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, MEAS_AMP_CH2).getParamValue();
             default:
                 return 0.0;
         }

@@ -20,21 +20,17 @@ public interface IOscilloscopeApp {
     public void removeAppValuesListener(IOnChannelsValueListener onChannelsValueListener);
 
 
-    /**
-     * Get the channel  mean value
-     *
-     * @param channel
-     * @return Channel 1 mean value
-     */
-    public double getChannelMeanValue(ChannelEnum channel);
+
 
     /**
-     * Get the channel mean frequency
+     * Get the channel information
      *
      * @param channel
      * @return
      */
     public double getChannelFreq(ChannelEnum channel);
+    public double getChannelMeanValue(ChannelEnum channel);
+    public double getChannelAmplitude(ChannelEnum channel);
 
 
     /**
@@ -51,6 +47,11 @@ public interface IOscilloscopeApp {
      */
     public double[] getTimeLimits();
 
+    /**
+     * Get the actual time limits
+     * @return
+     */
+    public TimeUnits getTimeUnits();
 
     /**
      * Set the redpitaya trigger level

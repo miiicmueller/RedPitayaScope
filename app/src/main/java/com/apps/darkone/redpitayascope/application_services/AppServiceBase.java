@@ -91,6 +91,11 @@ public class AppServiceBase implements IAppService, IOnConnectionListener, IOnPa
     }
 
     @Override
+    public void removeOnServiceListener() {
+        this.mOnServiceListener = null;
+    }
+
+    @Override
     public void setOnAppParamsListener(IOnAppParamsListener appParamsListener) {
         this.mOnAppParamsListener = appParamsListener;
     }

@@ -1,8 +1,9 @@
-package com.apps.darkone.redpitayascope.app_fragments;
+package com.apps.darkone.redpitayascope.app_fragments.oscilloscope;
 
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -29,14 +31,17 @@ import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
 import com.androidplot.xy.XYPlot;
 import com.apps.darkone.redpitayascope.R;
-import com.apps.darkone.redpitayascope.app_controller.ITouchAppViewController;
-import com.apps.darkone.redpitayascope.app_controller.OscilloscopeFragmentControllerApp;
+import com.apps.darkone.redpitayascope.app_controller.oscilloscope.ChannelInfo;
+import com.apps.darkone.redpitayascope.app_controller.oscilloscope.ITouchAppViewController;
+import com.apps.darkone.redpitayascope.app_controller.oscilloscope.OscilloscopeFragmentControllerApp;
+import com.apps.darkone.redpitayascope.app_controller.oscilloscope.TriggerInfo;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.OscilloscopeTimeValueSerie;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelEnum;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.IOscilloscopeApp;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.OscilloscopeMode;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TimeUnits;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TriggerEdge;
+import com.apps.darkone.redpitayascope.menu.oscilloscope.ChannelMenu;
 
 import java.util.Arrays;
 import java.util.Vector;
@@ -60,6 +65,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     private OscilloscopeTimeValueSerie mOscilloscopeSerieCh2;
     private boolean mChannel1Enabled;
     private boolean mChannel2Enabled;
+    private boolean mChannel1Selected;
+    private boolean mChannel2Selected;
 
 
     private Redrawer mRedrawer;
@@ -90,6 +97,9 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     private ScaleGestureDetector mXYPlotScaleDetector;
     private FloatingActionButton mSingleShotBtn;
     private boolean singleShotButtonHidden;
+
+    private ChannelMenu mCustomChannel1Menu;
+    private ChannelMenu mCustomChannel2Menu;
 
 
     public static OscilloscopeFragment newInstance() {
@@ -195,13 +205,12 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
 
         mToolBarVisible = true;
-        LinearLayout layout = (LinearLayout) mBottomActionBar.findViewById(R.id.toolbar_bottom_layer);
+        LinearLayout layout = (LinearLayout) mBottomActionBar.findViewById(R.id.toolbar_bottom_layer_menu);
         layout.setBackgroundColor(this.mContext.getResources().getColor(R.color.button_background_pressed));
         View osc_toolbar = inflater.inflate(R.layout.osc_control_bar, layout, false);
         osc_toolbar.setBackgroundColor(this.mContext.getResources().getColor(R.color.button_background_pressed));
         layout.removeAllViews();
         layout.addView(osc_toolbar);
-
 
         // Single shot floating action button
         mSingleShotBtn = (FloatingActionButton) rootView.findViewById(R.id.single_shot_btn);
@@ -214,6 +223,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         //Hide the button
         hideSingleShotButton(mSingleShotBtn);
         mSingleShotBtn.hide();
+
+
+        mCustomChannel1Menu = new ChannelMenu(this.mContext, this.mBottomActionBar);
+        mCustomChannel2Menu = new ChannelMenu(this.mContext, this.mBottomActionBar);
+
 
         // ---------------------------------------------------------------------------------------------------
         // Set des gestures sur les boutons et le graphe
@@ -563,6 +577,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         Log.d("DEBUG_TAG", "onCreateView end");
 
+
         return rootView;
     }
 
@@ -574,7 +589,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     private void showSingleShotButton(FloatingActionButton btn) {
         mSingleShotBtn.show();
-        btn.animate().translationY(-mOscPlot.getHeight() / 2.f).setInterpolator(new DecelerateInterpolator((float) 2.0)).start();
+        btn.animate().translationY((-getResources().getDisplayMetrics().heightPixels / 2.f) + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 56 / 2, getResources().getDisplayMetrics())).setInterpolator(new DecelerateInterpolator((float) 2.0)).start();
 
     }
 
@@ -590,14 +605,10 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         Log.d("DEBUG_TAG", "OnStart");
         // View controller instance and start
         mOscilloscopeFragmentController = (ITouchAppViewController) new OscilloscopeFragmentControllerApp(this, mContext);
-//        mOscilloscopeFragmentController.startController();
+        mOscilloscopeFragmentController.startController();
         super.onStart();
     }
 
-    private void touchAnalyse(View v, MotionEvent event) {
-
-
-    }
 
     @Override
     public void onStop() {
@@ -635,6 +646,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     @Override
     public void updateTimeRange(double tMin, double tMax) {
+
+
+        double timePerDivision = (tMax - tMin) / OscilloscopeFragmentControllerApp.DIVISION_COUNT;
+
+
         mOscPlot.setDomainBoundaries(tMin, BoundaryMode.FIXED, tMax, BoundaryMode.FIXED);
     }
 
@@ -651,6 +667,106 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     @Override
     public void updateSelectedChannel(ChannelEnum selectedChannel) {
         Log.d("DEBUG_TAG", "Selected channels " + selectedChannel);
+
+        TextView c1Title = (TextView) butC1Settings.findViewById(R.id.chan1Title);
+        TextView offset1Line = (TextView) butC1Settings.findViewById(R.id.chan1Line1);
+        TextView amplitude1Line = (TextView) butC1Settings.findViewById(R.id.chan1Line2);
+        TextView freq1Line = (TextView) butC1Settings.findViewById(R.id.chan1Line3);
+
+        TextView c2Title = (TextView) butC2Settings.findViewById(R.id.chan2Title);
+        TextView offset2Line = (TextView) butC2Settings.findViewById(R.id.chan2Line1);
+        TextView amplitude2Line = (TextView) butC2Settings.findViewById(R.id.chan2Line2);
+        TextView freq2Line = (TextView) butC2Settings.findViewById(R.id.chan2Line3);
+
+        c1Title.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+        offset1Line.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+        amplitude1Line.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+        freq1Line.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+        c2Title.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+        offset2Line.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+        freq2Line.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+        amplitude2Line.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+
+
+        switch (selectedChannel) {
+            case CHANNEL1:
+                c1Title.setTextColor(this.mContext.getResources().getColor(R.color.channel1_color));
+                offset1Line.setTextColor(this.mContext.getResources().getColor(R.color.channel1_color));
+                amplitude1Line.setTextColor(this.mContext.getResources().getColor(R.color.channel1_color));
+                freq1Line.setTextColor(this.mContext.getResources().getColor(R.color.channel1_color));
+                break;
+            case CHANNEL2:
+                c2Title.setTextColor(this.mContext.getResources().getColor(R.color.channel2_color));
+                offset2Line.setTextColor(this.mContext.getResources().getColor(R.color.channel2_color));
+                freq2Line.setTextColor(this.mContext.getResources().getColor(R.color.channel2_color));
+                amplitude2Line.setTextColor(this.mContext.getResources().getColor(R.color.channel2_color));
+                break;
+
+        }
+    }
+
+    @Override
+    public void updateChannelInfo(ChannelEnum channel, ChannelInfo channelInfo) {
+
+        switch (channel) {
+            case CHANNEL1: {
+                TextView offsetLine = (TextView) butC1Settings.findViewById(R.id.chan1Line1);
+                offsetLine.setText(String.format("Offset : %03.03fV", channelInfo.getOffset()));
+
+                TextView amplitudeLine = (TextView) butC1Settings.findViewById(R.id.chan1Line2);
+                amplitudeLine.setText(String.format("Amplitude : %03.03fV", channelInfo.getAmplitude()));
+
+                TextView freqLine = (TextView) butC1Settings.findViewById(R.id.chan1Line3);
+                freqLine.setText(String.format("Frequency : %04.03fHz", channelInfo.getMeanFreq()));
+            }
+            break;
+            case CHANNEL2: {
+
+                TextView offsetLine = (TextView) butC2Settings.findViewById(R.id.chan2Line1);
+                offsetLine.setText(String.format("Offset : %03.03fV", channelInfo.getOffset()));
+
+                TextView amplitudeLine = (TextView) butC2Settings.findViewById(R.id.chan2Line2);
+                amplitudeLine.setText(String.format("Amplitude : %03.03fV", channelInfo.getAmplitude()));
+
+                TextView freqLine = (TextView) butC2Settings.findViewById(R.id.chan2Line3);
+                freqLine.setText(String.format("Frequency : %04.03fHz", channelInfo.getMeanFreq()));
+            }
+            break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void updateTriggerInfo(TriggerInfo triggerInfo) {
+        TextView triggerChannel = (TextView) butTrigSettings.findViewById(R.id.trigLine1);
+        TextView triggerLevel = (TextView) butTrigSettings.findViewById(R.id.trigLine2);
+        TextView triggerEdge = (TextView) butTrigSettings.findViewById(R.id.trigLine3);
+
+        triggerLevel.setText(String.format("Level : %03.03fV", triggerInfo.getTriggerLevel()));
+
+
+        switch(triggerInfo.getTriggerChannel())
+        {
+            case  CHANNEL1:
+                triggerChannel.setText("Channel : C1");
+                this.mOscPlot.getGraphWidget().setTriggerColor(this.mContext.getResources().getColor(R.color.channel1_color));
+                break;
+            case CHANNEL2:
+                triggerChannel.setText("Channel : C2");
+                this.mOscPlot.getGraphWidget().setTriggerColor(this.mContext.getResources().getColor(R.color.channel2_color));
+                break;
+        }
+
+        switch(triggerInfo.getTriggerEdge())
+        {
+            case RISING:
+                triggerEdge.setText("Edge : rising");
+                break;
+            case FALLING:
+                triggerEdge.setText("Edge : falling");
+                break;
+        }
     }
 
     @Override
@@ -660,14 +776,25 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         this.mChannel1Enabled = false;
         this.mChannel2Enabled = false;
 
+
+
+        TextView c1Title = (TextView) butC1Settings.findViewById(R.id.chan1Title);
+        TextView c2Title = (TextView) butC2Settings.findViewById(R.id.chan2Title);
+
+        c1Title.setTypeface(null, Typeface.NORMAL);
+        c2Title.setTypeface(null, Typeface.NORMAL);
+
         for (ChannelEnum channel : enabledChannel) {
             if (channel == ChannelEnum.CHANNEL1) {
                 this.mChannel1Enabled = true;
+                c1Title.setTypeface(null, Typeface.BOLD);
             } else if (channel == ChannelEnum.CHANNEL2) {
                 this.mChannel2Enabled = true;
+                c2Title.setTypeface(null, Typeface.BOLD);
             }
 
         }
+
 
     }
 
@@ -731,6 +858,38 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 break;
         }
 
+    }
+
+    @Override
+    public void showChannelCustomMenu(ChannelEnum channelMenuToShow) {
+
+        switch(channelMenuToShow)
+        {
+            case CHANNEL1:
+                mCustomChannel1Menu.showMenu();
+                break;
+            case CHANNEL2:
+                mCustomChannel2Menu.showMenu();
+                break;
+            case NONE:
+                break;
+        }
+    }
+
+
+    @Override
+    public void hideChannelCustomMenu(ChannelEnum channelMenuToHide) {
+        switch(channelMenuToHide)
+        {
+            case CHANNEL1:
+                mCustomChannel1Menu.hideMenu();
+                break;
+            case CHANNEL2:
+                mCustomChannel2Menu.hideMenu();
+                break;
+            case NONE:
+                break;
+        }
     }
 
     // ----------------------------------------------------------------------------------

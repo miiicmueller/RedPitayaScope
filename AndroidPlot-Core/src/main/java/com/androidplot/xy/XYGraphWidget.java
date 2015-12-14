@@ -16,14 +16,25 @@
 
 package com.androidplot.xy;
 
-import android.graphics.*;
-import android.hardware.TriggerEvent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Point;
+import android.graphics.PointF;
+import android.graphics.Rect;
+import android.graphics.RectF;
 
 import com.androidplot.exception.PlotRenderException;
 import com.androidplot.ui.LayoutManager;
 import com.androidplot.ui.SizeMetrics;
 import com.androidplot.ui.widget.Widget;
-import com.androidplot.util.*;
+import com.androidplot.util.FontUtils;
+import com.androidplot.util.Mapping;
+import com.androidplot.util.PixelUtils;
+import com.androidplot.util.ValPixConverter;
+import com.androidplot.util.ZHash;
+import com.androidplot.util.ZIndexable;
 
 import java.text.DecimalFormat;
 import java.text.Format;
@@ -1086,6 +1097,9 @@ public class XYGraphWidget extends Widget {
         this.triggerLevel.setTriggerLevel(level);
     }
 
+    public void setTriggerColor(int triggerColor) {
+        triggerLevel.getTriggerPaint().setColor(triggerColor);
+    }
 
     public void setChannel1Offset(float offset) {
         channel1Offset = offset;

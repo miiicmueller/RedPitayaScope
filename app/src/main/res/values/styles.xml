@@ -28,11 +28,17 @@
         <item name="android:layout_marginBottom">16dp</item>
     </style>
 
-    <drawable name="actionbar_background">#2196F3</drawable>
-    <color name="button_background_unpressed">#2196F3</color>
-    <color name="button_background_focused">#5bb5fc</color>
-    <color name="button_background_pressed">#076cbc</color>
+    <drawable name="actionbar_background">#aa2196F3</drawable>
+    <color name="button_background_unpressed">#aa2196F3</color>
+    <color name="button_background_focused">#aa5bb5fc</color>
+    <color name="button_fab_menu">#1976d2</color>
+    <color name="button_background_pressed">#aa076cbc</color>
     <color name="button_text_color">#000000</color>
     <color name="accent">#2196F3</color>
+
+    <color name="channel1_color">#feffff00</color>
+    <color name="channel2_color">#feff0040</color>
+    <color name="channel_nenable_color">#000000</color>
+
 
 </resources>

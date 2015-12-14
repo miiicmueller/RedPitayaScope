@@ -25,6 +25,12 @@ public interface IAppService {
 
 
     /**
+     * Set the service listener
+     */
+    public  void removeOnServiceListener();
+
+
+    /**
      * Set the application parameters listener
      * @param appParamsListener
      */

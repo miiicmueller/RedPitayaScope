@@ -1,11 +1,12 @@
-package com.apps.darkone.redpitayascope.app_fragments;
+package com.apps.darkone.redpitayascope.app_fragments.oscilloscope;
 
+import com.apps.darkone.redpitayascope.app_controller.oscilloscope.ChannelInfo;
+import com.apps.darkone.redpitayascope.app_controller.oscilloscope.TriggerInfo;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelEnum;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.OscilloscopeMode;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TimeUnits;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TriggerEdge;
 
-import java.util.List;
 import java.util.Vector;
 
 /**
@@ -51,6 +52,20 @@ public interface IAppFragmentView {
 
 
     /**
+     * Update the channel infos
+     * @param channel : Channel to update
+     * @param channelInfo : Channel information
+     */
+    public void updateChannelInfo(ChannelEnum channel, ChannelInfo channelInfo);
+
+
+    /**
+     * Update the trigger infos
+     * @param triggerInfo : trigger information
+     */
+    public void updateTriggerInfo(TriggerInfo triggerInfo);
+
+    /**
      * Update the enabled channels
      * @param selectedChannel
      */
@@ -77,6 +92,17 @@ public interface IAppFragmentView {
      * @param timeUnits
      */
     public void updateOscilloscopeTimeUnits(TimeUnits timeUnits);
+
+
+    /**
+     * Show the custom menu of channel X
+     */
+    public void showChannelCustomMenu(ChannelEnum channelMenuToShow);
+
+    /**
+     * Show the custom menu of channel X
+     */
+    public void hideChannelCustomMenu(ChannelEnum channelMenuToShow);
 
 
 }
