@@ -26,29 +26,26 @@ public class CustomButtonMenu {
     private Context mContext;
     private boolean mIsMenuShowed;
     private Toolbar mToolBar;
-
+    private int mMenuColor;
 
     public interface IOnCustomMenuPressed
     {
         public void onButtonPressed();
     }
 
-    public CustomButtonMenu()
-    {
-        mIsMenuShowed = false ;
-    }
 
-    public CustomButtonMenu(Context context, Toolbar toolBar) {
+    public CustomButtonMenu(Context context, Toolbar toolBar, int menuColor) {
         this.mBtnMenuList = new ArrayList<>();
         this.mContext = context;
         this.mToolBar = toolBar;
+        this.mMenuColor = menuColor;
     }
 
     protected void createMenu(List<Drawable> buttonImageList)
     {
         for(Drawable image : buttonImageList)
         {
-            FloatingActionButton btn = createNewFloatingActionButton();
+            FloatingActionButton btn = createNewFloatingActionButton(this.mMenuColor);
             btn.setImageDrawable(image);
             this.mBtnMenuList.add(btn);
         }
@@ -67,10 +64,10 @@ public class CustomButtonMenu {
         mIsMenuShowed = false;
     }
 
-    private FloatingActionButton createNewFloatingActionButton() {
+    private FloatingActionButton createNewFloatingActionButton(int menuColor) {
         FloatingActionButton btn = new FloatingActionButton(this.mContext);
-        btn.setBackgroundTintList(ColorStateList.valueOf(this.mContext.getResources().getColor(R.color.button_fab_menu)));
-        btn.setRippleColor(this.mContext.getResources().getColor(R.color.accent));
+        btn.setBackgroundTintList(ColorStateList.valueOf(this.mMenuColor));
+        btn.setRippleColor(this.mMenuColor + 0xFF);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             btn.setElevation(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 4, this.mContext.getResources().getDisplayMetrics()));
@@ -107,5 +104,12 @@ public class CustomButtonMenu {
 
     public boolean isMenuShowing() {
         return this.mIsMenuShowed;
+    }
+
+
+    public void destroyMenu()
+    {
+        RelativeLayout layout = (RelativeLayout) this.mToolBar.findViewById(R.id.toolbar_bottom_layer_fab);
+        layout.removeAllViews();
     }
 }

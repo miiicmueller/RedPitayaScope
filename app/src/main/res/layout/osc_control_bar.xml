@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout
     android:layout_height="fill_parent"
-    android:layout_weight="0.8"
     android:layout_width="match_parent"
     android:stretchColumns="*"
     xmlns:android="http://schemas.android.com/apk/res/android">
@@ -9,7 +8,6 @@
     <TableRow
         android:gravity="center"
         android:layout_height="fill_parent"
-        android:layout_weight="1.0"
         android:layout_width="match_parent">
 
         <!-- Premier bouton-->
@@ -25,7 +23,7 @@
                 android:id="@+id/oscModeTitle"
                 android:layout_column="0"
                 android:layout_height="match_parent"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:gravity="center"
                 android:text="AUTO"
                 android:duplicateParentState="true"

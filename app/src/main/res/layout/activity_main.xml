@@ -68,34 +68,33 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar_bottom"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:layout_gravity="center_horizontal|bottom"
-        android:layout_weight="0.8"
-        android:background="#002196F3"
+        android:background="#00000000"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="#00000000"
             android:orientation="vertical">
 
             <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/toolbar_bottom_layer_fab"
-                android:layout_width="match_parent"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="5dp"
-                android:background="#002196F3"
+                android:background="#00000000"
                 android:orientation="horizontal"></RelativeLayout>
 
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/toolbar_bottom_layer_menu"
-                android:layout_width="match_parent"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:background="#2196F3"
                 android:orientation="horizontal"></LinearLayout>

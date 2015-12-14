@@ -27,7 +27,7 @@ public interface IAppFragmentView {
      * @param tMin
      * @param tMax
      */
-    public void updateTimeRange(double tMin, double tMax);
+    public void updateTimeRange(double tMin, double tMax, TimeUnits timeUnits);
 
 
     /**

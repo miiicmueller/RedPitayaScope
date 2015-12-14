@@ -118,7 +118,7 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
                     mGraphTimeValue[0] = lim[0];
                     mGraphTimeValue[1] = lim[1];
 
-                    mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1]);
+                    mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1], mOscilloscopeApp.getTimeUnits());
                     mAppFragmentView.updateOscilloscopeTimeUnits(mOscilloscopeApp.getTimeUnits());
                 }
             }
@@ -142,7 +142,7 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mAppFragmentView.updateEnabledChannels(this.mEnabledChannels);
         this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL1, this.mChannelsOffset[0]);
         this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
-        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1]);
+        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1],mOscilloscopeApp.getTimeUnits());
         this.mAppFragmentView.updateOscilloscopeTimeUnits(this.mGraphTimeUnit);
         this.mAppFragmentView.hideChannelCustomMenu(this.customMenuShowed);
 
@@ -164,19 +164,28 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     @Override
     public void startController() {
 
+        Log.d(OSC_VIEW_CONTROLLER_TAG, "Controller start....");
+
+
         // Launch the app on the redpitaya board
         mAppServiceManager.setAppServiceFocus((IAppService) this.mOscilloscopeApp);
 
         // Add the new value listener
         mOscilloscopeApp.addAppValuesListener(this);
+
+
     }
 
     @Override
     public void stopController() {
         // Our application is the oscilloscope one
         this.mOscilloscopeApp = AppServiceFactory.getOscilloscopeInstance();
+
         // remove the listener
         mOscilloscopeApp.removeAppValuesListener(this);
+        ((AppServiceBase) this.mOscilloscopeApp).removeOnServiceListener();
+
+        Log.d(OSC_VIEW_CONTROLLER_TAG, "Controller stopped!");
     }
 
     @Override
@@ -271,8 +280,10 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     @Override
     public void butC1SettingsOnDoubleTap() {
 
-        //We automaticaly select the channel
-        selectEnableChannel(ChannelEnum.CHANNEL1);
+        //We automatically select the channel, if not selected
+        if (this.mSelectedChannel != ChannelEnum.CHANNEL1) {
+            selectEnableChannel(ChannelEnum.CHANNEL1);
+        }
         // Show/Hide the custom channel menu
         showCustomMenu(ChannelEnum.CHANNEL1);
     }
@@ -280,6 +291,9 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     @Override
     public void butC1SettingsOnSingleTapConfirmed() {
         selectEnableChannel(ChannelEnum.CHANNEL1);
+        // If we change the channel, we hide the menu
+        showCustomMenu(ChannelEnum.NONE);
+
     }
 
     private void selectEnableChannel(ChannelEnum channel) {
@@ -319,8 +333,11 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
 
     @Override
     public void butC2SettingsOnDoubleTap() {
-        //We automaticaly select the channel
-        selectEnableChannel(ChannelEnum.CHANNEL1);
+
+        //We automatically select the channel, if not selected
+        if (this.mSelectedChannel != ChannelEnum.CHANNEL2) {
+            selectEnableChannel(ChannelEnum.CHANNEL2);
+        }
 
         showCustomMenu(ChannelEnum.CHANNEL2);
     }
@@ -344,6 +361,9 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     @Override
     public void butC2SettingsOnSingleTapConfirmed() {
         selectEnableChannel(ChannelEnum.CHANNEL2);
+
+        // If we change the channel, we hide the menu
+        showCustomMenu(ChannelEnum.NONE);
     }
 
     @Override
@@ -459,7 +479,7 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mGraphTimeValue[0] = rescalePoint - deltaPRescaleLeft;
         this.mGraphTimeValue[1] = rescalePoint + deltaPRescaleRight;
 
-        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1]);
+        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1],mOscilloscopeApp.getTimeUnits());
     }
 
     @Override
@@ -478,6 +498,13 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     @Override
     public void onNewValues(Number[][][] newValuesArray) {
         this.mAppFragmentView.updateGraphValues(newValuesArray);
+
+        // Update of the channels characteristic
+        ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1));
+        ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2));
+        this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL1, channel1Info);
+        this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL2, channel2Info);
+
     }
 
 
@@ -510,7 +537,7 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mAppFragmentView.updateEnabledChannels(this.mEnabledChannels);
         this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL1, this.mChannelsOffset[0]);
         this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
-        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1]);
+        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1],mOscilloscopeApp.getTimeUnits());
 
         //Update the model
         this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);

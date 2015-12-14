@@ -32,10 +32,10 @@ public class ChannelMenu extends CustomButtonMenu {
     }
 
 
-    public ChannelMenu(Context context, Toolbar toolBar) {
+    public ChannelMenu(Context context, Toolbar toolBar, int menuColor) {
 
 
-        super(context, toolBar);
+        super(context, toolBar, menuColor);
         this.mContext = context;
         this.mButtonImageList = new ArrayList<>();
         this.mChannelMenuListener = null;

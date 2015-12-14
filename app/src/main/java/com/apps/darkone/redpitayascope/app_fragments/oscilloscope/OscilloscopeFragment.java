@@ -225,8 +225,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         mSingleShotBtn.hide();
 
 
-        mCustomChannel1Menu = new ChannelMenu(this.mContext, this.mBottomActionBar);
-        mCustomChannel2Menu = new ChannelMenu(this.mContext, this.mBottomActionBar);
+        mCustomChannel1Menu = new ChannelMenu(this.mContext, this.mBottomActionBar, this.mContext.getResources().getColor(R.color.channel1_color));
+        mCustomChannel2Menu = new ChannelMenu(this.mContext, this.mBottomActionBar, this.mContext.getResources().getColor(R.color.channel2_color));
 
 
         // ---------------------------------------------------------------------------------------------------
@@ -603,10 +603,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     @Override
     public void onStart() {
         Log.d("DEBUG_TAG", "OnStart");
+        super.onStart();
+
         // View controller instance and start
         mOscilloscopeFragmentController = (ITouchAppViewController) new OscilloscopeFragmentControllerApp(this, mContext);
         mOscilloscopeFragmentController.startController();
-        super.onStart();
     }
 
 
@@ -614,12 +615,14 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     public void onStop() {
         super.onStop();
         Log.d("DEBUG_TAG", "OnStop");
+        mOscilloscopeFragmentController.stopController();
         mRedrawer.finish();
-        //  mOscilloscopeFragmentController.stopController();
     }
 
     @Override
     public void onDestroyView() {
+        this.mCustomChannel1Menu.destroyMenu();
+        this.mCustomChannel2Menu.destroyMenu();
         super.onDestroyView();
     }
 
@@ -645,11 +648,20 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     }
 
     @Override
-    public void updateTimeRange(double tMin, double tMax) {
+    public void updateTimeRange(double tMin, double tMax, TimeUnits timeUnits) {
 
 
         double timePerDivision = (tMax - tMin) / OscilloscopeFragmentControllerApp.DIVISION_COUNT;
+        double timeDelay = tMin;
 
+        TextView timeUnitsText = (TextView) butTimeSettings.findViewById(R.id.timeBaseLine1);
+        TextView timePerDivText = (TextView) butTimeSettings.findViewById(R.id.timeBaseLine2);
+        TextView timeDelayText = (TextView) butTimeSettings.findViewById(R.id.timeBaseLine3);
+
+
+        timeUnitsText.setText(String.format("Units : %s", timeUnitToString(timeUnits)));
+        timePerDivText.setText(String.format("t/d : %03.03f %s", timePerDivision, timeUnitToString(timeUnits)));
+        timeDelayText.setText(String.format("Delay : %03.03f %s", timeDelay, timeUnitToString(timeUnits)));
 
         mOscPlot.setDomainBoundaries(tMin, BoundaryMode.FIXED, tMax, BoundaryMode.FIXED);
     }
@@ -746,9 +758,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         triggerLevel.setText(String.format("Level : %03.03fV", triggerInfo.getTriggerLevel()));
 
 
-        switch(triggerInfo.getTriggerChannel())
-        {
-            case  CHANNEL1:
+        switch (triggerInfo.getTriggerChannel()) {
+            case CHANNEL1:
                 triggerChannel.setText("Channel : C1");
                 this.mOscPlot.getGraphWidget().setTriggerColor(this.mContext.getResources().getColor(R.color.channel1_color));
                 break;
@@ -758,8 +769,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 break;
         }
 
-        switch(triggerInfo.getTriggerEdge())
-        {
+        switch (triggerInfo.getTriggerEdge()) {
             case RISING:
                 triggerEdge.setText("Edge : rising");
                 break;
@@ -775,7 +785,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         this.mChannel1Enabled = false;
         this.mChannel2Enabled = false;
-
 
 
         TextView c1Title = (TextView) butC1Settings.findViewById(R.id.chan1Title);
@@ -841,30 +850,29 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     @Override
     public void updateOscilloscopeTimeUnits(TimeUnits timeUnits) {
 
+        this.mOscPlot.setDomainLabel(timeUnitToString(timeUnits));
+
+    }
+
+    private String timeUnitToString(TimeUnits timeUnits) {
         switch (timeUnits) {
             case NS:
-                this.mOscPlot.setDomainLabel("ns");
-                break;
+                return "ns";
             case US:
-                this.mOscPlot.setDomainLabel("us");
-                break;
+                return "us";
             case MS:
-                this.mOscPlot.setDomainLabel("ms");
-                break;
+                return "ms";
             case S:
-                this.mOscPlot.setDomainLabel("s");
-                break;
+                return "s";
             default:
-                break;
+                return "";
         }
-
     }
 
     @Override
     public void showChannelCustomMenu(ChannelEnum channelMenuToShow) {
 
-        switch(channelMenuToShow)
-        {
+        switch (channelMenuToShow) {
             case CHANNEL1:
                 mCustomChannel1Menu.showMenu();
                 break;
@@ -879,8 +887,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     @Override
     public void hideChannelCustomMenu(ChannelEnum channelMenuToHide) {
-        switch(channelMenuToHide)
-        {
+        switch (channelMenuToHide) {
             case CHANNEL1:
                 mCustomChannel1Menu.hideMenu();
                 break;

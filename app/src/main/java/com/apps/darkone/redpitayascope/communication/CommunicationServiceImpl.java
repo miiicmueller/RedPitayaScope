@@ -12,7 +12,6 @@ import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.RequestFuture;
 import com.apps.darkone.redpitayascope.communication.commSAP.ICommunicationService;
 import com.apps.darkone.redpitayascope.communication.commSAP.IOnConnectionListener;
 import com.apps.darkone.redpitayascope.communication.commSAP.IOnDataListener;
@@ -26,10 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Created by DarkOne on 06.10.15.
@@ -203,7 +198,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
         // We need the if to not ask disconnection
         if (mCommState != CommunicationState.waitingForConnect) {
             this.mAppStopRequested = true;
-            while (mCommState != CommunicationState.waitingForConnect) ;
+            this.mAppStartRequested = false;
         }
         // Callback all listener for this event
         notifyConnectionEvents(EventCodeEnum.DISCONNECTED, mAppName);
@@ -604,6 +599,8 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
 //                    }
 //                    break;
                 case disconnecting:
+
+                    Log.d(COMM_IMPL_TAG, "Disconnecting for app...");
 
                     mAppStopRequested = false;
 

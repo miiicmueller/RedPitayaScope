@@ -6,7 +6,6 @@
       <module fileurl="file://$PROJECT_DIR$/RedPitayaScope.iml" filepath="$PROJECT_DIR$/RedPitayaScope.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/glplot/glplot.iml" filepath="$PROJECT_DIR$/glplot/glplot.iml" />
-      <module fileurl="file://$PROJECT_DIR$/volley/volley.iml" filepath="$PROJECT_DIR$/volley/volley.iml" />
     </modules>
   </component>
 </project>
