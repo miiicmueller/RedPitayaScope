@@ -41,6 +41,7 @@ import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscillo
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.OscilloscopeMode;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TimeUnits;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TriggerEdge;
+import com.apps.darkone.redpitayascope.menu.CustomButtonMenu;
 import com.apps.darkone.redpitayascope.menu.oscilloscope.ChannelMenu;
 
 import java.util.Arrays;
@@ -203,8 +204,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         mMainToolBar = (Toolbar) ((AppCompatActivity) getActivity()).findViewById(R.id.maintoolbar);
         mBottomActionBar = (Toolbar) ((AppCompatActivity) getActivity()).findViewById(R.id.toolbar_bottom);
 
-
         mToolBarVisible = true;
+
         LinearLayout layout = (LinearLayout) mBottomActionBar.findViewById(R.id.toolbar_bottom_layer_menu);
         layout.setBackgroundColor(this.mContext.getResources().getColor(R.color.button_background_pressed));
         View osc_toolbar = inflater.inflate(R.layout.osc_control_bar, layout, false);
@@ -229,6 +230,23 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         mCustomChannel2Menu = new ChannelMenu(this.mContext, this.mBottomActionBar, this.mContext.getResources().getColor(R.color.channel2_color));
 
 
+        mCustomChannel1Menu.setIOnCustomMenuStateChange(new CustomButtonMenu.IOnCustomMenuStateChange() {
+            @Override
+            public void onNewState(boolean isHidden) {
+                if (isHidden) {
+                    mOscilloscopeFragmentController.onCustomMenuHidden();
+                }
+            }
+        });
+
+        mCustomChannel2Menu.setIOnCustomMenuStateChange(new CustomButtonMenu.IOnCustomMenuStateChange() {
+            @Override
+            public void onNewState(boolean isHidden) {
+                if (isHidden) {
+                    mOscilloscopeFragmentController.onCustomMenuHidden();
+                }
+            }
+        });
 
         mCustomChannel1Menu.setOnChannelMenuListener(new ChannelMenu.IOnChannelMenuListener() {
             @Override
@@ -534,19 +552,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
                 // Show/Hide the action bar
                 if (mToolBarVisible) {
-                    mToolBarVisible = false;
-                    mMainToolBar.animate().translationX(-mMainToolBar.getRight()).setInterpolator(new AccelerateInterpolator((float) 2.0)).start();
-                    mBottomActionBar.animate().translationX(mBottomActionBar.getRight()).setInterpolator(new AccelerateInterpolator((float) 2.0)).start();
+                    hideToolBars();
                 } else {
+                    showToolBars();
 
-                    // If the bar was hidden
-                    if (!mMainActionBar.isShowing()) {
-                        mMainActionBar.show();
-                    }
 
-                    mToolBarVisible = true;
-                    mMainToolBar.animate().translationX(0).setInterpolator(new DecelerateInterpolator((float) 2.0)).start();
-                    mBottomActionBar.animate().translationX(0).setInterpolator(new DecelerateInterpolator((float) 2.0)).start();
                 }
                 return super.onSingleTapConfirmed(e);
             }
@@ -617,7 +627,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 // Ugly hack to detect scroll end
                 if (event.getAction() == MotionEvent.ACTION_UP ||
                         event.getAction() == MotionEvent.ACTION_CANCEL) {
-                        mOscilloscopeFragmentController.mOscPlotOnScrollEnd();
+                    mOscilloscopeFragmentController.mOscPlotOnScrollEnd();
                 }
 
                 return true;
@@ -629,9 +639,25 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
 
         Log.d("DEBUG_TAG", "onCreateView end");
-
-
+        showToolBars();
         return rootView;
+    }
+
+    private void hideToolBars() {
+        mToolBarVisible = false;
+        mMainToolBar.animate().translationX(-mMainToolBar.getRight()).setInterpolator(new AccelerateInterpolator((float) 2.0)).start();
+        mBottomActionBar.animate().translationX(mBottomActionBar.getRight()).setInterpolator(new AccelerateInterpolator((float) 2.0)).start();
+    }
+
+    private void showToolBars() {
+        // If the bar was hidden
+        if (!mMainActionBar.isShowing()) {
+            mMainActionBar.show();
+        }
+
+        mToolBarVisible = true;
+        mMainToolBar.animate().translationX(0).setInterpolator(new DecelerateInterpolator((float) 2.0)).start();
+        mBottomActionBar.animate().translationX(0).setInterpolator(new DecelerateInterpolator((float) 2.0)).start();
     }
 
 
@@ -670,6 +696,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         Log.d("DEBUG_TAG", "OnStop");
         mOscilloscopeFragmentController.stopController();
         mRedrawer.finish();
+        hideToolBars();
     }
 
     @Override
@@ -950,6 +977,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             case NONE:
                 break;
         }
+    }
+
+    @Override
+    public void hideChannelCustomMenuLayout() {
+        mCustomChannel1Menu.hideLayout();
     }
 
     // ----------------------------------------------------------------------------------

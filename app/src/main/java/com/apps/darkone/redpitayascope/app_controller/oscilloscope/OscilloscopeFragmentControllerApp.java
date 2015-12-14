@@ -434,12 +434,11 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
             if (scrollAngle > 80.0 && scrollAngle < 110.0) {
                 // We have an horizontal scroll
 
-                double ratio = (Math.abs(this.mGraphTimeValue[0] - this.mGraphTimeValue[1]) / 100.0);
 
                 // Change trigger delay
-                this.mTriggerDelay += (distanceX * ratio / (110.0));
-                this.mGraphTimeValue[0] += (distanceX * ratio / 110.0);
-                this.mGraphTimeValue[1] += (distanceX * ratio / 110.0);
+                this.mTriggerDelay += (distanceX / (50.0));
+                this.mGraphTimeValue[0] += (distanceX / 50.0);
+                this.mGraphTimeValue[1] += (distanceX / 50.0);
 
                 this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1], mOscilloscopeApp.getTimeUnits());
 
@@ -550,6 +549,16 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         Log.d(OSC_VIEW_CONTROLLER_TAG, "Scale end");
         this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
         this.onTouchPan = false;
+    }
+
+    @Override
+    public void onCustomMenuHidden() {
+
+        //Check if no menu is showed
+        if(this.customMenuShowed == ChannelEnum.NONE)
+        {
+            this.mAppFragmentView.hideChannelCustomMenuLayout();
+        }
     }
 
 

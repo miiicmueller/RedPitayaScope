@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * Created by DarkOne on 11.12.15.
  */
-public class ChannelMenu extends CustomButtonMenu implements CustomButtonMenu.IOnCustomMenuPressed {
+public class ChannelMenu extends CustomButtonMenu implements CustomButtonMenu.IOnCustomMenuButtonAction {
 
 
     private List<Map<Drawable,Integer>> mButtonTupleList;
