@@ -229,6 +229,52 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         mCustomChannel2Menu = new ChannelMenu(this.mContext, this.mBottomActionBar, this.mContext.getResources().getColor(R.color.channel2_color));
 
 
+
+        mCustomChannel1Menu.setOnChannelMenuListener(new ChannelMenu.IOnChannelMenuListener() {
+            @Override
+            public void onGainMenuButtonClick() {
+                // TODO Implement
+            }
+
+            @Override
+            public void onProbeAttMenuButtonClick() {
+                // TODO Implement
+            }
+
+            @Override
+            public void onChannelOffsetMenuButtonClick() {
+                // TODO Implement
+            }
+
+            @Override
+            public void onChannelScaleMenuClick() {
+                // TODO Implement
+            }
+        });
+
+        mCustomChannel2Menu.setOnChannelMenuListener(new ChannelMenu.IOnChannelMenuListener() {
+            @Override
+            public void onGainMenuButtonClick() {
+                // TODO Implement
+            }
+
+            @Override
+            public void onProbeAttMenuButtonClick() {
+                // TODO Implement
+            }
+
+            @Override
+            public void onChannelOffsetMenuButtonClick() {
+                // TODO Implement
+            }
+
+            @Override
+            public void onChannelScaleMenuClick() {
+                // TODO Implement
+            }
+        });
+
+
         // ---------------------------------------------------------------------------------------------------
         // Set des gestures sur les boutons et le graphe
         // Technical reference: http://developer.android.com/training/gestures/detector.html
@@ -567,6 +613,13 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             public boolean onTouch(View v, MotionEvent event) {
                 mXYPlotDetector.onTouchEvent(event);
                 mXYPlotScaleDetector.onTouchEvent(event);
+
+                // Ugly hack to detect scroll end
+                if (event.getAction() == MotionEvent.ACTION_UP ||
+                        event.getAction() == MotionEvent.ACTION_CANCEL) {
+                        mOscilloscopeFragmentController.mOscPlotOnScrollEnd();
+                }
+
                 return true;
             }
         });
@@ -725,8 +778,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 TextView offsetLine = (TextView) butC1Settings.findViewById(R.id.chan1Line1);
                 offsetLine.setText(String.format("Offset : %03.03fV", channelInfo.getOffset()));
 
-                TextView amplitudeLine = (TextView) butC1Settings.findViewById(R.id.chan1Line2);
-                amplitudeLine.setText(String.format("Amplitude : %03.03fV", channelInfo.getAmplitude()));
+                TextView voltPerDivLine = (TextView) butC1Settings.findViewById(R.id.chan1Line2);
+                voltPerDivLine.setText(String.format("Scale : %03.03fV/div", channelInfo.getVoltagePerDiv()));
 
                 TextView freqLine = (TextView) butC1Settings.findViewById(R.id.chan1Line3);
                 freqLine.setText(String.format("Frequency : %04.03fHz", channelInfo.getMeanFreq()));
@@ -737,8 +790,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 TextView offsetLine = (TextView) butC2Settings.findViewById(R.id.chan2Line1);
                 offsetLine.setText(String.format("Offset : %03.03fV", channelInfo.getOffset()));
 
-                TextView amplitudeLine = (TextView) butC2Settings.findViewById(R.id.chan2Line2);
-                amplitudeLine.setText(String.format("Amplitude : %03.03fV", channelInfo.getAmplitude()));
+                TextView voltPerDivLine = (TextView) butC2Settings.findViewById(R.id.chan2Line2);
+                voltPerDivLine.setText(String.format("Scale : %03.03fV/div", channelInfo.getVoltagePerDiv()));
 
                 TextView freqLine = (TextView) butC2Settings.findViewById(R.id.chan2Line3);
                 freqLine.setText(String.format("Frequency : %04.03fHz", channelInfo.getMeanFreq()));

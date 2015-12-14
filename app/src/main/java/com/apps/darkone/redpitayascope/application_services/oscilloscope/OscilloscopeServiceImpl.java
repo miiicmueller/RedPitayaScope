@@ -120,8 +120,10 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
     private static final String APP_SERVICE_NAME = "scope+gen";
     private ICommunicationService mCommunicationService;
     private List<IOnChannelsValueListener> mOnChannelsValueListenersList;
+    private static final double CHAN_GAIN_INIT = 1.0;
 
-    private double channelsOffset[];
+    private double mChannelsOffset[];
+    private double mChannelsGain[];
 
 
     public OscilloscopeServiceImpl() {
@@ -131,14 +133,19 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         //Create the list
         mOnChannelsValueListenersList = new ArrayList<IOnChannelsValueListener>();
 
-        channelsOffset = new double[2];
+        mChannelsOffset = new double[2];
 
-        for (int i = 0; i < channelsOffset.length; i++) {
-            channelsOffset[0] = 0.0;
+        for (int i = 0; i < mChannelsOffset.length; i++) {
+            mChannelsOffset[i] = 0.0;
+        }
+
+        mChannelsGain = new double[2];
+
+        for (int i = 0; i < mChannelsGain.length; i++) {
+            mChannelsGain[i] = CHAN_GAIN_INIT;
         }
 
         // Create the parameters
-
         if (!mParameterManager.isParamsAlreadyPresent(APP_SERVICE_NAME)) {
             mParameterManager.addNewAppsParams(APP_SERVICE_NAME);
         }
@@ -286,11 +293,11 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
 
         switch (timeUnits.intValue()) {
             case 0:
-               return TimeUnits.US ;
+                return TimeUnits.US;
             case 1:
-                return TimeUnits.MS ;
+                return TimeUnits.MS;
             case 2:
-                return TimeUnits.S ;
+                return TimeUnits.S;
             default:
         }
 
@@ -428,7 +435,6 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
     }
 
 
-
     @Override
     public void setAvergagingState(boolean avrgState) {
 
@@ -455,16 +461,17 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
 
         switch (channel) {
             case CHANNEL1:
-                channelsOffset[0] = offset;
+                mChannelsOffset[0] = offset;
                 break;
             case CHANNEL2:
-                channelsOffset[1] = offset;
+                mChannelsOffset[1] = offset;
                 break;
             default:
         }
 
 
     }
+
 
     @Override
     public void setChannelProbeAtt(ChannelEnum channel, ProbeAttenuation attenuation) {
@@ -535,11 +542,13 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
     }
 
     @Override
-    public void setChannelDivisionVoltage(ChannelEnum channel, double divisionVoltage) {
+    public void setChannelDivisionVoltageGain(ChannelEnum channel, double divisionVoltage) {
         switch (channel) {
             case CHANNEL1:
+                this.mChannelsGain[0] = divisionVoltage;
                 break;
             case CHANNEL2:
+                this.mChannelsGain[1] = divisionVoltage;
                 break;
             default:
         }
@@ -616,7 +625,7 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
 
                 for (Number entry : setEntry) {
 
-                    iValWithOffset = channelsOffset[channel] + points.get(entry).doubleValue();
+                    iValWithOffset = mChannelsOffset[channel] + (points.get(entry).doubleValue()) * mChannelsGain[channel];
 
                     channelsVals[channel][0][i] = entry;
                     channelsVals[channel][1][i] = iValWithOffset;

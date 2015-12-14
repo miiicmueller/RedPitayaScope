@@ -54,6 +54,7 @@ public interface ITouchAppViewController {
     public void mOscPlotOnSingleTapConfirmed();
     public void mOscPlotOnLongPress();
     public void mOscPlotOnScroll(float distanceX, float distanceY);
+    public void mOscPlotOnScrollEnd();
     public void mOscPlotOnFling(float velocityX, float velocityY);
     public void mOscPlotOnScaleBegin();
     public void mOscPlotOnScaleX(float X);

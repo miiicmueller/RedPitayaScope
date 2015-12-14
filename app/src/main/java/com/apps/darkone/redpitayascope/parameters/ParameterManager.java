@@ -152,6 +152,23 @@ public class ParameterManager {
     }
 
 
+    public void updateChannelsStat(String appName, JSONObject newParams) {
+        for (Parameter<Double> parameter : this.mAppsParameters.get(appName)) {
+
+            try {
+                if (parameter.isData()) {
+                    parameter.setParamValue(newParams.getDouble(parameter.getParamName()));
+                    Log.d(LOG_TAG, "Data " + parameter.getParamName() + " updated!");
+                }
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, "JSON parse error. The parameter " + parameter.getParamName() + " may not exsit...");
+            }
+
+
+        }
+    }
+
+
     public boolean isParamsChanges(String appName, JSONObject newParams) {
 
         boolean compareResult = false;

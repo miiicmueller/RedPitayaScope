@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity
 
         // Setting ip the service manager
         mAppServiceManager = AppServiceFactory.getAppServiceManager(this.getApplicationContext());
-        mAppServiceManager.runServices("192.168.43.112");
+        mAppServiceManager.runServices("192.168.3.158");
 
         getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,

@@ -108,6 +108,7 @@ public interface IOscilloscopeApp {
      */
     public void setChannelOffset(ChannelEnum channel, double offset);
 
+
     /**
      * Set the probe attenuation of the channel. 1X, 10X
      *
@@ -131,6 +132,6 @@ public interface IOscilloscopeApp {
      * @param channel
      * @param divisionVoltage
      */
-    public void setChannelDivisionVoltage(ChannelEnum channel, double divisionVoltage);
+    public void setChannelDivisionVoltageGain(ChannelEnum channel, double divisionVoltage);
 
 }

@@ -6,6 +6,7 @@ import android.util.Log;
 import com.apps.darkone.redpitayascope.app_fragments.oscilloscope.IAppFragmentView;
 import com.apps.darkone.redpitayascope.app_service_sap.IAppService;
 import com.apps.darkone.redpitayascope.app_service_sap.IOnServiceListener;
+import com.apps.darkone.redpitayascope.app_service_sap.ServiceStatus;
 import com.apps.darkone.redpitayascope.application_services.AppServiceBase;
 import com.apps.darkone.redpitayascope.application_services.AppServiceFactory;
 import com.apps.darkone.redpitayascope.application_services.AppServiceManager;
@@ -36,6 +37,7 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     private ChannelEnum customMenuShowed;
 
     private double[] mChannelsOffset;
+    private double[] mChannelVoltPerDiv;
     private double[] mGraphTimeValue;
     private double mTriggerDelay;
     private double mTriggerLevel;
@@ -46,9 +48,14 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
 
     private TimeUnits mGraphTimeUnit;
     private boolean onTouchPan;
+    private boolean mIsOnScroll;
 
     private static final int CHANNEL_COUNT = 2;
     public static final int DIVISION_COUNT = 9;
+    public static final double VOLTAGE_MAX = 5.0;
+    public static final double VOLTAGE_MIN = -5.0;
+    public static final double VOL_PER_DIV_INIT = 1.0;
+
     private static final String OSC_VIEW_CONTROLLER_TAG = "OSC_VIEW_CTRL";
 
 
@@ -79,6 +86,12 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mChannelsOffset = new double[CHANNEL_COUNT];
         this.mChannelsOffset[0] = 0.0;
         this.mChannelsOffset[1] = 0.0;
+
+        //Channel volt per div
+        this.mChannelVoltPerDiv = new double[CHANNEL_COUNT];
+        this.mChannelVoltPerDiv[0] = VOL_PER_DIV_INIT;
+        this.mChannelVoltPerDiv[1] = VOL_PER_DIV_INIT;
+
 
         //Time domain range
         this.mGraphTimeValue = new double[2];
@@ -123,6 +136,13 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
                 }
             }
         });
+
+        //Check if service is UP
+        if (((AppServiceBase) this.mOscilloscopeApp).getAppServiceStatus() == ServiceStatus.UP) {
+            Log.d(OSC_VIEW_CONTROLLER_TAG, "Service is already up!");
+            initializeModel();
+        }
+
     }
 
 
@@ -131,8 +151,10 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
 
         TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel);
 
-        ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1));
-        ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2));
+        ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1),
+                this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1), this.mChannelVoltPerDiv[0]);
+        ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2),
+                this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2), this.mChannelVoltPerDiv[1]);
         this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL1, channel1Info);
         this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL2, channel2Info);
         this.mAppFragmentView.updateTriggerInfo(trigInfo);
@@ -142,7 +164,7 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mAppFragmentView.updateEnabledChannels(this.mEnabledChannels);
         this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL1, this.mChannelsOffset[0]);
         this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
-        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1],mOscilloscopeApp.getTimeUnits());
+        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1], mOscilloscopeApp.getTimeUnits());
         this.mAppFragmentView.updateOscilloscopeTimeUnits(this.mGraphTimeUnit);
         this.mAppFragmentView.hideChannelCustomMenu(this.customMenuShowed);
 
@@ -158,6 +180,11 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
 
         this.mOscilloscopeApp.setChannelGain(ChannelEnum.CHANNEL1, ChannelGain.HV);
         this.mOscilloscopeApp.setChannelGain(ChannelEnum.CHANNEL2, ChannelGain.HV);
+
+        this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL1, this.mChannelsOffset[0]);
+        this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
+
+        this.mOscilloscopeApp.setMode(this.mMode);
     }
 
 
@@ -392,9 +419,12 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
 
 
         if (!this.onTouchPan) {
+
             double scrollAngle;
             double acos = Math.abs(distanceY) / Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 
+            // Lock the scroll
+            mIsOnScroll = true;
 
             // Check tha acos value is never > 1.0
             acos = Math.min(acos, 1.0);
@@ -411,8 +441,7 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
                 this.mGraphTimeValue[0] += (distanceX * ratio / 110.0);
                 this.mGraphTimeValue[1] += (distanceX * ratio / 110.0);
 
-                // Update the redpitaya board
-                this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
+                this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1], mOscilloscopeApp.getTimeUnits());
 
             } else if (scrollAngle < 20.0) {
                 // We have an vertical scroll
@@ -423,17 +452,19 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
                         this.mChannelsOffset[0] += (distanceY / 110.0);
                         this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL1, this.mChannelsOffset[0]);
 
-                        ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1));
+                        ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0] * this.mChannelVoltPerDiv[0], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1),
+                                this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1), this.mChannelVoltPerDiv[0]);
                         this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL1, this.mChannelsOffset[0]);
                         this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL1, channel1Info);
 
                         break;
                     case CHANNEL2:
-                        this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
                         this.mChannelsOffset[1] += (distanceY / 110.0);
+                        this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
                         this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
 
-                        ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2));
+                        ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1] * this.mChannelVoltPerDiv[1], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2),
+                                this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2), this.mChannelVoltPerDiv[1]);
                         this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
                         this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL2, channel2Info);
                         break;
@@ -444,6 +475,19 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
             }
 
             Log.d(OSC_VIEW_CONTROLLER_TAG, "Plot scroll X :" + distanceX + " Y :" + distanceY + " norm : " + acos + " angle : " + scrollAngle);
+        }
+    }
+
+    @Override
+    public void mOscPlotOnScrollEnd() {
+
+        if (mIsOnScroll) {
+
+            mIsOnScroll = false;
+
+            // Update the redpitaya board
+            this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
+
         }
     }
 
@@ -479,12 +523,26 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mGraphTimeValue[0] = rescalePoint - deltaPRescaleLeft;
         this.mGraphTimeValue[1] = rescalePoint + deltaPRescaleRight;
 
-        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1],mOscilloscopeApp.getTimeUnits());
+        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1], mOscilloscopeApp.getTimeUnits());
     }
 
     @Override
     public void mOscPlotOnScaleY(float Y) {
         Log.d(OSC_VIEW_CONTROLLER_TAG, "Plot rescale Y : " + Y);
+
+
+        switch (mSelectedChannel) {
+            case CHANNEL1:
+                this.mChannelVoltPerDiv[0] *= (double) 1 / Y;
+                this.mOscilloscopeApp.setChannelDivisionVoltageGain(ChannelEnum.CHANNEL1, 1 / this.mChannelVoltPerDiv[0]);
+                break;
+            case CHANNEL2:
+                this.mChannelVoltPerDiv[1] *= (double) 1 / Y;
+                this.mOscilloscopeApp.setChannelDivisionVoltageGain(ChannelEnum.CHANNEL2, 1 / this.mChannelVoltPerDiv[1]);
+                break;
+            case NONE:
+                break;
+        }
     }
 
     @Override
@@ -497,14 +555,17 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
 
     @Override
     public void onNewValues(Number[][][] newValuesArray) {
-        this.mAppFragmentView.updateGraphValues(newValuesArray);
-
         // Update of the channels characteristic
-        ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1));
-        ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2));
+        ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0] * this.mChannelVoltPerDiv[0],
+                this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1),
+                this.mChannelVoltPerDiv[0]);
+        ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1] * this.mChannelVoltPerDiv[1],
+                this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2),
+                this.mChannelVoltPerDiv[1]);
         this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL1, channel1Info);
         this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL2, channel2Info);
 
+        this.mAppFragmentView.updateGraphValues(newValuesArray);
     }
 
 
@@ -531,13 +592,16 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mTriggerDelay = 0.0;
         this.mTriggerLevel = 0.0;
 
+        // Touch attributes
+        this.onTouchPan = false;
+
         // Update the view
         this.mAppFragmentView.updateOscMode(this.mMode);
         this.mAppFragmentView.updateSelectedChannel(this.mSelectedChannel);
         this.mAppFragmentView.updateEnabledChannels(this.mEnabledChannels);
         this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL1, this.mChannelsOffset[0]);
         this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
-        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1],mOscilloscopeApp.getTimeUnits());
+        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1], mOscilloscopeApp.getTimeUnits());
 
         //Update the model
         this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
@@ -547,8 +611,10 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
 
 
-        ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1));
-        ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2));
+        ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1),
+                this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1), this.mChannelVoltPerDiv[0]);
+        ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2),
+                this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2), this.mChannelVoltPerDiv[1]);
         this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL1, channel1Info);
         this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL2, channel2Info);
     }

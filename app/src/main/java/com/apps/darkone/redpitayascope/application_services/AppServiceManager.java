@@ -50,7 +50,7 @@ public class AppServiceManager {
 
         ICommunicationService communicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
 
-        String actualRunningApp ;
+        String actualRunningApp;
 
         //Stop all running apps if the service is used
         if (communicationService.isServiceUsed()) {
@@ -95,14 +95,25 @@ public class AppServiceManager {
 
         if (this.mAppServiceList.contains(appService)) {
 
-            // Stop the service
-            if (communicationService.isServiceUsed()) {
-                for (IAppService app : mAppServiceList) {
-                    app.stopAppService();
+
+            // First check if we start the same service
+            if (!communicationService.getActualRunningAppName().equals(appService.getAppServiceName())) {
+                // Stop the service
+                if (communicationService.isServiceUsed()) {
+                    for (IAppService app : mAppServiceList) {
+
+                        if (communicationService.getActualRunningAppName().equals(app.getAppServiceName())) {
+                            app.stopAppService();
+                            // We wait for completion
+                            while (app.getAppServiceStatus() == ServiceStatus.UP) ;
+                        }
+                    }
                 }
             }
+
             appService.startAppService();
         }
+
     }
 
     public boolean isServiceAppUp(IAppService appService) {
