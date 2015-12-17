@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidplot.Plot;
 import com.androidplot.util.Redrawer;
 import com.androidplot.xy.BoundaryMode;
@@ -42,9 +44,11 @@ import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscillo
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TimeUnits;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TriggerEdge;
 import com.apps.darkone.redpitayascope.menu.oscilloscope.ChannelMenu;
+import com.apps.darkone.redpitayascope.menu.popupDialog;
 
 import java.util.Arrays;
 import java.util.Vector;
+
 
 /**
  * Created by DarkOne on 02.11.15.
@@ -359,6 +363,9 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 Log.d("DEBUG_TAG", "On Longpress butTimeSettings Event!");
                 // Callback interface
                 mOscilloscopeFragmentController.butTimeSettingsOnLongPress();
+
+                showEditDialog();
+
                 super.onLongPress(e);
             }
 
@@ -577,6 +584,29 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         Log.d("DEBUG_TAG", "onCreateView end");
 
+        String[] toppings = new String[20];
+
+        toppings[0] = "Cheese";
+        toppings[1] = "Pepperoni";
+        toppings[2] = "Black Olives";
+
+//        new MaterialDialog.Builder(this.mContext)
+//                .title("Salut")
+//                .items(toppings)
+//                .itemsCallback(new MaterialDialog.ListCallback() {
+//                    @Override
+//                    public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+//                        Log.d("DEBUG_TAG", "dialogboxSelection : " + text);
+//                    }
+//                })
+//                .show();
+
+        boolean wrapInScrollView = true;
+        new MaterialDialog.Builder(this.mContext)
+                .title("Salut")
+                .customView(R.layout.layout_popup_dialog_box, wrapInScrollView)
+                .positiveText("PositiveText")
+                .show();
 
         return rootView;
     }
@@ -944,4 +974,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             super.onScaleEnd(detector);
         }
     }
+
+    private void showEditDialog() {
+        FragmentManager fm = ((AppCompatActivity) getActivity()).getSupportFragmentManager();
+        popupDialog popupDialogTest = popupDialog.newInstance("Some Title");
+        popupDialogTest.show(fm, "fragment_edit_name");
+    }
+
 }
