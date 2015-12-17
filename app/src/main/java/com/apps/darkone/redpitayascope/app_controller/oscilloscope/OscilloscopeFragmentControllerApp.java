@@ -2,6 +2,7 @@ package com.apps.darkone.redpitayascope.app_controller.oscilloscope;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.OverScroller;
 
 import com.apps.darkone.redpitayascope.app_fragments.oscilloscope.IAppFragmentView;
 import com.apps.darkone.redpitayascope.app_service_sap.IAppService;
@@ -39,8 +40,10 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     private double[] mChannelsOffset;
     private double[] mChannelVoltPerDiv;
     private double[] mGraphTimeValue;
+
     private double mTriggerDelay;
     private double mTriggerLevel;
+    private boolean mTriggerSelected;
 
     private ChannelEnum mTriggerChannel;
     private TriggerEdge mTriggerEdge;
@@ -49,6 +52,10 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     private TimeUnits mGraphTimeUnit;
     private boolean onTouchPan;
     private boolean mIsOnScroll;
+    private boolean mIsOnFling;
+    private boolean mIsFlingAxisUpdated;
+    private OverScroller mScroller;
+
 
     private static final int CHANNEL_COUNT = 2;
     public static final int DIVISION_COUNT = 9;
@@ -66,8 +73,15 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mAppServiceManager = AppServiceFactory.getAppServiceManager(this.mContext);
 
 
+        // Scroller instantiation
+        this.mScroller = new OverScroller(this.mContext);
+
         // Touch attributes
         this.onTouchPan = false;
+        this.mTriggerSelected = false;
+        this.mIsOnScroll = false;
+        this.mIsOnFling = false;
+        this.mIsFlingAxisUpdated = false;
 
         // Our application is the oscilloscope one
         this.mOscilloscopeApp = AppServiceFactory.getOscilloscopeInstance();
@@ -149,8 +163,7 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     private void initializeView() {
         Log.d(OSC_VIEW_CONTROLLER_TAG, "initializeView...");
 
-        TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel);
-
+        TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel, this.mTriggerSelected);
         ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1),
                 this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1), this.mChannelVoltPerDiv[0]);
         ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2),
@@ -167,7 +180,6 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1], mOscilloscopeApp.getTimeUnits());
         this.mAppFragmentView.updateOscilloscopeTimeUnits(this.mGraphTimeUnit);
         this.mAppFragmentView.hideChannelCustomMenu(this.customMenuShowed);
-
     }
 
 
@@ -264,25 +276,32 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
                 break;
         }
 
-        TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel);
+        TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel, this.mTriggerSelected);
         this.mAppFragmentView.updateTriggerInfo(trigInfo);
     }
 
     @Override
     public void butTrigSettingsOnSingleTapConfirmed() {
-        //Change the trigger edge
-        switch (this.mTriggerEdge) {
-            case RISING:
-                this.mTriggerEdge = TriggerEdge.FALLING;
-                break;
-            case FALLING:
-                this.mTriggerEdge = TriggerEdge.RISING;
-                break;
-        }
+//        //Change the trigger edge
+//        switch (this.mTriggerEdge) {
+//            case RISING:
+//                this.mTriggerEdge = TriggerEdge.FALLING;
+//                break;
+//            case FALLING:
+//                this.mTriggerEdge = TriggerEdge.RISING;
+//                break;
+//        }
 
-        TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel);
+        // If trigger is selected, then we deselect it
+        this.mTriggerSelected = !this.mTriggerSelected;
+
+        TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel,
+                this.mTriggerSelected);
         this.mAppFragmentView.updateTriggerInfo(trigInfo);
+
+
     }
+
 
     @Override
     public void butTrigSettingsOnLongPress() {
@@ -324,33 +343,43 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     }
 
     private void selectEnableChannel(ChannelEnum channel) {
-        // Single tap + not selected + not enabled mean : selected and enabled
-        if ((this.mSelectedChannel != channel) && !(this.mEnabledChannels.contains(channel))) {
-            this.mEnabledChannels.add(channel);
-            this.mSelectedChannel = channel;
-        }
-        // If selected, then we disable it
-        else if ((this.mSelectedChannel == channel) && (this.mEnabledChannels.contains(channel))) {
-            this.mEnabledChannels.remove(channel);
 
-            //Check if the channel was selected
-            if (this.mSelectedChannel == channel) {
-                // we have to switch either to channel 2 (if enabled), or none
-                if (this.mEnabledChannels.size() != 0) {
-                    this.mSelectedChannel = this.mEnabledChannels.get(0);
-                } else {
-                    this.mSelectedChannel = ChannelEnum.NONE;
+        // If the trigger was selected, we deselect if
+        if (this.mTriggerSelected) {
+            this.mTriggerSelected = true;
+
+            TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel, this.mTriggerSelected);
+            this.mAppFragmentView.updateTriggerInfo(trigInfo);
+
+        } else {
+            // Single tap + not selected + not enabled mean : selected and enabled
+            if ((this.mSelectedChannel != channel) && !(this.mEnabledChannels.contains(channel))) {
+                this.mEnabledChannels.add(channel);
+                this.mSelectedChannel = channel;
+            }
+            // If selected, then we disable it
+            else if ((this.mSelectedChannel == channel) && (this.mEnabledChannels.contains(channel))) {
+                this.mEnabledChannels.remove(channel);
+
+                //Check if the channel was selected
+                if (this.mSelectedChannel == channel) {
+                    // we have to switch either to channel 2 (if enabled), or none
+                    if (this.mEnabledChannels.size() != 0) {
+                        this.mSelectedChannel = this.mEnabledChannels.get(0);
+                    } else {
+                        this.mSelectedChannel = ChannelEnum.NONE;
+                    }
                 }
             }
-        }
-        // If enable, the we only select it
-        else if (this.mEnabledChannels.contains(channel)) {
-            this.mSelectedChannel = channel;
-        }
+            // If enable, the we only select it
+            else if (this.mEnabledChannels.contains(channel)) {
+                this.mSelectedChannel = channel;
+            }
 
-        //Update the view
-        this.mAppFragmentView.updateSelectedChannel(this.mSelectedChannel);
-        this.mAppFragmentView.updateEnabledChannels(this.mEnabledChannels);
+            //Update the view
+            this.mAppFragmentView.updateSelectedChannel(this.mSelectedChannel);
+            this.mAppFragmentView.updateEnabledChannels(this.mEnabledChannels);
+        }
     }
 
     @Override
@@ -420,15 +449,11 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
 
         if (!this.onTouchPan) {
 
-            double scrollAngle;
-            double acos = Math.abs(distanceY) / Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+            double scrollAngle = getMotionAngleFromVector2(distanceX, distanceY);
 
             // Lock the scroll
             mIsOnScroll = true;
 
-            // Check tha acos value is never > 1.0
-            acos = Math.min(acos, 1.0);
-            scrollAngle = Math.acos(acos) * (180.0 / Math.PI);
 
             // Change the value due to the gest
             if (scrollAngle > 80.0 && scrollAngle < 110.0) {
@@ -472,29 +497,80 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
                 }
 
             }
-
-            Log.d(OSC_VIEW_CONTROLLER_TAG, "Plot scroll X :" + distanceX + " Y :" + distanceY + " norm : " + acos + " angle : " + scrollAngle);
         }
+    }
+
+    private double getMotionAngleFromVector2(float distanceX, float distanceY) {
+        // Be careful that we never be over 1 for the cosinus
+        return Math.acos(Math.min(Math.abs(distanceY) / Math.sqrt(distanceX * distanceX + distanceY * distanceY), 1.0)) * (180.0 / Math.PI);
     }
 
     @Override
     public void mOscPlotOnScrollEnd() {
 
         if (mIsOnScroll) {
-
             mIsOnScroll = false;
-
             // Update the redpitaya board
             this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
-
         }
+
+        mIsOnFling = false;
     }
 
 
     @Override
     public void mOscPlotOnFling(float velocityX, float velocityY) {
-        Log.d(OSC_VIEW_CONTROLLER_TAG, "Plot fling X : " + velocityX + " Y : " + velocityY);
+        Log.d(OSC_VIEW_CONTROLLER_TAG, "Plot flingX X : " + velocityX + " Y : " + velocityY);
+
+        if (!this.mIsOnFling) {
+            this.mIsOnFling = true;
+            this.mIsFlingAxisUpdated = false;
+        }
+
+        flingX((int) velocityX, (int) velocityY);
     }
+
+
+    private void flingX(int velocityX, int velocityY) {
+
+        int xStart = 0; //this.mGraphTimeValue[0]
+        int xWidth = this.mContext.getResources().getDisplayMetrics().widthPixels; //Math.abs(xStart - this.mGraphTimeValue[1]);
+
+        // We can scroll one right
+        int xScrollMin = xStart - xWidth;
+        int xScrollMax = 2 * xWidth;
+
+        // If the scroller isn't finished we make a update
+        if(mScroller.computeScrollOffset())
+        {
+            this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
+        }
+
+        // Before flinging, aborts the current animation.
+        mScroller.forceFinished(true);
+        // Begins the animation
+        this.mScroller.fling(
+                // Current scroll position
+                xStart,
+                0,
+                velocityX,
+                velocityY,
+            /*
+             * Minimum and maximum scroll positions. The minimum scroll
+             * position is generally zero and the maximum scroll position
+             * is generally the content size less the screen size. So if the
+             * content width is 1000 pixels and the screen width is 200
+             * pixels, the maximum scroll offset should be 800 pixels.
+             */
+                xScrollMin, xScrollMax,
+                0, 0,
+                // The edges of the content. This comes into play when using
+                // the EdgeEffect class to draw "glow" overlays.
+                xWidth / 2,
+                0);
+
+    }
+
 
     @Override
     public void mOscPlotOnScaleBegin() {
@@ -552,11 +628,34 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     }
 
     @Override
+    public void updateComputeFling() {
+
+        // Update the scrolling thread
+        if (this.mScroller.computeScrollOffset()) {
+            // time/pix
+            double scaleResTimePerPixel = Math.abs(this.mGraphTimeValue[0] + this.mGraphTimeValue[1]) / this.mContext.getResources().getDisplayMetrics().widthPixels;
+            int xNewPixelValue = this.mScroller.getCurrX();
+
+            // time = time/pix * pix
+            double tOffsetTime = scaleResTimePerPixel * xNewPixelValue;
+
+            this.mGraphTimeValue[0] += tOffsetTime;
+            this.mGraphTimeValue[1] += tOffsetTime;
+
+            this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1], mOscilloscopeApp.getTimeUnits());
+        }
+        // If fling is finished and we don't updated the axis ranges
+        else if(!this.mIsFlingAxisUpdated)
+        {
+            this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
+        }
+    }
+
+    @Override
     public void onCustomMenuHidden() {
 
         //Check if no menu is showed
-        if(this.customMenuShowed == ChannelEnum.NONE)
-        {
+        if (this.customMenuShowed == ChannelEnum.NONE) {
             this.mAppFragmentView.hideChannelCustomMenuLayout();
         }
     }

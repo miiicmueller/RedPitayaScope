@@ -61,6 +61,7 @@ public interface ITouchAppViewController {
     public void mOscPlotOnScaleY(float Y);
     public void mOscPlotOnScaleEnd();
 
+    public void updateComputeFling();
 
     public void onCustomMenuHidden();
 

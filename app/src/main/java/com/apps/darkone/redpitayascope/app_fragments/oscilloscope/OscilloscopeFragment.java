@@ -2,6 +2,7 @@ package com.apps.darkone.redpitayascope.app_fragments.oscilloscope;
 
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.androidplot.Plot;
+import com.androidplot.PlotListener;
 import com.androidplot.util.Redrawer;
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
@@ -198,7 +200,19 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 20, false);
 
 
-        mRedrawer.start();
+        mOscPlot.addListener(new PlotListener() {
+            @Override
+            public void onBeforeDraw(Plot source, Canvas canvas) {
+                // Tell the controller to compute the scroll domain value
+                // TODO ...
+            }
+
+            @Override
+            public void onAfterDraw(Plot source, Canvas canvas) {
+
+            }
+        });
+
 
         mMainActionBar = (ActionBar) ((AppCompatActivity) getActivity()).getSupportActionBar();
         mMainToolBar = (Toolbar) ((AppCompatActivity) getActivity()).findViewById(R.id.maintoolbar);
@@ -640,6 +654,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         Log.d("DEBUG_TAG", "onCreateView end");
         showToolBars();
+
+
         return rootView;
     }
 
@@ -687,6 +703,9 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         // View controller instance and start
         mOscilloscopeFragmentController = (ITouchAppViewController) new OscilloscopeFragmentControllerApp(this, mContext);
         mOscilloscopeFragmentController.startController();
+
+        mRedrawer.start();
+
     }
 
 
@@ -831,9 +850,17 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     @Override
     public void updateTriggerInfo(TriggerInfo triggerInfo) {
+        TextView triggerTitle = (TextView) butTrigSettings.findViewById(R.id.trigTitle);
         TextView triggerChannel = (TextView) butTrigSettings.findViewById(R.id.trigLine1);
         TextView triggerLevel = (TextView) butTrigSettings.findViewById(R.id.trigLine2);
         TextView triggerEdge = (TextView) butTrigSettings.findViewById(R.id.trigLine3);
+
+        triggerTitle.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+        triggerChannel.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+        triggerLevel.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+        triggerEdge.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+
+        triggerTitle.setTypeface(null, Typeface.NORMAL);
 
         triggerLevel.setText(String.format("Level : %03.03fV", triggerInfo.getTriggerLevel()));
 
@@ -856,6 +883,12 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             case FALLING:
                 triggerEdge.setText("Edge : falling");
                 break;
+        }
+
+
+        if(triggerInfo.isSelected())
+        {
+            triggerTitle.setTypeface(null, Typeface.BOLD);
         }
     }
 
