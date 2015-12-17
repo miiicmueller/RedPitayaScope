@@ -3,8 +3,9 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleHome" value="C:\Program Files\Android\Android Studio\gradle\gradle-2.4" />
         <option name="gradleJvm" value="1.7" />
         <option name="modules">
           <set>
@@ -12,6 +13,7 @@
             <option value="$PROJECT_DIR$/AndroidPlot-Core" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/glplot" />
+            <option value="$PROJECT_DIR$/material_dialog_core" />
             <option value="$PROJECT_DIR$/volley" />
           </set>
         </option>

@@ -1,1 +1,1 @@
-include ':app', ':AndroidPlot-Core', ':glplot', ':volley'
+include ':app', ':AndroidPlot-Core', ':glplot', ':volley', ':material_dialog_core'

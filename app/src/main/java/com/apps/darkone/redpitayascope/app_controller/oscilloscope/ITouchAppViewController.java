@@ -1,5 +1,7 @@
 package com.apps.darkone.redpitayascope.app_controller.oscilloscope;
 
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelEnum;
+
 /**
  * Created by Matthieu on 23.11.2015.
  */
@@ -62,5 +64,8 @@ public interface ITouchAppViewController {
     public void mOscPlotOnScaleEnd();
 
     public void onCustomMenuHidden();
+
+    // get channel infos
+    public void getChannelInfo(ChannelEnum channel, ChannelInfo channelInfo);
 
 }

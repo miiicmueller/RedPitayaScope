@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string-array name="trigger_mode_">
+        <item>Rising Edge</item>
+        <item>Falling Edge</item>
+        <item>Rising and Falling Edge</item>
+    </string-array>
+</resources>
