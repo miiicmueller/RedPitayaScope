@@ -200,8 +200,6 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
             this.mAppStopRequested = true;
             this.mAppStartRequested = false;
         }
-        // Callback all listener for this event
-        notifyConnectionEvents(EventCodeEnum.DISCONNECTED, mAppName);
     }
 
     @Override
@@ -395,9 +393,6 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
                                                 // Connection was possible
                                                 mConnectionState = HARWARE_CONNECTION_OK;
 
-                                                // Callback all listener for this event
-                                                notifyConnectionEvents(EventCodeEnum.APP_STARTED, mAppName);
-
                                             } else {
                                                 Log.d(COMM_IMPL_TAG, "Response: " + response.toString());
 
@@ -420,9 +415,6 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
                                     public void onErrorResponse(VolleyError error) {
                                         Log.d(COMM_IMPL_TAG, "Error: " + error.toString());
 
-                                        // Callback all listener for this event
-                                        notifyConnectionEvents(EventCodeEnum.CONNECTION_ERROR, mAppName);
-
                                         mConnectionState = HARWARE_CONNECTION_ERROR;
                                     }
                                 });
@@ -442,15 +434,19 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
                         mConnectionState = HARDWARE_CONNECTION_PROBE;
                         changeCommState(CommunicationState.connecting);
 
+                        // Callback all listener for this event
+                        notifyConnectionEvents(EventCodeEnum.CONNECTION_ERROR, mAppName);
+
                     } else if (mConnectionState == HARWARE_CONNECTION_OK) {
 
-
                         //Only create once the string url
-
                         url = new StringBuffer();
                         url.append("http://" + mBoardIpAdress + "/data");
 
                         changeCommState(CommunicationState.running);
+
+                        // Callback all listener for this event
+                        notifyConnectionEvents(EventCodeEnum.APP_STARTED, mAppName);
                     }
                     break;
                 case running:
@@ -529,10 +525,10 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
                                                 listener.newDataAvailable(responseAppName, channelsDatasContainer);
                                             }
 
-//                                            // Callback the params
-//                                            for (IOnParamListener listener : mParamListenerList) {
-//                                                listener.newParamsAvailable(responseAppName, jsonParamsObj);
-//                                            }
+                                            // Callback the params
+                                            for (IOnParamListener listener : mParamListenerList) {
+                                                listener.newSignalDataAvailable(responseAppName, jsonParamsObj);
+                                            }
                                         } else {
                                             // We get an error. Try to restart the App
                                             mConnectionState = HARDWARE_CONNECTION_PROBE;
@@ -588,6 +584,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
                         url.append("http://" + mBoardIpAdress + "/bazaar?stop=" + mAppName);
 
                         changeCommState(CommunicationState.disconnecting);
+
                     }
                     break;
 
@@ -625,6 +622,9 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
                     // Access the RequestQueue through your singleton class.
                     mRequestQueueGetData.add(jsObjRequest);
                     changeCommState(CommunicationState.waitingForConnect);
+
+                    notifyConnectionEvents(EventCodeEnum.DISCONNECTED, mAppName);
+
                     break;
                 default:
                     break;

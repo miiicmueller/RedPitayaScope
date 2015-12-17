@@ -43,6 +43,7 @@ import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscillo
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.OscilloscopeMode;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TimeUnits;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TriggerEdge;
+import com.apps.darkone.redpitayascope.menu.CustomButtonMenu;
 import com.apps.darkone.redpitayascope.menu.oscilloscope.ChannelMenu;
 import com.apps.darkone.redpitayascope.menu.popupDialog;
 
@@ -207,8 +208,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         mMainToolBar = (Toolbar) ((AppCompatActivity) getActivity()).findViewById(R.id.maintoolbar);
         mBottomActionBar = (Toolbar) ((AppCompatActivity) getActivity()).findViewById(R.id.toolbar_bottom);
 
-
         mToolBarVisible = true;
+
         LinearLayout layout = (LinearLayout) mBottomActionBar.findViewById(R.id.toolbar_bottom_layer_menu);
         layout.setBackgroundColor(this.mContext.getResources().getColor(R.color.button_background_pressed));
         View osc_toolbar = inflater.inflate(R.layout.osc_control_bar, layout, false);
@@ -231,6 +232,69 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         mCustomChannel1Menu = new ChannelMenu(this.mContext, this.mBottomActionBar, this.mContext.getResources().getColor(R.color.channel1_color));
         mCustomChannel2Menu = new ChannelMenu(this.mContext, this.mBottomActionBar, this.mContext.getResources().getColor(R.color.channel2_color));
+
+
+        mCustomChannel1Menu.setIOnCustomMenuStateChange(new CustomButtonMenu.IOnCustomMenuStateChange() {
+            @Override
+            public void onNewState(boolean isHidden) {
+                if (isHidden) {
+                    mOscilloscopeFragmentController.onCustomMenuHidden();
+                }
+            }
+        });
+
+        mCustomChannel2Menu.setIOnCustomMenuStateChange(new CustomButtonMenu.IOnCustomMenuStateChange() {
+            @Override
+            public void onNewState(boolean isHidden) {
+                if (isHidden) {
+                    mOscilloscopeFragmentController.onCustomMenuHidden();
+                }
+            }
+        });
+
+        mCustomChannel1Menu.setOnChannelMenuListener(new ChannelMenu.IOnChannelMenuListener() {
+            @Override
+            public void onGainMenuButtonClick() {
+                // TODO Implement
+            }
+
+            @Override
+            public void onProbeAttMenuButtonClick() {
+                // TODO Implement
+            }
+
+            @Override
+            public void onChannelOffsetMenuButtonClick() {
+                // TODO Implement
+            }
+
+            @Override
+            public void onChannelScaleMenuClick() {
+                // TODO Implement
+            }
+        });
+
+        mCustomChannel2Menu.setOnChannelMenuListener(new ChannelMenu.IOnChannelMenuListener() {
+            @Override
+            public void onGainMenuButtonClick() {
+                // TODO Implement
+            }
+
+            @Override
+            public void onProbeAttMenuButtonClick() {
+                // TODO Implement
+            }
+
+            @Override
+            public void onChannelOffsetMenuButtonClick() {
+                // TODO Implement
+            }
+
+            @Override
+            public void onChannelScaleMenuClick() {
+                // TODO Implement
+            }
+        });
 
 
         // ---------------------------------------------------------------------------------------------------
@@ -495,19 +559,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
                 // Show/Hide the action bar
                 if (mToolBarVisible) {
-                    mToolBarVisible = false;
-                    mMainToolBar.animate().translationX(-mMainToolBar.getRight()).setInterpolator(new AccelerateInterpolator((float) 2.0)).start();
-                    mBottomActionBar.animate().translationX(mBottomActionBar.getRight()).setInterpolator(new AccelerateInterpolator((float) 2.0)).start();
+                    hideToolBars();
                 } else {
+                    showToolBars();
 
-                    // If the bar was hidden
-                    if (!mMainActionBar.isShowing()) {
-                        mMainActionBar.show();
-                    }
 
-                    mToolBarVisible = true;
-                    mMainToolBar.animate().translationX(0).setInterpolator(new DecelerateInterpolator((float) 2.0)).start();
-                    mBottomActionBar.animate().translationX(0).setInterpolator(new DecelerateInterpolator((float) 2.0)).start();
                 }
                 return super.onSingleTapConfirmed(e);
             }
@@ -574,6 +630,13 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             public boolean onTouch(View v, MotionEvent event) {
                 mXYPlotDetector.onTouchEvent(event);
                 mXYPlotScaleDetector.onTouchEvent(event);
+
+                // Ugly hack to detect scroll end
+                if (event.getAction() == MotionEvent.ACTION_UP ||
+                        event.getAction() == MotionEvent.ACTION_CANCEL) {
+                    mOscilloscopeFragmentController.mOscPlotOnScrollEnd();
+                }
+
                 return true;
             }
         });
@@ -583,23 +646,15 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
 
         Log.d("DEBUG_TAG", "onCreateView end");
+        showToolBars();
+        return rootView;
+    }
 
         String[] toppings = new String[20];
 
         toppings[0] = "Cheese";
         toppings[1] = "Pepperoni";
         toppings[2] = "Black Olives";
-
-//        new MaterialDialog.Builder(this.mContext)
-//                .title("Salut")
-//                .items(toppings)
-//                .itemsCallback(new MaterialDialog.ListCallback() {
-//                    @Override
-//                    public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-//                        Log.d("DEBUG_TAG", "dialogboxSelection : " + text);
-//                    }
-//                })
-//                .show();
 
         boolean wrapInScrollView = true;
         new MaterialDialog.Builder(this.mContext)
@@ -608,7 +663,22 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 .positiveText("PositiveText")
                 .show();
 
-        return rootView;
+    private void hideToolBars() {
+        mToolBarVisible = false;
+        mMainToolBar.animate().translationX(-mMainToolBar.getRight()).setInterpolator(new AccelerateInterpolator((float) 2.0)).start();
+        mBottomActionBar.animate().translationX(mBottomActionBar.getRight()).setInterpolator(new AccelerateInterpolator((float) 2.0)).start();
+    }
+
+
+    private void showToolBars() {
+        // If the bar was hidden
+        if (!mMainActionBar.isShowing()) {
+            mMainActionBar.show();
+        }
+
+        mToolBarVisible = true;
+        mMainToolBar.animate().translationX(0).setInterpolator(new DecelerateInterpolator((float) 2.0)).start();
+        mBottomActionBar.animate().translationX(0).setInterpolator(new DecelerateInterpolator((float) 2.0)).start();
     }
 
 
@@ -647,6 +717,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         Log.d("DEBUG_TAG", "OnStop");
         mOscilloscopeFragmentController.stopController();
         mRedrawer.finish();
+        hideToolBars();
     }
 
     @Override
@@ -755,8 +826,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 TextView offsetLine = (TextView) butC1Settings.findViewById(R.id.chan1Line1);
                 offsetLine.setText(String.format("Offset : %03.03fV", channelInfo.getOffset()));
 
-                TextView amplitudeLine = (TextView) butC1Settings.findViewById(R.id.chan1Line2);
-                amplitudeLine.setText(String.format("Amplitude : %03.03fV", channelInfo.getAmplitude()));
+                TextView voltPerDivLine = (TextView) butC1Settings.findViewById(R.id.chan1Line2);
+                voltPerDivLine.setText(String.format("Scale : %03.03fV/div", channelInfo.getVoltagePerDiv()));
 
                 TextView freqLine = (TextView) butC1Settings.findViewById(R.id.chan1Line3);
                 freqLine.setText(String.format("Frequency : %04.03fHz", channelInfo.getMeanFreq()));
@@ -767,8 +838,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 TextView offsetLine = (TextView) butC2Settings.findViewById(R.id.chan2Line1);
                 offsetLine.setText(String.format("Offset : %03.03fV", channelInfo.getOffset()));
 
-                TextView amplitudeLine = (TextView) butC2Settings.findViewById(R.id.chan2Line2);
-                amplitudeLine.setText(String.format("Amplitude : %03.03fV", channelInfo.getAmplitude()));
+                TextView voltPerDivLine = (TextView) butC2Settings.findViewById(R.id.chan2Line2);
+                voltPerDivLine.setText(String.format("Scale : %03.03fV/div", channelInfo.getVoltagePerDiv()));
 
                 TextView freqLine = (TextView) butC2Settings.findViewById(R.id.chan2Line3);
                 freqLine.setText(String.format("Frequency : %04.03fHz", channelInfo.getMeanFreq()));
@@ -927,6 +998,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             case NONE:
                 break;
         }
+    }
+
+    @Override
+    public void hideChannelCustomMenuLayout() {
+        mCustomChannel1Menu.hideLayout();
     }
 
     // ----------------------------------------------------------------------------------

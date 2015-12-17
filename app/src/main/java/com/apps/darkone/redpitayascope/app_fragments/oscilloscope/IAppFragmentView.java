@@ -105,5 +105,7 @@ public interface IAppFragmentView {
     public void hideChannelCustomMenu(ChannelEnum channelMenuToShow);
 
 
+    public void hideChannelCustomMenuLayout();
+
 }
 

@@ -129,12 +129,17 @@ public class AppServiceBase implements IAppService, IOnConnectionListener, IOnPa
             // Always upload the parameters
             mParameterManager.updateParamsFromJson(appName, newParams);
 
-//            if (!mParameterManager.isParamsChanges(appName, newParams)) {
-//                Log.d(appName, "New params available...");
+            // Tell listener that new params are available
+            notifyParameterUpdated();
+        }
+    }
 
-                // Tell listener that new params are available
-                notifyParameterUpdated();
-//            }
+    @Override
+    public void newSignalDataAvailable(String appName, JSONObject newParams) {
+        // It's for us...
+        if (isAppConcerned(appName)) {
+            // Always upload the parameters
+            mParameterManager.updateChannelsStat(appName, newParams);
         }
     }
 
