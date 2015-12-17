@@ -27,6 +27,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -275,18 +276,28 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                         .title("Channel 1: Offset votage [V]")
                         .customView(R.layout.layout_popup_offset, wrapInScrollView)
                         .positiveText("OK")
-                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                // TODO
+                        .build();
 
-                                ChannelInfo info = new ChannelInfo(localChannelInfos);
 
-                                Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
-                                // Refresh the channel info
-                                mOscilloscopeFragmentController.setChannelInfo(ChannelEnum.CHANNEL1, info);
-                            }
-                        })
+                final EditText numberEditText = (EditText)view.getCustomView().findViewById(R.id.editText2);
+
+                        view.getBuilder()
+                                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                    @Override
+                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                        Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
+
+                                        ChannelInfo info = new ChannelInfo(localChannelInfos);
+                                        // read the value number and put it in channelInfo object
+                                        try {
+                                            info.setmOffset(Double.valueOf(numberEditText.getText().toString()));
+                                        } catch (Exception e) {
+                                            Toast.makeText(mContext, "No numerical value has been entered!", 3).show();
+                                        };
+                                        // Refresh the channel info
+                                        mOscilloscopeFragmentController.setChannelInfo(ChannelEnum.CHANNEL1, info);
+                                    }
+                                })
                         .show();
 
                 // Display an int in the numberTextview of the actual offset
