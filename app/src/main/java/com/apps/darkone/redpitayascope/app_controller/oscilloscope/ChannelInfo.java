@@ -26,6 +26,13 @@ public class ChannelInfo {
         this.mVoltagePerDiv = 0;
     }
 
+    public ChannelInfo(final ChannelInfo channel) {
+        this.mAmplitude = channel.getAmplitude();
+        this.mMeanFreq = channel.getMeanFreq();
+        this.mOffset = channel.getOffset();
+        this.mVoltagePerDiv = channel.getVoltagePerDiv();
+    }
+
 
     public double getOffset() {
         return mOffset;
@@ -43,4 +50,20 @@ public class ChannelInfo {
         return mVoltagePerDiv;
     }
 
+
+    public void setmOffset(double mOffset) {
+        this.mOffset = mOffset;
+    }
+
+    public void setmMeanFreq(double mMeanFreq) {
+        this.mMeanFreq = mMeanFreq;
+    }
+
+    public void setmAmplitude(double mAmplitude) {
+        this.mAmplitude = mAmplitude;
+    }
+
+    public void setmVoltagePerDiv(double mVoltagePerDiv) {
+        this.mVoltagePerDiv = mVoltagePerDiv;
+    }
 }
