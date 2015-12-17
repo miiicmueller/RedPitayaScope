@@ -561,6 +561,28 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         }
     }
 
+    @Override
+    public void getChannelInfo(ChannelEnum channel, ChannelInfo channelInfo) {
+
+        switch(channel){
+            case CHANNEL1:
+                ChannelInfo locChannel1Info = new ChannelInfo(this.mChannelsOffset[0] * this.mChannelVoltPerDiv[0],
+                        this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1),
+                        this.mChannelVoltPerDiv[0]);
+
+                channelInfo  = locChannel1Info;
+            break;
+            case CHANNEL2:
+                ChannelInfo locChannel2Info = new ChannelInfo(this.mChannelsOffset[1] * this.mChannelVoltPerDiv[1],
+                        this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2),
+                        this.mChannelVoltPerDiv[1]);
+
+                channelInfo  = locChannel2Info;
+            break;
+        }
+
+    }
+
 
     @Override
     public void onNewValues(Number[][][] newValuesArray) {
@@ -647,5 +669,6 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     @Override
     public void onServiceLoading(String appName) {
         Log.d(OSC_VIEW_CONTROLLER_TAG, "Service loading....");
+
     }
 }

@@ -19,6 +19,13 @@ public class ChannelInfo {
         this.mVoltagePerDiv = voltagePerDiv;
     }
 
+    public ChannelInfo() {
+        this.mAmplitude = 0;
+        this.mMeanFreq = 0;
+        this.mOffset = 0;
+        this.mVoltagePerDiv = 0;
+    }
+
 
     public double getOffset() {
         return mOffset;

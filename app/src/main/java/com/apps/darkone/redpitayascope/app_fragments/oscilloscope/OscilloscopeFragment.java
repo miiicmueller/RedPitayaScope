@@ -20,12 +20,15 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidplot.Plot;
 import com.androidplot.util.Redrawer;
@@ -266,6 +269,24 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             @Override
             public void onChannelOffsetMenuButtonClick() {
                 // TODO Implement
+
+                // Creation of the popup
+                boolean wrapInScrollView = true;
+                MaterialDialog view = new MaterialDialog.Builder(getContext())
+                        .title("Channel 1: Offset votage [V]")
+                        .customView(R.layout.layout_popup_offset, wrapInScrollView).positiveText("OK")
+                        .show();
+
+                // Get the channel infos
+                ChannelInfo localChannelInfos = new ChannelInfo();
+                mOscilloscopeFragmentController.getChannelInfo(ChannelEnum.CHANNEL1, localChannelInfos);
+
+                ((EditText)view.getCustomView().findViewById(R.id.editText2)).setHint(String.valueOf(localChannelInfos.getOffset()));
+
+//                TextView offsetLine = (TextView) butC1Settings.findViewById(R.id.chan1Line1);
+//                offsetLine.setText(String.format("Offset : %03.03fV", channelInfo.getOffset()));
+
+
             }
 
             @Override
@@ -644,24 +665,39 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         // END Set des gestures sur les boutons et le graphe
         // ---------------------------------------------------------------------------------------------------
 
+//        String[] toppings = new String[20];
+//
+//        toppings[0] = "Cheese";
+//        toppings[1] = "Pepperoni";
+//        toppings[2] = "Black Olives";
+//
+//        boolean wrapInScrollView = true;
+//        new MaterialDialog.Builder(this.mContext)
+//                .title("Salut")
+//                .customView(R.layout.layout_popup_dialog_box, wrapInScrollView)
+//                .positiveText("PositiveText")
+//                .show();
+
+//        new MaterialDialog.Builder(this.mContext)
+//                .title("Title")
+//                .items(R.array.trigger_mode_)
+//                .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
+//                    @Override
+//                    public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+//                        /**
+//                         * If you use alwaysCallSingleChoiceCallback(), which is discussed below,
+//                         * returning false here won't allow the newly selected radio button to actually be selected.
+//                         **/
+//                        return true;
+//                    }
+//                })
+//                .positiveText("PositiveText")
+//                .show();
 
         Log.d("DEBUG_TAG", "onCreateView end");
         showToolBars();
         return rootView;
     }
-
-        String[] toppings = new String[20];
-
-        toppings[0] = "Cheese";
-        toppings[1] = "Pepperoni";
-        toppings[2] = "Black Olives";
-
-        boolean wrapInScrollView = true;
-        new MaterialDialog.Builder(this.mContext)
-                .title("Salut")
-                .customView(R.layout.layout_popup_dialog_box, wrapInScrollView)
-                .positiveText("PositiveText")
-                .show();
 
     private void hideToolBars() {
         mToolBarVisible = false;
