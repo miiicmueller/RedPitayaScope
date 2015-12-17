@@ -204,8 +204,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 20, false);
 
 
-        mRedrawer.start();
-
         mMainActionBar = (ActionBar) ((AppCompatActivity) getActivity()).getSupportActionBar();
         mMainToolBar = (Toolbar) ((AppCompatActivity) getActivity()).findViewById(R.id.maintoolbar);
         mBottomActionBar = (Toolbar) ((AppCompatActivity) getActivity()).findViewById(R.id.toolbar_bottom);
@@ -666,6 +664,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 return true;
             }
         });
+
         // ---------------------------------------------------------------------------------------------------
         // END Set des gestures sur les boutons et le graphe
         // ---------------------------------------------------------------------------------------------------
@@ -700,7 +699,10 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 //                .show();
 
         Log.d("DEBUG_TAG", "onCreateView end");
+
+
         showToolBars();
+
         return rootView;
     }
 
@@ -746,9 +748,13 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         Log.d("DEBUG_TAG", "OnStart");
         super.onStart();
 
+
         // View controller instance and start
         mOscilloscopeFragmentController = (ITouchAppViewController) new OscilloscopeFragmentControllerApp(this, mContext);
         mOscilloscopeFragmentController.startController();
+
+        mRedrawer.start();
+
     }
 
 
@@ -791,7 +797,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     @Override
     public void updateTimeRange(double tMin, double tMax, TimeUnits timeUnits) {
-
 
         double timePerDivision = (tMax - tMin) / OscilloscopeFragmentControllerApp.DIVISION_COUNT;
         double timeDelay = tMin;
@@ -893,11 +898,21 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     @Override
     public void updateTriggerInfo(TriggerInfo triggerInfo) {
+        TextView triggerTitle = (TextView) butTrigSettings.findViewById(R.id.trigTitle);
         TextView triggerChannel = (TextView) butTrigSettings.findViewById(R.id.trigLine1);
         TextView triggerLevel = (TextView) butTrigSettings.findViewById(R.id.trigLine2);
         TextView triggerEdge = (TextView) butTrigSettings.findViewById(R.id.trigLine3);
 
+        triggerTitle.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+        triggerChannel.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+        triggerLevel.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+        triggerEdge.setTextColor(this.mContext.getResources().getColor(R.color.channel_nenable_color));
+
+        triggerTitle.setTypeface(null, Typeface.NORMAL);
+
         triggerLevel.setText(String.format("Level : %03.03fV", triggerInfo.getTriggerLevel()));
+
+        this.mOscPlot.getGraphWidget().setTriggerLevel(triggerInfo.getTriggerLevel());
 
 
         switch (triggerInfo.getTriggerChannel()) {
@@ -918,6 +933,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             case FALLING:
                 triggerEdge.setText("Edge : falling");
                 break;
+        }
+
+
+        if (triggerInfo.isSelected()) {
+            triggerTitle.setTypeface(null, Typeface.BOLD);
         }
     }
 

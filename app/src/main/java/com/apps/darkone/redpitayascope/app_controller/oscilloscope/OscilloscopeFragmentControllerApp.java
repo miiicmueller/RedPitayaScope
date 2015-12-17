@@ -2,6 +2,7 @@ package com.apps.darkone.redpitayascope.app_controller.oscilloscope;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.OverScroller;
 
 import com.apps.darkone.redpitayascope.app_fragments.oscilloscope.IAppFragmentView;
 import com.apps.darkone.redpitayascope.app_service_sap.IAppService;
@@ -39,8 +40,10 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     private double[] mChannelsOffset;
     private double[] mChannelVoltPerDiv;
     private double[] mGraphTimeValue;
+
     private double mTriggerDelay;
     private double mTriggerLevel;
+    private boolean mTriggerSelected;
 
     private ChannelEnum mTriggerChannel;
     private TriggerEdge mTriggerEdge;
@@ -49,6 +52,10 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     private TimeUnits mGraphTimeUnit;
     private boolean onTouchPan;
     private boolean mIsOnScroll;
+    private boolean mIsOnFling;
+    private boolean mIsFlingAxisUpdated;
+    private OverScroller mScroller;
+
 
     private static final int CHANNEL_COUNT = 2;
     public static final int DIVISION_COUNT = 9;
@@ -66,8 +73,15 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mAppServiceManager = AppServiceFactory.getAppServiceManager(this.mContext);
 
 
+        // Scroller instantiation
+        this.mScroller = new OverScroller(this.mContext);
+
         // Touch attributes
         this.onTouchPan = false;
+        this.mTriggerSelected = false;
+        this.mIsOnScroll = false;
+        this.mIsOnFling = false;
+        this.mIsFlingAxisUpdated = true;
 
         // Our application is the oscilloscope one
         this.mOscilloscopeApp = AppServiceFactory.getOscilloscopeInstance();
@@ -149,8 +163,7 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     private void initializeView() {
         Log.d(OSC_VIEW_CONTROLLER_TAG, "initializeView...");
 
-        TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel);
-
+        TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel, this.mTriggerSelected);
         ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1),
                 this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1), this.mChannelVoltPerDiv[0]);
         ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2),
@@ -167,7 +180,6 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1], mOscilloscopeApp.getTimeUnits());
         this.mAppFragmentView.updateOscilloscopeTimeUnits(this.mGraphTimeUnit);
         this.mAppFragmentView.hideChannelCustomMenu(this.customMenuShowed);
-
     }
 
 
@@ -185,6 +197,9 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
 
         this.mOscilloscopeApp.setMode(this.mMode);
+
+        this.mOscilloscopeApp.setTriggerChannel(this.mSelectedChannel);
+        this.mOscilloscopeApp.setTriggerLevel(this.mTriggerLevel / this.mOscilloscopeApp.getChannelScale(this.mSelectedChannel));
     }
 
 
@@ -264,25 +279,31 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
                 break;
         }
 
-        TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel);
+        TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel, this.mTriggerSelected);
         this.mAppFragmentView.updateTriggerInfo(trigInfo);
+        this.mOscilloscopeApp.setTriggerChannel(this.mTriggerChannel);
     }
 
     @Override
     public void butTrigSettingsOnSingleTapConfirmed() {
-        //Change the trigger edge
-        switch (this.mTriggerEdge) {
-            case RISING:
-                this.mTriggerEdge = TriggerEdge.FALLING;
-                break;
-            case FALLING:
-                this.mTriggerEdge = TriggerEdge.RISING;
-                break;
-        }
+//        //Change the trigger edge
+//        switch (this.mTriggerEdge) {
+//            case RISING:
+//                this.mTriggerEdge = TriggerEdge.FALLING;
+//                break;
+//            case FALLING:
+//                this.mTriggerEdge = TriggerEdge.RISING;
+//                break;
+//        }
 
-        TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel);
+        // If trigger is selected, then we deselect it
+        this.mTriggerSelected = !this.mTriggerSelected;
+
+        TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel,
+                this.mTriggerSelected);
         this.mAppFragmentView.updateTriggerInfo(trigInfo);
     }
+
 
     @Override
     public void butTrigSettingsOnLongPress() {
@@ -324,6 +345,15 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     }
 
     private void selectEnableChannel(ChannelEnum channel) {
+
+        // If the trigger was selected, we deselect if
+        if (this.mTriggerSelected) {
+            this.mTriggerSelected = false;
+
+            TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel, this.mTriggerSelected);
+            this.mAppFragmentView.updateTriggerInfo(trigInfo);
+
+        }
         // Single tap + not selected + not enabled mean : selected and enabled
         if ((this.mSelectedChannel != channel) && !(this.mEnabledChannels.contains(channel))) {
             this.mEnabledChannels.add(channel);
@@ -351,6 +381,7 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         //Update the view
         this.mAppFragmentView.updateSelectedChannel(this.mSelectedChannel);
         this.mAppFragmentView.updateEnabledChannels(this.mEnabledChannels);
+
     }
 
     @Override
@@ -420,15 +451,11 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
 
         if (!this.onTouchPan) {
 
-            double scrollAngle;
-            double acos = Math.abs(distanceY) / Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+            double scrollAngle = getMotionAngleFromVector2(distanceX, distanceY);
 
             // Lock the scroll
             mIsOnScroll = true;
 
-            // Check tha acos value is never > 1.0
-            acos = Math.min(acos, 1.0);
-            scrollAngle = Math.acos(acos) * (180.0 / Math.PI);
 
             // Change the value due to the gest
             if (scrollAngle > 80.0 && scrollAngle < 110.0) {
@@ -436,65 +463,81 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
 
 
                 // Change trigger delay
-                this.mTriggerDelay += (distanceX / (50.0));
-                this.mGraphTimeValue[0] += (distanceX / 50.0);
-                this.mGraphTimeValue[1] += (distanceX / 50.0);
+                double res = getScaleResTimePerPixel();
+
+                this.mTriggerDelay += res * distanceX;
+                this.mGraphTimeValue[0] += res * distanceX;
+                this.mGraphTimeValue[1] += res * distanceX;
 
                 this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1], mOscilloscopeApp.getTimeUnits());
 
             } else if (scrollAngle < 20.0) {
                 // We have an vertical scroll
 
-                //Choose what channel to change offset. We use - because of inverted axis system
-                switch (this.mSelectedChannel) {
-                    case CHANNEL1:
-                        this.mChannelsOffset[0] += (distanceY / 110.0);
-                        this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL1, this.mChannelsOffset[0]);
+                //Check if we work on the trigger
+                if (this.mTriggerSelected) {
+                    this.mTriggerLevel += (distanceY / 110.0);
 
-                        ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0] * this.mChannelVoltPerDiv[0], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1),
-                                this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1), this.mChannelVoltPerDiv[0]);
-                        this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL1, this.mChannelsOffset[0]);
-                        this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL1, channel1Info);
+                    TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel, this.mTriggerSelected);
+                    this.mAppFragmentView.updateTriggerInfo(trigInfo);
 
-                        break;
-                    case CHANNEL2:
-                        this.mChannelsOffset[1] += (distanceY / 110.0);
-                        this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
-                        this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
+                } else {
+                    //Choose what channel to change offset. We use - because of inverted axis system
+                    switch (this.mSelectedChannel) {
+                        case CHANNEL1:
+                            this.mChannelsOffset[0] += (distanceY / 110.0);
+                            this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL1, this.mChannelsOffset[0]);
 
-                        ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1] * this.mChannelVoltPerDiv[1], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2),
-                                this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2), this.mChannelVoltPerDiv[1]);
-                        this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
-                        this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL2, channel2Info);
-                        break;
-                    default:
-                        break;
+                            ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0] * this.mChannelVoltPerDiv[0], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1),
+                                    this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1), this.mChannelVoltPerDiv[0]);
+                            this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL1, this.mChannelsOffset[0]);
+                            this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL1, channel1Info);
+
+                            break;
+                        case CHANNEL2:
+                            this.mChannelsOffset[1] += (distanceY / 110.0);
+                            this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
+                            this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
+
+                            ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1] * this.mChannelVoltPerDiv[1], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2),
+                                    this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2), this.mChannelVoltPerDiv[1]);
+                            this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
+                            this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL2, channel2Info);
+                            break;
+                        default:
+                            break;
+                    }
                 }
-
             }
-
-            Log.d(OSC_VIEW_CONTROLLER_TAG, "Plot scroll X :" + distanceX + " Y :" + distanceY + " norm : " + acos + " angle : " + scrollAngle);
         }
+    }
+
+    private double getMotionAngleFromVector2(float distanceX, float distanceY) {
+        // Be careful that we never be over 1 for the cosinus
+        return Math.acos(Math.min(Math.abs(distanceY) / Math.sqrt(distanceX * distanceX + distanceY * distanceY), 1.0)) * (180.0 / Math.PI);
     }
 
     @Override
     public void mOscPlotOnScrollEnd() {
 
         if (mIsOnScroll) {
-
             mIsOnScroll = false;
-
             // Update the redpitaya board
             this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
-
+            this.mOscilloscopeApp.setTriggerLevel(this.mTriggerLevel / this.mOscilloscopeApp.getChannelScale(this.mSelectedChannel));
         }
+
+
+        mIsOnFling = false;
     }
 
 
     @Override
     public void mOscPlotOnFling(float velocityX, float velocityY) {
-        Log.d(OSC_VIEW_CONTROLLER_TAG, "Plot fling X : " + velocityX + " Y : " + velocityY);
+        Log.d(OSC_VIEW_CONTROLLER_TAG, "Plot flingX X : " + velocityX + " Y : " + velocityY);
+
     }
+
 
     @Override
     public void mOscPlotOnScaleBegin() {
@@ -551,12 +594,15 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.onTouchPan = false;
     }
 
+    private double getScaleResTimePerPixel() {
+        return Math.abs((this.mGraphTimeValue[0] - this.mGraphTimeValue[1])) / this.mContext.getResources().getDisplayMetrics().widthPixels;
+    }
+
     @Override
     public void onCustomMenuHidden() {
 
         //Check if no menu is showed
-        if(this.customMenuShowed == ChannelEnum.NONE)
-        {
+        if (this.customMenuShowed == ChannelEnum.NONE) {
             this.mAppFragmentView.hideChannelCustomMenuLayout();
         }
     }
@@ -653,12 +699,18 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mOscilloscopeApp.setChannelGain(ChannelEnum.CHANNEL2, ChannelGain.HV);
         this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL1, this.mChannelsOffset[0]);
         this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1]);
+        this.mOscilloscopeApp.setTriggerChannel(this.mSelectedChannel);
+        this.mOscilloscopeApp.setTriggerEdge(this.mTriggerEdge);
+        this.mOscilloscopeApp.setTriggerLevel(this.mTriggerLevel / this.mOscilloscopeApp.getChannelScale(this.mSelectedChannel));
 
 
         ChannelInfo channel1Info = new ChannelInfo(this.mChannelsOffset[0], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1),
                 this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1), this.mChannelVoltPerDiv[0]);
         ChannelInfo channel2Info = new ChannelInfo(this.mChannelsOffset[1], this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2),
                 this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2), this.mChannelVoltPerDiv[1]);
+        TriggerInfo trigInfo = new TriggerInfo(this.mTriggerLevel, this.mTriggerEdge, this.mTriggerChannel, this.mTriggerSelected);
+
+        this.mAppFragmentView.updateTriggerInfo(trigInfo);
         this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL1, channel1Info);
         this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL2, channel2Info);
     }

@@ -192,8 +192,8 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
         mParameterManager.addParameter(APP_SERVICE_NAME, MAX_Y_NORM, 0.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, GEN_DC_NORM_1, 0.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, GEN_DC_NORM_2, 0.0, false);
-        mParameterManager.addParameter(APP_SERVICE_NAME, SCALE_CH1, 1.0, false);
-        mParameterManager.addParameter(APP_SERVICE_NAME, SCALE_CH2, 1.0, false);
+        mParameterManager.addParameter(APP_SERVICE_NAME, SCALE_CH1, 1.0, true);
+        mParameterManager.addParameter(APP_SERVICE_NAME, SCALE_CH2, 1.0, true);
         mParameterManager.addParameter(APP_SERVICE_NAME, GEN_TRIG_MODE_CH1, 0.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, GEN_SIG_TYPE_CH1, 0.0, false);
         mParameterManager.addParameter(APP_SERVICE_NAME, GEN_ENABLE_CH1, 1.0, false);
@@ -585,6 +585,18 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
                 return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, MEAS_AMP_CH1).getParamValue();
             case CHANNEL2:
                 return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, MEAS_AMP_CH2).getParamValue();
+            default:
+                return 0.0;
+        }
+    }
+
+    @Override
+    public double getChannelScale(ChannelEnum channel) {
+        switch (channel) {
+            case CHANNEL1:
+                return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, SCALE_CH1).getParamValue();
+            case CHANNEL2:
+                return (Double) mParameterManager.getSingleParameter(APP_SERVICE_NAME, SCALE_CH2).getParamValue();
             default:
                 return 0.0;
         }
