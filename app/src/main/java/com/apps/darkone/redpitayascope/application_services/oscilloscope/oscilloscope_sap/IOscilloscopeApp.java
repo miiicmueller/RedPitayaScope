@@ -31,6 +31,7 @@ public interface IOscilloscopeApp {
     public double getChannelFreq(ChannelEnum channel);
     public double getChannelMeanValue(ChannelEnum channel);
     public double getChannelAmplitude(ChannelEnum channel);
+    public double getChannelScale(ChannelEnum channel);
 
 
     /**

@@ -113,7 +113,7 @@ public class CustomButtonMenu {
     private CustomMenuButton createNewFloatingActionButton(int menuColor, Integer tag) {
         CustomMenuButton btn = new CustomMenuButton(this.mContext, tag);
         btn.setBackgroundTintList(ColorStateList.valueOf(this.mMenuColor));
-        btn.setRippleColor(this.mMenuColor - 0xFF00);
+        btn.setRippleColor(this.mMenuColor &0xFF00FFFF);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             btn.setElevation(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 4, this.mContext.getResources().getDisplayMetrics()));

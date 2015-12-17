@@ -2,7 +2,6 @@ package com.apps.darkone.redpitayascope.app_fragments.oscilloscope;
 
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -27,7 +26,6 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.androidplot.Plot;
-import com.androidplot.PlotListener;
 import com.androidplot.util.Redrawer;
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
@@ -198,20 +196,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                         }
                 ),
                 20, false);
-
-
-        mOscPlot.addListener(new PlotListener() {
-            @Override
-            public void onBeforeDraw(Plot source, Canvas canvas) {
-                // Tell the controller to compute the scroll domain value
-                // TODO ...
-            }
-
-            @Override
-            public void onAfterDraw(Plot source, Canvas canvas) {
-
-            }
-        });
 
 
         mMainActionBar = (ActionBar) ((AppCompatActivity) getActivity()).getSupportActionBar();
@@ -647,14 +631,16 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 return true;
             }
         });
+
         // ---------------------------------------------------------------------------------------------------
         // END Set des gestures sur les boutons et le graphe
         // ---------------------------------------------------------------------------------------------------
 
 
         Log.d("DEBUG_TAG", "onCreateView end");
-        showToolBars();
 
+
+        showToolBars();
 
         return rootView;
     }
@@ -699,6 +685,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     public void onStart() {
         Log.d("DEBUG_TAG", "OnStart");
         super.onStart();
+
 
         // View controller instance and start
         mOscilloscopeFragmentController = (ITouchAppViewController) new OscilloscopeFragmentControllerApp(this, mContext);
@@ -748,7 +735,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     @Override
     public void updateTimeRange(double tMin, double tMax, TimeUnits timeUnits) {
-
 
         double timePerDivision = (tMax - tMin) / OscilloscopeFragmentControllerApp.DIVISION_COUNT;
         double timeDelay = tMin;
@@ -864,6 +850,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         triggerLevel.setText(String.format("Level : %03.03fV", triggerInfo.getTriggerLevel()));
 
+        this.mOscPlot.getGraphWidget().setTriggerLevel(triggerInfo.getTriggerLevel());
+
 
         switch (triggerInfo.getTriggerChannel()) {
             case CHANNEL1:
@@ -886,8 +874,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         }
 
 
-        if(triggerInfo.isSelected())
-        {
+        if (triggerInfo.isSelected()) {
             triggerTitle.setTypeface(null, Typeface.BOLD);
         }
     }
