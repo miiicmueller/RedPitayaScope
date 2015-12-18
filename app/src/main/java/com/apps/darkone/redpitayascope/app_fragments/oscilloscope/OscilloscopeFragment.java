@@ -2,13 +2,13 @@ package com.apps.darkone.redpitayascope.app_fragments.oscilloscope;
 
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -21,7 +21,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
@@ -220,9 +219,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         // Single shot floating action button
         mSingleShotBtn = (FloatingActionButton) rootView.findViewById(R.id.single_shot_btn);
+
         mSingleShotBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.d("DEBUG_TAG", "Button pressed");
+                mOscilloscopeFragmentController.onSingleShotButtonPressed();
             }
         });
 
@@ -989,6 +990,17 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 break;
         }
 
+    }
+
+    @Override
+    public void updateSingleShotTrigged(boolean isTriggedWaiting) {
+
+        mSingleShotBtn.setBackgroundTintList(ColorStateList.valueOf(this.mContext.getResources().getColor(R.color.single_shot_bnt_wait)));
+
+        if(!isTriggedWaiting)
+        {
+            mSingleShotBtn.setBackgroundTintList(ColorStateList.valueOf(this.mContext.getResources().getColor(R.color.single_shot_bnt_normal)));
+        }
     }
 
     @Override

@@ -86,6 +86,11 @@ public interface IAppFragmentView {
      */
     public void updateChannelsOffset(ChannelEnum channel, double offset);
 
+    /**
+     * Update the single shot button
+     * @param isWaiting
+     */
+    public void updateSingleShotTrigged(boolean isWaiting);
 
     /**
      * Update the time units

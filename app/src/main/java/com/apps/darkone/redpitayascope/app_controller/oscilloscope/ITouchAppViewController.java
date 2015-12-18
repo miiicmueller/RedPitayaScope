@@ -63,7 +63,10 @@ public interface ITouchAppViewController {
     public void mOscPlotOnScaleY(float Y);
     public void mOscPlotOnScaleEnd();
 
+
     public void onCustomMenuHidden();
+
+    public void onSingleShotButtonPressed();
 
     // get channel infos
     public void getChannelInfo(ChannelEnum channel, ChannelInfo channelInfo);
