@@ -274,7 +274,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 // Creation of the popup
                 boolean wrapInScrollView = true;
                 MaterialDialog view = new MaterialDialog.Builder(getContext())
-                        .title("Channel 1: Offset votage [V]")
+                        .title("Channel 1: Offset voltage [V]")
                         .customView(R.layout.layout_popup_offset, wrapInScrollView)
                         .positiveText("OK")
                         .build();
@@ -293,7 +293,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                                 try {
                                     info.setmOffset(Double.valueOf(numberEditText.getText().toString()));
                                 } catch (Exception e) {
-                                    Toast.makeText(mContext, "No numerical value has been entered!", 3).show();
+                                    Toast.makeText(mContext, "No numerical value has been entered!", 5).show();
                                 }
                                 ;
                                 // Refresh the channel info
@@ -309,7 +309,43 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
             @Override
             public void onChannelScaleMenuClick() {
-                // TODO Implement
+                // Get the channel infos
+                final ChannelInfo localChannelInfos = new ChannelInfo();
+                mOscilloscopeFragmentController.getChannelInfo(ChannelEnum.CHANNEL1, localChannelInfos);
+
+                // Creation of the popup
+                boolean wrapInScrollView = true;
+                MaterialDialog view = new MaterialDialog.Builder(getContext())
+                        .title("Channel 1: Scale voltage [V / div]")
+                        .customView(R.layout.layout_popup_offset, wrapInScrollView)
+                        .positiveText("OK")
+                        .build();
+
+
+                final EditText numberEditText = (EditText) view.getCustomView().findViewById(R.id.editText2);
+
+                view.getBuilder()
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
+
+                                ChannelInfo info = new ChannelInfo(localChannelInfos);
+                                // read the value number and put it in channelInfo object
+                                try {
+                                    info.setmVoltagePerDiv(Double.valueOf(numberEditText.getText().toString()));
+                                } catch (Exception e) {
+                                    Toast.makeText(mContext, "No numerical value has been entered!", 5).show();
+                                }
+                                ;
+                                // Refresh the channel info
+                                mOscilloscopeFragmentController.setChannelInfo(ChannelEnum.CHANNEL1, info);
+                            }
+                        })
+                        .show();
+
+                // Display an int in the numberTextview of the actual offset
+                ((EditText) view.getCustomView().findViewById(R.id.editText2)).setHint(String.valueOf(localChannelInfos.getVoltagePerDiv()));
             }
         });
 
@@ -326,12 +362,84 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
             @Override
             public void onChannelOffsetMenuButtonClick() {
-                // TODO Implement
+                // Get the channel infos
+                final ChannelInfo localChannelInfos = new ChannelInfo();
+                mOscilloscopeFragmentController.getChannelInfo(ChannelEnum.CHANNEL2, localChannelInfos);
+
+                // Creation of the popup
+                boolean wrapInScrollView = true;
+                MaterialDialog view = new MaterialDialog.Builder(getContext())
+                        .title("Channel 2: Offset voltage [V]")
+                        .customView(R.layout.layout_popup_offset, wrapInScrollView)
+                        .positiveText("OK")
+                        .build();
+
+
+                final EditText numberEditText = (EditText) view.getCustomView().findViewById(R.id.editText2);
+
+                view.getBuilder()
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
+
+                                ChannelInfo info = new ChannelInfo(localChannelInfos);
+                                // read the value number and put it in channelInfo object
+                                try {
+                                    info.setmOffset(Double.valueOf(numberEditText.getText().toString()));
+                                } catch (Exception e) {
+                                    Toast.makeText(mContext, "No numerical value has been entered!", 5).show();
+                                }
+                                ;
+                                // Refresh the channel info
+                                mOscilloscopeFragmentController.setChannelInfo(ChannelEnum.CHANNEL2, info);
+                            }
+                        })
+                        .show();
+
+                // Display an int in the numberTextview of the actual offset
+                ((EditText) view.getCustomView().findViewById(R.id.editText2)).setHint(String.valueOf(localChannelInfos.getOffset()));
             }
 
             @Override
             public void onChannelScaleMenuClick() {
-                // TODO Implement
+                // Get the channel infos
+                final ChannelInfo localChannelInfos = new ChannelInfo();
+                mOscilloscopeFragmentController.getChannelInfo(ChannelEnum.CHANNEL2, localChannelInfos);
+
+                // Creation of the popup
+                boolean wrapInScrollView = true;
+                MaterialDialog view = new MaterialDialog.Builder(getContext())
+                        .title("Channel 2: Scale voltage [V / div]")
+                        .customView(R.layout.layout_popup_offset, wrapInScrollView)
+                        .positiveText("OK")
+                        .build();
+
+
+                final EditText numberEditText = (EditText) view.getCustomView().findViewById(R.id.editText2);
+
+                view.getBuilder()
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
+
+                                ChannelInfo info = new ChannelInfo(localChannelInfos);
+                                // read the value number and put it in channelInfo object
+                                try {
+                                    info.setmVoltagePerDiv(Double.valueOf(numberEditText.getText().toString()));
+                                } catch (Exception e) {
+                                    Toast.makeText(mContext, "No numerical value has been entered!", 5).show();
+                                }
+                                ;
+                                // Refresh the channel info
+                                mOscilloscopeFragmentController.setChannelInfo(ChannelEnum.CHANNEL2, info);
+                            }
+                        })
+                        .show();
+
+                // Display an int in the numberTextview of the actual offset
+                ((EditText) view.getCustomView().findViewById(R.id.editText2)).setHint(String.valueOf(localChannelInfos.getVoltagePerDiv()));
             }
         });
 
