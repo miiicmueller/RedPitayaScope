@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity
 
                 final EditText numberEditText = (EditText) view.getCustomView().findViewById(R.id.editText3);
                 // Display an int in the numberTextview of the actual offset
-                numberEditText.setHint(ipAddressRedPitaya);
+                numberEditText.setText(ipAddressRedPitaya);
 
                 view.getBuilder()
                         .onPositive(new MaterialDialog.SingleButtonCallback() {
@@ -191,10 +191,15 @@ public class MainActivity extends AppCompatActivity
                                 // read the value number and put it in channelInfo object
                                 try {
                                     ipAddressRedPitaya = (numberEditText.getText().toString());
+
+                                    if(!ipAddressRedPitaya.matches("([0-9]{1,3}[.]){3}([0-9]{1,3}){1}"))
+                                    {
+                                        throw new Exception("Bad ip address");
+                                    }
                                     // Refresh the ip address and reconnect
                                     mAppServiceManager.changeServiceSettings(ipAddressRedPitaya);
                                 } catch (Exception e) {
-                                    Toast.makeText(getApplicationContext(), "Bad IP address!", 5).show();
+                                    Toast.makeText(getApplicationContext(), "Bad IP address! ", 5).show();
                                 }
                             }
                         })

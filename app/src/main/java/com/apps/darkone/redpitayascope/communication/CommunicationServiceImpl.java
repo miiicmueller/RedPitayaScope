@@ -188,6 +188,7 @@ public class CommunicationServiceImpl implements ICommunicationService, Runnable
 
         this.mAppName = appName;
         this.mAppStartRequested = true;
+        this.mAppStopRequested = false;
     }
 
     @Override

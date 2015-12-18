@@ -50,7 +50,8 @@ public class AppServiceManager {
 
         ICommunicationService communicationService = CommunicationServiceFactory.getCommuncationServiceInstance();
 
-        String actualRunningApp;
+        // Remind the app who is running...
+        String actualRunningApp  = communicationService.getActualRunningAppName();
 
         //Stop all running apps if the service is used
         if (communicationService.isServiceUsed()) {
@@ -58,7 +59,6 @@ public class AppServiceManager {
             Log.d(APP_SERVICE_MANAGER, "Service is used...");
 
             // Remind the app who is running...
-            actualRunningApp = communicationService.getActualRunningAppName();
 
             for (IAppService app : mAppServiceList) {
                 if (actualRunningApp.equals(app.getAppServiceName())) {
@@ -68,13 +68,14 @@ public class AppServiceManager {
 
             }
             Log.d(APP_SERVICE_MANAGER, "Service re-starting : " + actualRunningApp);
-
-            //Request the app start after service wake up
-            communicationService.startApp(actualRunningApp);
         }
 
         communicationService.stopService();
+        while(communicationService.isServiceRunning());
         communicationService.startService(ipAddress, this.mContext);
+
+        //Request the app start after service wake up
+        communicationService.startApp(actualRunningApp);
 
     }
 
