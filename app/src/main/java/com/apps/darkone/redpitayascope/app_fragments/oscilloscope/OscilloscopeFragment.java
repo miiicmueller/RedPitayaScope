@@ -7,7 +7,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -20,7 +19,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
@@ -28,7 +26,6 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidplot.Plot;
 import com.androidplot.util.Redrawer;
@@ -48,10 +45,10 @@ import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscillo
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.TriggerEdge;
 import com.apps.darkone.redpitayascope.menu.CustomButtonMenu;
 import com.apps.darkone.redpitayascope.menu.oscilloscope.ChannelMenu;
-import com.apps.darkone.redpitayascope.menu.popupDialog;
 
 import java.util.Arrays;
 import java.util.Vector;
+
 
 
 /**
@@ -84,7 +81,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     private ActionBar mMainActionBar;
     private Toolbar mMainToolBar;
-    private Toolbar mBottomActionBar;
+    private LinearLayout mBottomActionBar;
     boolean mToolBarVisible;
 
 
@@ -207,16 +204,16 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         mMainActionBar = (ActionBar) ((AppCompatActivity) getActivity()).getSupportActionBar();
         mMainToolBar = (Toolbar) ((AppCompatActivity) getActivity()).findViewById(R.id.maintoolbar);
-        mBottomActionBar = (Toolbar) ((AppCompatActivity) getActivity()).findViewById(R.id.toolbar_bottom);
+        mBottomActionBar = (LinearLayout) ((AppCompatActivity) getActivity()).findViewById(R.id.toolbar_bottom);
+
 
         mToolBarVisible = true;
 
+
         LinearLayout layout = (LinearLayout) mBottomActionBar.findViewById(R.id.toolbar_bottom_layer_menu);
         layout.setBackgroundColor(this.mContext.getResources().getColor(R.color.button_background_pressed));
-        View osc_toolbar = inflater.inflate(R.layout.osc_control_bar, layout, false);
+        View osc_toolbar = inflater.inflate(R.layout.osc_control_bar, layout, true);
         osc_toolbar.setBackgroundColor(this.mContext.getResources().getColor(R.color.button_background_pressed));
-        layout.removeAllViews();
-        layout.addView(osc_toolbar);
 
         // Single shot floating action button
         mSingleShotBtn = (FloatingActionButton) rootView.findViewById(R.id.single_shot_btn);
@@ -447,8 +444,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 // Callback interface
                 mOscilloscopeFragmentController.butTimeSettingsOnLongPress();
 
-                showEditDialog();
-
                 super.onLongPress(e);
             }
 
@@ -664,34 +659,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         // END Set des gestures sur les boutons et le graphe
         // ---------------------------------------------------------------------------------------------------
 
-//        String[] toppings = new String[20];
-//
-//        toppings[0] = "Cheese";
-//        toppings[1] = "Pepperoni";
-//        toppings[2] = "Black Olives";
-//
-//        boolean wrapInScrollView = true;
-//        new MaterialDialog.Builder(this.mContext)
-//                .title("Salut")
-//                .customView(R.layout.layout_popup_dialog_box, wrapInScrollView)
-//                .positiveText("PositiveText")
-//                .show();
-
-//        new MaterialDialog.Builder(this.mContext)
-//                .title("Title")
-//                .items(R.array.trigger_mode_)
-//                .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
-//                    @Override
-//                    public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-//                        /**
-//                         * If you use alwaysCallSingleChoiceCallback(), which is discussed below,
-//                         * returning false here won't allow the newly selected radio button to actually be selected.
-//                         **/
-//                        return true;
-//                    }
-//                })
-//                .positiveText("PositiveText")
-//                .show();
 
         Log.d("DEBUG_TAG", "onCreateView end");
 
@@ -809,7 +776,10 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     }
 
     @Override
-    public void updateTriggerValue(float triggerValue) {
+    public void updateTriggerValue(TriggerInfo triggerInfo) {
+        ChannelInfo channel = new ChannelInfo();
+        this.mOscilloscopeFragmentController.getChannelInfo(triggerInfo.getTriggerChannel(), channel);
+        this.mOscPlot.getGraphWidget().setTriggerLevel(triggerInfo.getTriggerLevel() + channel.getViewOffset());
 
     }
 
@@ -906,9 +876,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         triggerTitle.setTypeface(null, Typeface.NORMAL);
 
         triggerLevel.setText(String.format("Level : %03.03fV", triggerInfo.getTriggerLevel()));
-
-        this.mOscPlot.getGraphWidget().setTriggerLevel(triggerInfo.getTriggerLevel());
-
 
         switch (triggerInfo.getTriggerChannel()) {
             case CHANNEL1:
@@ -1107,10 +1074,5 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         }
     }
 
-    private void showEditDialog() {
-        FragmentManager fm = ((AppCompatActivity) getActivity()).getSupportFragmentManager();
-        popupDialog popupDialogTest = popupDialog.newInstance("Some Title");
-        popupDialogTest.show(fm, "fragment_edit_name");
-    }
 
 }

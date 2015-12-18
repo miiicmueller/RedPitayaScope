@@ -7,13 +7,13 @@ import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.apps.darkone.redpitayascope.R;
@@ -31,7 +31,7 @@ public class CustomButtonMenu {
     private List<FloatingActionButton> mBtnMenuList;
     private Context mContext;
     private boolean mIsMenuShowed;
-    private Toolbar mToolBar;
+    private LinearLayout mBottomToolbarLayout;
     private int mMenuColor;
     private IOnCustomMenuButtonAction mIOnCustomMenuButtonAction;
     private IOnCustomMenuStateChange mIOnCustomMenuStateChange;
@@ -48,10 +48,10 @@ public class CustomButtonMenu {
     }
 
 
-    public CustomButtonMenu(Context context, Toolbar toolBar, int menuColor) {
+    public CustomButtonMenu(Context context, LinearLayout layout, int menuColor) {
         this.mBtnMenuList = new ArrayList<>();
         this.mContext = context;
-        this.mToolBar = toolBar;
+        this.mBottomToolbarLayout = layout;
         this.mMenuColor = menuColor;
         this.mIOnCustomMenuButtonAction = null;
         this.mIOnCustomMenuStateChange = null;
@@ -97,7 +97,7 @@ public class CustomButtonMenu {
         }
 
 
-        this.mLayout = (RelativeLayout) this.mToolBar.findViewById(R.id.toolbar_bottom_layer_fab);
+        this.mLayout = (RelativeLayout) this.mBottomToolbarLayout.findViewById(R.id.toolbar_bottom_layer_fab);
         this.mLayout.setVisibility(RelativeLayout.GONE);
 
         for (FloatingActionButton btn : this.mBtnMenuList) {
@@ -195,7 +195,7 @@ public class CustomButtonMenu {
 
 
     public void destroyMenu() {
-        RelativeLayout layout = (RelativeLayout) this.mToolBar.findViewById(R.id.toolbar_bottom_layer_fab);
+        RelativeLayout layout = (RelativeLayout) this.mBottomToolbarLayout.findViewById(R.id.toolbar_bottom_layer_fab);
         layout.removeAllViews();
     }
 

@@ -68,9 +68,6 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
 
-        Toolbar toolbarBottom = (Toolbar) findViewById(R.id.toolbar_bottom);
-
-
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();

@@ -19,14 +19,18 @@ package com.androidplot.xy;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PointF;
 import android.util.AttributeSet;
+
 import com.androidplot.Plot;
 import com.androidplot.R;
-import com.androidplot.ui.*;
+import com.androidplot.ui.AnchorPosition;
+import com.androidplot.ui.DynamicTableModel;
+import com.androidplot.ui.SizeLayoutType;
+import com.androidplot.ui.SizeMetrics;
 import com.androidplot.ui.TextOrientationType;
+import com.androidplot.ui.XLayoutStyle;
+import com.androidplot.ui.YLayoutStyle;
 import com.androidplot.ui.widget.TextLabelWidget;
 import com.androidplot.util.PixelUtils;
 
@@ -198,10 +202,10 @@ public class XYPlot extends Plot<XYSeries, XYSeriesFormatter, XYSeriesRenderer> 
                         SizeLayoutType.FILL));
 
 //        Paint backgroundPaint = new Paint();
-//        backgroundPaint.setColor(Color.BLACK);
+//        backgroundPaint.setColor(Color.RED);
 //        backgroundPaint.setStyle(Paint.Style.FILL);
 
-        graphWidget.setBackgroundPaint(null);//backgroundPaint);
+        graphWidget.setBackgroundPaint(null);
 
 
         domainLabelWidget = new TextLabelWidget(

@@ -32,9 +32,9 @@ public interface IAppFragmentView {
 
     /**
      * Update the trigger value
-     * @param triggerValue
+     * @param triggerInfo
      */
-    public void updateTriggerValue(float triggerValue);
+    public void updateTriggerValue(TriggerInfo triggerInfo);
 
 
     /**
