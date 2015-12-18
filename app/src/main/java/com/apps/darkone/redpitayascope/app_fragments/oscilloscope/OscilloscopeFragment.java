@@ -733,13 +733,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         Log.d("DEBUG_TAG", "OnStart");
         super.onStart();
 
+        mRedrawer.start();
 
         // View controller instance and start
         mOscilloscopeFragmentController = (ITouchAppViewController) new OscilloscopeFragmentControllerApp(this, mContext);
         mOscilloscopeFragmentController.startController();
-
-        mRedrawer.start();
-
     }
 
 
@@ -802,7 +800,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     public void updateTriggerValue(TriggerInfo triggerInfo) {
         ChannelInfo channel = new ChannelInfo();
         this.mOscilloscopeFragmentController.getChannelInfo(triggerInfo.getTriggerChannel(), channel);
-        this.mOscPlot.getGraphWidget().setTriggerLevel(triggerInfo.getTriggerLevel() + channel.getViewOffset());
+        this.mOscPlot.getGraphWidget().setTriggerLevel(triggerInfo.getTriggerLevel() / channel.getVoltagePerDiv() + channel.getViewOffset());
     }
 
     @Override
@@ -997,8 +995,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         mSingleShotBtn.setBackgroundTintList(ColorStateList.valueOf(this.mContext.getResources().getColor(R.color.single_shot_bnt_wait)));
 
-        if(!isTriggedWaiting)
-        {
+        if (!isTriggedWaiting) {
             mSingleShotBtn.setBackgroundTintList(ColorStateList.valueOf(this.mContext.getResources().getColor(R.color.single_shot_bnt_normal)));
         }
     }
