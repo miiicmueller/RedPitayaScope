@@ -5,7 +5,7 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
+        android:inputType="numberSigned|numberDecimal"
         android:ems="10"
         android:id="@+id/editText2"
         android:layout_weight="1" />
