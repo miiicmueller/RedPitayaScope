@@ -377,7 +377,7 @@ public class OscilloscopeServiceImpl extends AppServiceBase implements IOnDataLi
                 trigMode = 1;
                 break;
             case SINGLE_SHOT:
-                trigMode = 0;
+                trigMode = 1;
             default:
         }
 

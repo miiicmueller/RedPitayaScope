@@ -32,9 +32,9 @@ public interface IAppFragmentView {
 
     /**
      * Update the trigger value
-     * @param triggerValue
+     * @param triggerInfo
      */
-    public void updateTriggerValue(float triggerValue);
+    public void updateTriggerValue(TriggerInfo triggerInfo);
 
 
     /**
@@ -86,6 +86,11 @@ public interface IAppFragmentView {
      */
     public void updateChannelsOffset(ChannelEnum channel, double offset);
 
+    /**
+     * Update the single shot button
+     * @param isWaiting
+     */
+    public void updateSingleShotTrigged(boolean isWaiting);
 
     /**
      * Update the time units

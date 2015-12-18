@@ -2,8 +2,8 @@ package com.apps.darkone.redpitayascope.menu.oscilloscope;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.LinearLayout;
 
 import com.apps.darkone.redpitayascope.R;
 import com.apps.darkone.redpitayascope.menu.CustomButtonMenu;
@@ -73,9 +73,9 @@ public class ChannelMenu extends CustomButtonMenu implements CustomButtonMenu.IO
     }
 
 
-    public ChannelMenu(Context context, Toolbar toolBar, int menuColor) {
+    public ChannelMenu(Context context, LinearLayout layout, int menuColor) {
 
-        super(context, toolBar, menuColor);
+        super(context, layout, menuColor);
 
         this.mContext = context;
         this.mButtonTupleList = new ArrayList<>();

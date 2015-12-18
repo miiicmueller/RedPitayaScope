@@ -2,13 +2,13 @@ package com.apps.darkone.redpitayascope.app_fragments.oscilloscope;
 
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -84,7 +84,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
     private ActionBar mMainActionBar;
     private Toolbar mMainToolBar;
-    private Toolbar mBottomActionBar;
+    private LinearLayout mBottomActionBar;
     boolean mToolBarVisible;
 
 
@@ -207,22 +207,23 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         mMainActionBar = (ActionBar) ((AppCompatActivity) getActivity()).getSupportActionBar();
         mMainToolBar = (Toolbar) ((AppCompatActivity) getActivity()).findViewById(R.id.maintoolbar);
-        mBottomActionBar = (Toolbar) ((AppCompatActivity) getActivity()).findViewById(R.id.toolbar_bottom);
+        mBottomActionBar = (LinearLayout) ((AppCompatActivity) getActivity()).findViewById(R.id.toolbar_bottom);
+
 
         mToolBarVisible = true;
 
         LinearLayout layout = (LinearLayout) mBottomActionBar.findViewById(R.id.toolbar_bottom_layer_menu);
         layout.setBackgroundColor(this.mContext.getResources().getColor(R.color.button_background_pressed));
-        View osc_toolbar = inflater.inflate(R.layout.osc_control_bar, layout, false);
+        View osc_toolbar = inflater.inflate(R.layout.osc_control_bar, layout, true);
         osc_toolbar.setBackgroundColor(this.mContext.getResources().getColor(R.color.button_background_pressed));
-        layout.removeAllViews();
-        layout.addView(osc_toolbar);
 
         // Single shot floating action button
         mSingleShotBtn = (FloatingActionButton) rootView.findViewById(R.id.single_shot_btn);
+
         mSingleShotBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.d("DEBUG_TAG", "Button pressed");
+                mOscilloscopeFragmentController.onSingleShotButtonPressed();
             }
         });
 
@@ -279,29 +280,30 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                         .build();
 
 
-                final EditText numberEditText = (EditText)view.getCustomView().findViewById(R.id.editText2);
+                final EditText numberEditText = (EditText) view.getCustomView().findViewById(R.id.editText2);
 
-                        view.getBuilder()
-                                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                    @Override
-                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                        Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
+                view.getBuilder()
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
 
-                                        ChannelInfo info = new ChannelInfo(localChannelInfos);
-                                        // read the value number and put it in channelInfo object
-                                        try {
-                                            info.setmOffset(Double.valueOf(numberEditText.getText().toString()));
-                                        } catch (Exception e) {
-                                            Toast.makeText(mContext, "No numerical value has been entered!", 3).show();
-                                        };
-                                        // Refresh the channel info
-                                        mOscilloscopeFragmentController.setChannelInfo(ChannelEnum.CHANNEL1, info);
-                                    }
-                                })
+                                ChannelInfo info = new ChannelInfo(localChannelInfos);
+                                // read the value number and put it in channelInfo object
+                                try {
+                                    info.setmOffset(Double.valueOf(numberEditText.getText().toString()));
+                                } catch (Exception e) {
+                                    Toast.makeText(mContext, "No numerical value has been entered!", 3).show();
+                                }
+                                ;
+                                // Refresh the channel info
+                                mOscilloscopeFragmentController.setChannelInfo(ChannelEnum.CHANNEL1, info);
+                            }
+                        })
                         .show();
 
                 // Display an int in the numberTextview of the actual offset
-                ((EditText)view.getCustomView().findViewById(R.id.editText2)).setHint(String.valueOf(localChannelInfos.getOffset()));
+                ((EditText) view.getCustomView().findViewById(R.id.editText2)).setHint(String.valueOf(localChannelInfos.getOffset()));
 
             }
 
@@ -680,34 +682,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         // END Set des gestures sur les boutons et le graphe
         // ---------------------------------------------------------------------------------------------------
 
-//        String[] toppings = new String[20];
-//
-//        toppings[0] = "Cheese";
-//        toppings[1] = "Pepperoni";
-//        toppings[2] = "Black Olives";
-//
-//        boolean wrapInScrollView = true;
-//        new MaterialDialog.Builder(this.mContext)
-//                .title("Salut")
-//                .customView(R.layout.layout_popup_dialog_box, wrapInScrollView)
-//                .positiveText("PositiveText")
-//                .show();
-
-//        new MaterialDialog.Builder(this.mContext)
-//                .title("Title")
-//                .items(R.array.trigger_mode_)
-//                .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
-//                    @Override
-//                    public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-//                        /**
-//                         * If you use alwaysCallSingleChoiceCallback(), which is discussed below,
-//                         * returning false here won't allow the newly selected radio button to actually be selected.
-//                         **/
-//                        return true;
-//                    }
-//                })
-//                .positiveText("PositiveText")
-//                .show();
 
         Log.d("DEBUG_TAG", "onCreateView end");
 
@@ -787,7 +761,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
 
     /**
-     * UPDATE METHODS OF THE GRAPHE
+     * UPDATE METHODS OF THE GRAPHS
      */
 
     @Override
@@ -825,8 +799,10 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
     }
 
     @Override
-    public void updateTriggerValue(float triggerValue) {
-
+    public void updateTriggerValue(TriggerInfo triggerInfo) {
+        ChannelInfo channel = new ChannelInfo();
+        this.mOscilloscopeFragmentController.getChannelInfo(triggerInfo.getTriggerChannel(), channel);
+        this.mOscPlot.getGraphWidget().setTriggerLevel(triggerInfo.getTriggerLevel() + channel.getViewOffset());
     }
 
     @Override
@@ -871,7 +847,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 freq2Line.setTextColor(this.mContext.getResources().getColor(R.color.channel2_color));
                 amplitude2Line.setTextColor(this.mContext.getResources().getColor(R.color.channel2_color));
                 break;
-
         }
     }
 
@@ -922,9 +897,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         triggerTitle.setTypeface(null, Typeface.NORMAL);
 
         triggerLevel.setText(String.format("Level : %03.03fV", triggerInfo.getTriggerLevel()));
-
-        this.mOscPlot.getGraphWidget().setTriggerLevel(triggerInfo.getTriggerLevel());
-
 
         switch (triggerInfo.getTriggerChannel()) {
             case CHANNEL1:
@@ -1018,6 +990,17 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 break;
         }
 
+    }
+
+    @Override
+    public void updateSingleShotTrigged(boolean isTriggedWaiting) {
+
+        mSingleShotBtn.setBackgroundTintList(ColorStateList.valueOf(this.mContext.getResources().getColor(R.color.single_shot_bnt_wait)));
+
+        if(!isTriggedWaiting)
+        {
+            mSingleShotBtn.setBackgroundTintList(ColorStateList.valueOf(this.mContext.getResources().getColor(R.color.single_shot_bnt_normal)));
+        }
     }
 
     @Override

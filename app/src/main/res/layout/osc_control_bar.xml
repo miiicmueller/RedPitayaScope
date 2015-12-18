@@ -2,18 +2,25 @@
 <TableLayout
     android:layout_height="fill_parent"
     android:layout_width="match_parent"
+    android:paddingRight="0dp"
+    android:paddingLeft="0dp"
+    android:layout_margin="0dp"
+    android:gravity="left"
     android:stretchColumns="*"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <TableRow
         android:gravity="center"
+        android:paddingRight="0dp"
+        android:paddingLeft="0dp"
         android:layout_height="fill_parent"
-        android:layout_width="match_parent">
+        android:layout_width="fill_parent">
 
         <!-- Premier bouton-->
         <TableLayout
             android:background="@drawable/osc_bar_layout_selector"
             android:clickable="true"
+            android:stretchColumns="*"
             android:id="@+id/oscMode"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
@@ -23,10 +30,9 @@
                 android:id="@+id/oscModeTitle"
                 android:layout_column="0"
                 android:layout_height="match_parent"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:gravity="center"
                 android:text="AUTO"
-                android:duplicateParentState="true"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/button_text_color" />
         </TableLayout>
@@ -37,6 +43,7 @@
             android:id="@+id/trig"
             android:background="@drawable/osc_bar_layout_selector"
             android:clickable="true"
+            android:stretchColumns="*"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:orientation="vertical">
@@ -85,6 +92,7 @@
             android:background="@drawable/osc_bar_layout_selector"
             android:clickable="true"
             android:id="@+id/timeBase"
+            android:stretchColumns="*"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:orientation="vertical">
@@ -133,6 +141,7 @@
             android:background="@drawable/osc_bar_layout_selector"
             android:clickable="true"
             android:id="@+id/chan1"
+            android:stretchColumns="*"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:orientation="vertical">
@@ -181,6 +190,7 @@
             android:background="@drawable/osc_bar_layout_selector"
             android:clickable="true"
             android:id="@+id/chan2"
+            android:stretchColumns="*"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:orientation="vertical">
