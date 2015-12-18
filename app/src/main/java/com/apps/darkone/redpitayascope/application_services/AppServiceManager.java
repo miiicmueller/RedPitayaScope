@@ -55,12 +55,19 @@ public class AppServiceManager {
         //Stop all running apps if the service is used
         if (communicationService.isServiceUsed()) {
 
+            Log.d(APP_SERVICE_MANAGER, "Service is used...");
+
             // Remind the app who is running...
             actualRunningApp = communicationService.getActualRunningAppName();
 
-            for (IAppService appService : mAppServiceList) {
-                appService.stopAppService();
+            for (IAppService app : mAppServiceList) {
+                if (actualRunningApp.equals(app.getAppServiceName())) {
+                    Log.d(APP_SERVICE_MANAGER, "Service stopping : " + communicationService.getActualRunningAppName());
+                    app.stopAppService();
+                }
+
             }
+            Log.d(APP_SERVICE_MANAGER, "Service re-starting : " + actualRunningApp);
 
             //Request the app start after service wake up
             communicationService.startApp(actualRunningApp);

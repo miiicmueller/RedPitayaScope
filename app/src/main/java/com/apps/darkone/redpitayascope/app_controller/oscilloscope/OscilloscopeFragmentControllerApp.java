@@ -660,14 +660,16 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
             case CHANNEL1:
                 this.mChannelsOffset[0] = channelInfo.getOffset() / this.mChannelVoltPerDiv[0];
                 this.mChannelVoltPerDiv[0] = channelInfo.getVoltagePerDiv();
-		this.updateFullView();
+		        this.updateFullView();
                 this.mOscilloscopeApp.setChannelDivisionVoltageGain(ChannelEnum.CHANNEL1, 1 / channelInfo.getVoltagePerDiv());
+                this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL1, this.mChannelsOffset[0] * channelInfo.getVoltagePerDiv());
                 break;
             case CHANNEL2:
                 this.mChannelsOffset[1] = channelInfo.getOffset() / this.mChannelVoltPerDiv[1];
                 this.mChannelVoltPerDiv[1] = channelInfo.getVoltagePerDiv();
                 this.updateFullView();
-		this.mOscilloscopeApp.setChannelDivisionVoltageGain(ChannelEnum.CHANNEL2, 1 / channelInfo.getVoltagePerDiv());
+		        this.mOscilloscopeApp.setChannelDivisionVoltageGain(ChannelEnum.CHANNEL2, 1 / channelInfo.getVoltagePerDiv());
+                this.mOscilloscopeApp.setChannelOffset(ChannelEnum.CHANNEL2, this.mChannelsOffset[1] * channelInfo.getVoltagePerDiv());
                 break;
         }
     }
