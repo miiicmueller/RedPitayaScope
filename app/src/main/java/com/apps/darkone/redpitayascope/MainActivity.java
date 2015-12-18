@@ -2,12 +2,14 @@ package com.apps.darkone.redpitayascope;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,11 +18,17 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.apps.darkone.redpitayascope.app_controller.oscilloscope.ChannelInfo;
 import com.apps.darkone.redpitayascope.app_fragments.oscilloscope.OscilloscopeFragment;
 import com.apps.darkone.redpitayascope.application_services.AppServiceFactory;
 import com.apps.darkone.redpitayascope.application_services.AppServiceManager;
+import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelEnum;
 import com.apps.darkone.redpitayascope.menu.SettingsFragment;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -45,6 +53,9 @@ public class MainActivity extends AppCompatActivity
     private AppServiceManager mAppServiceManager;
     private Button mButton;
 
+    private String ipAddressRedPitaya = "192.168.43.112";
+    private MaterialDialog view;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -67,7 +78,6 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.maintoolbar);
         setSupportActionBar(toolbar);
 
-
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -80,13 +90,22 @@ public class MainActivity extends AppCompatActivity
 
         // Setting ip the service manager
         mAppServiceManager = AppServiceFactory.getAppServiceManager(this.getApplicationContext());
-        mAppServiceManager.runServices("192.168.43.112");
+        mAppServiceManager.runServices(ipAddressRedPitaya);
 
         getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 
         mDrawerItemSelected = false;
+
+        // Popup ip menu
+        // Creation of the popup
+        boolean wrapInScrollView = true;
+         view = new MaterialDialog.Builder(this)
+                .title("RedPitaya IP Address")
+                .customView(R.layout.layout_popup_ipadresse, wrapInScrollView)
+                .positiveText("OK")
+                .build();
 
         // First fragment
 
@@ -158,10 +177,29 @@ public class MainActivity extends AppCompatActivity
                 // User chose the "Settings" item, show the app settings UI...
                 // update the main content by replacing fragments
 
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, SettingsFragment.newInstance())
-                        .commit();
+
+
+                final EditText numberEditText = (EditText) view.getCustomView().findViewById(R.id.editText3);
+                // Display an int in the numberTextview of the actual offset
+                numberEditText.setHint(ipAddressRedPitaya);
+
+                view.getBuilder()
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
+                                // read the value number and put it in channelInfo object
+                                try {
+                                    ipAddressRedPitaya = (numberEditText.getText().toString());
+                                    // Refresh the ip address and reconnect
+                                    mAppServiceManager.changeServiceSettings(ipAddressRedPitaya);
+                                } catch (Exception e) {
+                                    Toast.makeText(getApplicationContext(), "Bad IP address!", 5).show();
+                                }
+                            }
+                        })
+                        .show();
+
                 return true;
 
             default:
