@@ -35,6 +35,9 @@
     <color name="button_background_pressed">#aa076cbc</color>
     <color name="button_text_color">#000000</color>
     <color name="accent">#2196F3</color>
+    <color name="single_shot_bnt_wait">#ff0004</color>
+    <color name="single_shot_bnt_normal">#2196F3</color>
+
 
     <color name="channel1_color">#feffff00</color>
     <color name="channel2_color">#feff0040</color>
