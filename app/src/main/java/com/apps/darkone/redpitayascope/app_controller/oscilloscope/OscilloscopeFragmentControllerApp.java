@@ -615,21 +615,36 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
 
         switch(channel){
             case CHANNEL1:
-                ChannelInfo locChannel1Info = new ChannelInfo(this.mChannelsOffset[0],this.mChannelsOffset[0] * this.mChannelVoltPerDiv[0],
-                        this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1),
-                        this.mChannelVoltPerDiv[0]);
-
-                channelInfo  = locChannel1Info;
+                channelInfo.setmOffset(this.mChannelsOffset[0] * this.mChannelVoltPerDiv[0]);
+                channelInfo.setmMeanFreq(this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL1));
+                channelInfo.setmAmplitude(this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL1));
+                channelInfo.setmVoltagePerDiv(this.mChannelVoltPerDiv[0]);
             break;
             case CHANNEL2:
-                ChannelInfo locChannel2Info = new ChannelInfo(this.mChannelsOffset[1],this.mChannelsOffset[1] * this.mChannelVoltPerDiv[1],
-                        this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2), this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2),
-                        this.mChannelVoltPerDiv[1]);
-
-                channelInfo  = locChannel2Info;
+                channelInfo.setmOffset(this.mChannelsOffset[1] * this.mChannelVoltPerDiv[1]);
+                channelInfo.setmMeanFreq(this.mOscilloscopeApp.getChannelFreq(ChannelEnum.CHANNEL2));
+                channelInfo.setmAmplitude(this.mOscilloscopeApp.getChannelAmplitude(ChannelEnum.CHANNEL2));
+                channelInfo.setmVoltagePerDiv(this.mChannelVoltPerDiv[1]);
             break;
         }
+    }
 
+    @Override
+    public void setChannelInfo(ChannelEnum channel, ChannelInfo channelInfo) {
+        switch(channel){
+            case CHANNEL1:
+                this.mChannelsOffset[0] = channelInfo.getOffset() / this.mChannelVoltPerDiv[0];
+                this.mChannelVoltPerDiv[0] = channelInfo.getVoltagePerDiv();
+                this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL1, channelInfo);
+                this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL1, channelInfo.getOffset());
+                break;
+            case CHANNEL2:
+                this.mChannelsOffset[1] = channelInfo.getOffset() / this.mChannelVoltPerDiv[1];
+                this.mChannelVoltPerDiv[1] = channelInfo.getVoltagePerDiv();
+                this.mAppFragmentView.updateChannelInfo(ChannelEnum.CHANNEL2, channelInfo);
+                this.mAppFragmentView.updateChannelsOffset(ChannelEnum.CHANNEL2, channelInfo.getOffset());
+                break;
+        }
     }
 
 

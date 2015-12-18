@@ -5,8 +5,10 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -19,13 +21,16 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.androidplot.Plot;
 import com.androidplot.util.Redrawer;
@@ -48,7 +53,6 @@ import com.apps.darkone.redpitayascope.menu.oscilloscope.ChannelMenu;
 
 import java.util.Arrays;
 import java.util.Vector;
-
 
 
 /**
@@ -209,7 +213,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
         mToolBarVisible = true;
 
-
         LinearLayout layout = (LinearLayout) mBottomActionBar.findViewById(R.id.toolbar_bottom_layer_menu);
         layout.setBackgroundColor(this.mContext.getResources().getColor(R.color.button_background_pressed));
         View osc_toolbar = inflater.inflate(R.layout.osc_control_bar, layout, true);
@@ -263,24 +266,42 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
             @Override
             public void onChannelOffsetMenuButtonClick() {
-                // TODO Implement
+                // Get the channel infos
+                final ChannelInfo localChannelInfos = new ChannelInfo();
+                mOscilloscopeFragmentController.getChannelInfo(ChannelEnum.CHANNEL1, localChannelInfos);
 
                 // Creation of the popup
                 boolean wrapInScrollView = true;
                 MaterialDialog view = new MaterialDialog.Builder(getContext())
                         .title("Channel 1: Offset votage [V]")
-                        .customView(R.layout.layout_popup_offset, wrapInScrollView).positiveText("OK")
+                        .customView(R.layout.layout_popup_offset, wrapInScrollView)
+                        .positiveText("OK")
+                        .build();
+
+
+                final EditText numberEditText = (EditText)view.getCustomView().findViewById(R.id.editText2);
+
+                        view.getBuilder()
+                                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                    @Override
+                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                        Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
+
+                                        ChannelInfo info = new ChannelInfo(localChannelInfos);
+                                        // read the value number and put it in channelInfo object
+                                        try {
+                                            info.setmOffset(Double.valueOf(numberEditText.getText().toString()));
+                                        } catch (Exception e) {
+                                            Toast.makeText(mContext, "No numerical value has been entered!", 3).show();
+                                        };
+                                        // Refresh the channel info
+                                        mOscilloscopeFragmentController.setChannelInfo(ChannelEnum.CHANNEL1, info);
+                                    }
+                                })
                         .show();
 
-                // Get the channel infos
-                ChannelInfo localChannelInfos = new ChannelInfo();
-                mOscilloscopeFragmentController.getChannelInfo(ChannelEnum.CHANNEL1, localChannelInfos);
-
+                // Display an int in the numberTextview of the actual offset
                 ((EditText)view.getCustomView().findViewById(R.id.editText2)).setHint(String.valueOf(localChannelInfos.getOffset()));
-
-//                TextView offsetLine = (TextView) butC1Settings.findViewById(R.id.chan1Line1);
-//                offsetLine.setText(String.format("Offset : %03.03fV", channelInfo.getOffset()));
-
 
             }
 
@@ -1073,6 +1094,5 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             super.onScaleEnd(detector);
         }
     }
-
 
 }

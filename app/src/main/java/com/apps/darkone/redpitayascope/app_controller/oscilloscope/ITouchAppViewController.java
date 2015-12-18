@@ -68,4 +68,7 @@ public interface ITouchAppViewController {
     // get channel infos
     public void getChannelInfo(ChannelEnum channel, ChannelInfo channelInfo);
 
+    // set channel infos
+    public void setChannelInfo(ChannelEnum channel, ChannelInfo channelInfo);
+
 }
