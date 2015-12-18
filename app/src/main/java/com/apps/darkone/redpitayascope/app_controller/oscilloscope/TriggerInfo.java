@@ -8,9 +8,9 @@ import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscillo
  */
 public class TriggerInfo {
 
-    private final double mTriggerLevel;
-    private final TriggerEdge mTriggerEdge;
-    private final ChannelEnum mTriggerChannel;
+    private double mTriggerLevel;
+    private TriggerEdge mTriggerEdge;
+    private ChannelEnum mTriggerChannel;
     private boolean mSelected;
 
     public TriggerInfo(double triggerLevel, TriggerEdge triggerEdge, ChannelEnum triggerChannel, boolean selected) {
@@ -19,6 +19,15 @@ public class TriggerInfo {
         this.mTriggerChannel = triggerChannel;
         this.mSelected = selected;
     }
+
+    public TriggerInfo() {
+        this.mTriggerLevel = 0;
+        this.mTriggerEdge = TriggerEdge.RISING;
+        this.mTriggerChannel = ChannelEnum.CHANNEL1;
+        this.mSelected = true;
+    }
+
+
 
     public double getTriggerLevel() {
         return mTriggerLevel;
@@ -36,4 +45,39 @@ public class TriggerInfo {
         return this.mSelected;
     }
 
+    public TriggerInfo setmTriggerLevel(double mTriggerLevel) {
+        this.mTriggerLevel = mTriggerLevel;
+        return this;
+    }
+
+    public TriggerInfo setmTriggerEdge(TriggerEdge mTriggerEdge) {
+        this.mTriggerEdge = mTriggerEdge;
+        return this;
+    }
+
+    public TriggerInfo setmTriggerChannel(ChannelEnum mTriggerChannel) {
+        this.mTriggerChannel = mTriggerChannel;
+        return this;
+    }
+
+    public TriggerInfo setmSelected(boolean mSelected) {
+        this.mSelected = mSelected;
+        return this;
+    }
+
+    public double getmTriggerLevel() {
+        return mTriggerLevel;
+    }
+
+    public TriggerEdge getmTriggerEdge() {
+        return mTriggerEdge;
+    }
+
+    public ChannelEnum getmTriggerChannel() {
+        return mTriggerChannel;
+    }
+
+    public boolean ismSelected() {
+        return mSelected;
+    }
 }

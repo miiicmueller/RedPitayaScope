@@ -512,6 +512,46 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap butTrigSettings Event!");
+
+                // Get the channel infos
+                final TriggerInfo localTriggerInfos = new TriggerInfo();
+                mOscilloscopeFragmentController.getTriggerInfo(localTriggerInfos);
+
+                // Creation of the popup
+                boolean wrapInScrollView = true;
+                MaterialDialog view = new MaterialDialog.Builder(getContext())
+                        .title("Trigger Settings")
+                        .customView(R.layout.layout_popup_trigger, wrapInScrollView)
+                        .positiveText("OK")
+                        //.build()
+                        .show();
+
+
+//                final EditText numberEditText = (EditText) view.getCustomView().findViewById(R.id.editText2);
+//
+//                view.getBuilder()
+//                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+//                            @Override
+//                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+//                                Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
+//
+//                                ChannelInfo info = new ChannelInfo(localChannelInfos);
+//                                // read the value number and put it in channelInfo object
+//                                try {
+//                                    info.setmVoltagePerDiv(Double.valueOf(numberEditText.getText().toString()));
+//                                } catch (Exception e) {
+//                                    Toast.makeText(mContext, "No numerical value has been entered!", 5).show();
+//                                }
+//                                ;
+//                                // Refresh the channel info
+//                                mOscilloscopeFragmentController.setChannelInfo(ChannelEnum.CHANNEL2, info);
+//                            }
+//                        })
+//                        .show();
+//
+//                // Display an int in the numberTextview of the actual offset
+//                ((EditText) view.getCustomView().findViewById(R.id.editText2)).setHint(String.valueOf(localChannelInfos.getVoltagePerDiv()));
+
                 // Callback interface
                 mOscilloscopeFragmentController.butTrigSettingsOnDoubleTap();
                 return super.onDoubleTap(e);

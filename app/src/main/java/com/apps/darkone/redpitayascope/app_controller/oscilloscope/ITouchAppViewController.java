@@ -74,4 +74,10 @@ public interface ITouchAppViewController {
     // set channel infos
     public void setChannelInfo(ChannelEnum channel, ChannelInfo channelInfo);
 
+    // get trigger infos
+    public void getTriggerInfo(TriggerInfo triggerInfoObj);
+
+    // set trigger infos
+    public void setTriggerInfo(TriggerInfo triggerInfoObj);
+
 }
