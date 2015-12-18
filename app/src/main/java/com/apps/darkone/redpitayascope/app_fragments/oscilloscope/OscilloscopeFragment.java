@@ -279,29 +279,30 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                         .build();
 
 
-                final EditText numberEditText = (EditText)view.getCustomView().findViewById(R.id.editText2);
+                final EditText numberEditText = (EditText) view.getCustomView().findViewById(R.id.editText2);
 
-                        view.getBuilder()
-                                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                    @Override
-                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                        Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
+                view.getBuilder()
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
 
-                                        ChannelInfo info = new ChannelInfo(localChannelInfos);
-                                        // read the value number and put it in channelInfo object
-                                        try {
-                                            info.setmOffset(Double.valueOf(numberEditText.getText().toString()));
-                                        } catch (Exception e) {
-                                            Toast.makeText(mContext, "No numerical value has been entered!", 3).show();
-                                        };
-                                        // Refresh the channel info
-                                        mOscilloscopeFragmentController.setChannelInfo(ChannelEnum.CHANNEL1, info);
-                                    }
-                                })
+                                ChannelInfo info = new ChannelInfo(localChannelInfos);
+                                // read the value number and put it in channelInfo object
+                                try {
+                                    info.setmOffset(Double.valueOf(numberEditText.getText().toString()));
+                                } catch (Exception e) {
+                                    Toast.makeText(mContext, "No numerical value has been entered!", 3).show();
+                                }
+                                ;
+                                // Refresh the channel info
+                                mOscilloscopeFragmentController.setChannelInfo(ChannelEnum.CHANNEL1, info);
+                            }
+                        })
                         .show();
 
                 // Display an int in the numberTextview of the actual offset
-                ((EditText)view.getCustomView().findViewById(R.id.editText2)).setHint(String.valueOf(localChannelInfos.getOffset()));
+                ((EditText) view.getCustomView().findViewById(R.id.editText2)).setHint(String.valueOf(localChannelInfos.getOffset()));
 
             }
 
@@ -759,7 +760,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
 
     /**
-     * UPDATE METHODS OF THE GRAPHE
+     * UPDATE METHODS OF THE GRAPHS
      */
 
     @Override
@@ -801,7 +802,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
         ChannelInfo channel = new ChannelInfo();
         this.mOscilloscopeFragmentController.getChannelInfo(triggerInfo.getTriggerChannel(), channel);
         this.mOscPlot.getGraphWidget().setTriggerLevel(triggerInfo.getTriggerLevel() + channel.getViewOffset());
-
     }
 
     @Override
@@ -846,7 +846,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 freq2Line.setTextColor(this.mContext.getResources().getColor(R.color.channel2_color));
                 amplitude2Line.setTextColor(this.mContext.getResources().getColor(R.color.channel2_color));
                 break;
-
         }
     }
 

@@ -34,6 +34,7 @@ public class ChannelInfo {
         this.mMeanFreq = channel.getMeanFreq();
         this.mOffset = channel.getOffset();
         this.mVoltagePerDiv = channel.getVoltagePerDiv();
+        this.mViewOffset = channel.getViewOffset();
     }
 
 
@@ -58,6 +59,9 @@ public class ChannelInfo {
         return mVoltagePerDiv;
     }
 
+    public void setmViewOffset(double mViewOffset) {
+        this.mViewOffset = mViewOffset;
+    }
 
     public void setmOffset(double mOffset) {
         this.mOffset = mOffset;
