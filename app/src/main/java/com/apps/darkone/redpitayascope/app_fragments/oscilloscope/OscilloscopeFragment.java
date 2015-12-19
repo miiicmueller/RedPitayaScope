@@ -25,6 +25,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -513,45 +514,6 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             public boolean onDoubleTap(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On DoubleTap butTrigSettings Event!");
 
-                // Get the channel infos
-                final TriggerInfo localTriggerInfos = new TriggerInfo();
-                mOscilloscopeFragmentController.getTriggerInfo(localTriggerInfos);
-
-                // Creation of the popup
-                boolean wrapInScrollView = true;
-                MaterialDialog view = new MaterialDialog.Builder(getContext())
-                        .title("Trigger Settings")
-                        .customView(R.layout.layout_popup_trigger, wrapInScrollView)
-                        .positiveText("OK")
-                        //.build()
-                        .show();
-
-
-//                final EditText numberEditText = (EditText) view.getCustomView().findViewById(R.id.editText2);
-//
-//                view.getBuilder()
-//                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-//                            @Override
-//                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-//                                Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
-//
-//                                ChannelInfo info = new ChannelInfo(localChannelInfos);
-//                                // read the value number and put it in channelInfo object
-//                                try {
-//                                    info.setmVoltagePerDiv(Double.valueOf(numberEditText.getText().toString()));
-//                                } catch (Exception e) {
-//                                    Toast.makeText(mContext, "No numerical value has been entered!", 5).show();
-//                                }
-//                                ;
-//                                // Refresh the channel info
-//                                mOscilloscopeFragmentController.setChannelInfo(ChannelEnum.CHANNEL2, info);
-//                            }
-//                        })
-//                        .show();
-//
-//                // Display an int in the numberTextview of the actual offset
-//                ((EditText) view.getCustomView().findViewById(R.id.editText2)).setHint(String.valueOf(localChannelInfos.getVoltagePerDiv()));
-
                 // Callback interface
                 mOscilloscopeFragmentController.butTrigSettingsOnDoubleTap();
                 return super.onDoubleTap(e);
@@ -568,6 +530,73 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             @Override
             public void onLongPress(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On Longpress butTrigSettings Event!");
+
+
+
+
+                // Get the channel infos
+                final TriggerInfo localTriggerInfos = new TriggerInfo();
+                mOscilloscopeFragmentController.getTriggerInfo(localTriggerInfos);
+
+                // Creation of the popup
+                boolean wrapInScrollView = true;
+                MaterialDialog view = new MaterialDialog.Builder(getContext())
+                        .title("Trigger Settings")
+                        .customView(R.layout.layout_popup_trigger, wrapInScrollView)
+                        .positiveText("OK")
+                        .build();
+                //.show();
+
+
+                final EditText numberEditText = (EditText) view.getCustomView().findViewById(R.id.editText4);
+                final RadioButton rBut1 = (RadioButton) view.getCustomView().findViewById(R.id.radioButton);
+                final RadioButton rBut2 = (RadioButton) view.getCustomView().findViewById(R.id.radioButton2);
+                // Display an int in the numberTextview of the actual offset
+                numberEditText.setHint(String.valueOf(localTriggerInfos.getTriggerLevel()));
+                // Set the radioButton state to it's actual state
+                rBut1.setChecked(localTriggerInfos.getTriggerEdge() == TriggerEdge.RISING);
+                rBut2.setChecked(localTriggerInfos.getTriggerEdge() == TriggerEdge.FALLING);
+
+
+                view.getBuilder()
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
+
+                                TriggerInfo trInf = new TriggerInfo(localTriggerInfos);
+                                // read the value number and put it in triggerInfo object
+                                try {
+                                    trInf.setmTriggerLevel(Double.valueOf(numberEditText.getText().toString()));
+                                    // Refresh the channel info
+                                    mOscilloscopeFragmentController.setTriggerInfo(trInf);
+                                } catch (Exception e) {
+                                    Toast.makeText(mContext, "No numerical value has been entered!", 5).show();
+                                }
+
+                                // read the value radio button selected and affect the state to triggerInfo
+                                try {
+                                    if(rBut1.isChecked()) {
+                                        trInf.setmTriggerEdge(TriggerEdge.RISING);
+                                    }
+                                    else if(rBut2.isChecked()) {
+                                        trInf.setmTriggerEdge(TriggerEdge.FALLING);
+                                    }
+                                    // Refresh the channel info
+                                    mOscilloscopeFragmentController.setTriggerInfo(trInf);
+                                } catch (Exception e) {
+                                    Toast.makeText(mContext, "Bad Edge value selected!", 5).show();
+                                }
+
+
+                            }
+                        })
+                        .show();
+
+
+
+
+
                 // Callback interface
                 mOscilloscopeFragmentController.butTrigSettingsOnLongPress();
                 super.onLongPress(e);

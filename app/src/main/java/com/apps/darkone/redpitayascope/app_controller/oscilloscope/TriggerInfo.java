@@ -27,6 +27,13 @@ public class TriggerInfo {
         this.mSelected = true;
     }
 
+    public TriggerInfo(TriggerInfo trInf) {
+        this.mTriggerLevel = trInf.getTriggerLevel();
+        this.mTriggerEdge = trInf.getTriggerEdge();
+        this.mTriggerChannel = trInf.getTriggerChannel();
+        this.mSelected = trInf.isSelected();
+    }
+
 
 
     public double getTriggerLevel() {
@@ -63,21 +70,5 @@ public class TriggerInfo {
     public TriggerInfo setmSelected(boolean mSelected) {
         this.mSelected = mSelected;
         return this;
-    }
-
-    public double getmTriggerLevel() {
-        return mTriggerLevel;
-    }
-
-    public TriggerEdge getmTriggerEdge() {
-        return mTriggerEdge;
-    }
-
-    public ChannelEnum getmTriggerChannel() {
-        return mTriggerChannel;
-    }
-
-    public boolean ismSelected() {
-        return mSelected;
     }
 }

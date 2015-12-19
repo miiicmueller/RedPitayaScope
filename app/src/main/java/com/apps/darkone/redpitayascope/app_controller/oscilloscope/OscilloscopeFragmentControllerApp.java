@@ -686,8 +686,15 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
     @Override
     public void setTriggerInfo(TriggerInfo triggerInfoObj) {
 
+        this.mTriggerLevel = triggerInfoObj.getTriggerLevel();
+        this.mTriggerEdge = triggerInfoObj.getTriggerEdge();
+        this.mTriggerChannel = triggerInfoObj.getTriggerChannel();
+        this.mTriggerSelected = triggerInfoObj.isSelected();
+
         this.mAppFragmentView.updateTriggerValue(triggerInfoObj);
         this.mAppFragmentView.updateTriggerInfo(triggerInfoObj);
+
+        this.mOscilloscopeApp.setTriggerLevel(this.mTriggerLevel / this.mOscilloscopeApp.getChannelScale(this.mSelectedChannel));
     }
 
     @Override
