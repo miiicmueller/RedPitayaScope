@@ -641,6 +641,64 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
             @Override
             public void onLongPress(MotionEvent e) {
                 Log.d("DEBUG_TAG", "On Longpress butTimeSettings Event!");
+
+
+
+                // Get the channel infos
+                final TriggerInfo localTriggerInfos = new TriggerInfo();
+                mOscilloscopeFragmentController.getTriggerInfo(localTriggerInfos);
+
+                // Creation of the popup
+                boolean wrapInScrollView = true;
+                MaterialDialog view = new MaterialDialog.Builder(getContext())
+                        .title("Time Settings")
+                        .customView(R.layout.layout_popup_time, wrapInScrollView)
+                        .positiveText("OK")
+                //        .build();
+                .show();
+
+
+
+
+//                view.getBuilder()
+//                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+//                            @Override
+//                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+//                                Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
+//
+//                                TriggerInfo trInf = new TriggerInfo(localTriggerInfos);
+//                                // read the value number and put it in triggerInfo object
+//                                try {
+//                                    trInf.setmTriggerLevel(Double.valueOf(numberEditText.getText().toString()));
+//                                    // Refresh the channel info
+//                                    mOscilloscopeFragmentController.setTriggerInfo(trInf);
+//                                } catch (Exception e) {
+//                                    Toast.makeText(mContext, "No numerical value has been entered!", 5).show();
+//                                }
+//
+//                                // read the value radio button selected and affect the state to triggerInfo
+//                                try {
+//                                    if(rBut1.isChecked()) {
+//                                        trInf.setmTriggerEdge(TriggerEdge.RISING);
+//                                    }
+//                                    else if(rBut2.isChecked()) {
+//                                        trInf.setmTriggerEdge(TriggerEdge.FALLING);
+//                                    }
+//                                    // Refresh the channel info
+//                                    mOscilloscopeFragmentController.setTriggerInfo(trInf);
+//                                } catch (Exception e) {
+//                                    Toast.makeText(mContext, "Bad Edge value selected!", 5).show();
+//                                }
+//
+//
+//                            }
+//                        })
+//                        .show();
+
+
+
+
+
                 // Callback interface
                 mOscilloscopeFragmentController.butTimeSettingsOnLongPress();
 
