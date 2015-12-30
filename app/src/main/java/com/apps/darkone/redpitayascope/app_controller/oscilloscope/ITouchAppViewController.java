@@ -80,4 +80,10 @@ public interface ITouchAppViewController {
     // set trigger infos
     public void setTriggerInfo(TriggerInfo triggerInfoObj);
 
+    // get time infos
+    public void getTimeInfo(TimeInfo timeInfoObj);
+
+    // set time infos
+    public void setTimeInfo(TimeInfo timeInfoObj);
+
 }

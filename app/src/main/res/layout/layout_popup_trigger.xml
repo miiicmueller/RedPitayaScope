@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:id="@+id/myGridLayout"
-    android:rowCount="4"
-    android:columnCount="4"
     android:columnOrderPreserved="true"
     android:alignmentMode="alignMargins"
     android:orientation="horizontal"
@@ -11,49 +9,55 @@
     android:useDefaultMargins="true">
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Edge Mode"
-        android:id="@+id/textView"
-        android:layout_row="2"
-        android:layout_column="2" />
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Trigger Offset [V]"
-        android:id="@+id/textView2"
-        android:layout_row="2"
-        android:layout_column="3" />
-
-    <RadioGroup
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_row="3"
-        android:layout_column="2">
-
-        <RadioButton
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Rising Edge"
-            android:id="@+id/radioButton" />
-
-        <RadioButton
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Edge Mode"
+            android:id="@+id/textView"
+            android:layout_column="2" />
+        <RadioGroup
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Falling Edge"
-            android:id="@+id/radioButton2" />
-    </RadioGroup>
+            android:layout_column="2">
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rising Edge"
+                android:id="@+id/radioButton"
+                android:layout_column="3" />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Falling Edge"
+                android:id="@+id/radioButton2"
+                android:layout_column="3" />
+        </RadioGroup>
+    </TableRow>
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="numberSigned|numberDecimal"
-        android:ems="10"
-        android:id="@+id/editText4"
-        android:layout_row="3"
-        android:layout_column="3" />
-</GridLayout>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Trigger Level [V]"
+            android:id="@+id/textView2"
+            android:layout_column="2" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="numberSigned|numberDecimal"
+            android:ems="10"
+            android:id="@+id/editText4"
+            android:layout_column="3" />
+    </TableRow>
+</TableLayout>

@@ -41,6 +41,7 @@ import com.apps.darkone.redpitayascope.R;
 import com.apps.darkone.redpitayascope.app_controller.oscilloscope.ChannelInfo;
 import com.apps.darkone.redpitayascope.app_controller.oscilloscope.ITouchAppViewController;
 import com.apps.darkone.redpitayascope.app_controller.oscilloscope.OscilloscopeFragmentControllerApp;
+import com.apps.darkone.redpitayascope.app_controller.oscilloscope.TimeInfo;
 import com.apps.darkone.redpitayascope.app_controller.oscilloscope.TriggerInfo;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.OscilloscopeTimeValueSerie;
 import com.apps.darkone.redpitayascope.application_services.oscilloscope.oscilloscope_sap.ChannelEnum;
@@ -569,7 +570,7 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                                 try {
                                     trInf.setmTriggerLevel(Double.valueOf(numberEditText.getText().toString()));
                                     // Refresh the channel info
-                                    mOscilloscopeFragmentController.setTriggerInfo(trInf);
+                                    //mOscilloscopeFragmentController.setTriggerInfo(trInf);
                                 } catch (Exception e) {
                                     Toast.makeText(mContext, "No numerical value has been entered!", 5).show();
                                 }
@@ -583,11 +584,11 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                                         trInf.setmTriggerEdge(TriggerEdge.FALLING);
                                     }
                                     // Refresh the channel info
-                                    mOscilloscopeFragmentController.setTriggerInfo(trInf);
+                                    //mOscilloscopeFragmentController.setTriggerInfo(trInf);
                                 } catch (Exception e) {
                                     Toast.makeText(mContext, "Bad Edge value selected!", 5).show();
                                 }
-
+                                mOscilloscopeFragmentController.setTriggerInfo(trInf);
 
                             }
                         })
@@ -645,8 +646,8 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
 
 
                 // Get the channel infos
-                final TriggerInfo localTriggerInfos = new TriggerInfo();
-                mOscilloscopeFragmentController.getTriggerInfo(localTriggerInfos);
+                final TimeInfo localTimeInfo = new TimeInfo();
+                mOscilloscopeFragmentController.getTimeInfo(localTimeInfo);
 
                 // Creation of the popup
                 boolean wrapInScrollView = true;
@@ -657,46 +658,41 @@ public class OscilloscopeFragment extends Fragment implements IAppFragmentView {
                 //        .build();
                 .show();
 
+                final EditText timeOffsetText = (EditText) view.getCustomView().findViewById(R.id.editText5);
+                final EditText timeScaleText = (EditText) view.getCustomView().findViewById(R.id.editText6);
+
+                view.getBuilder()
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
+
+                                TimeInfo timeInfoObj = new TimeInfo(localTimeInfo);
 
 
+                                // read the trig level and assign it to the object
+                                try {
+                                    // set time offset
+                                    timeInfoObj.setGraphTimeValue0(Double.valueOf(timeOffsetText.getText().toString()));
+                                    timeInfoObj.setGraphTimeValue1(((localTimeInfo.getGraphTimeValue1() - localTimeInfo.getGraphTimeValue0()) + timeInfoObj.getGraphTimeValue0()));
+                                    // Refresh the channel info
+                                } catch (Exception e) {
+                                   // Toast.makeText(mContext, "No positive numerical value has been entered!", 5).show();
+                                }
 
-//                view.getBuilder()
-//                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-//                            @Override
-//                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-//                                Log.d("DEBUG_TAG", "On PopupMenu OK Event!");
-//
-//                                TriggerInfo trInf = new TriggerInfo(localTriggerInfos);
-//                                // read the value number and put it in triggerInfo object
-//                                try {
-//                                    trInf.setmTriggerLevel(Double.valueOf(numberEditText.getText().toString()));
-//                                    // Refresh the channel info
-//                                    mOscilloscopeFragmentController.setTriggerInfo(trInf);
-//                                } catch (Exception e) {
-//                                    Toast.makeText(mContext, "No numerical value has been entered!", 5).show();
-//                                }
-//
-//                                // read the value radio button selected and affect the state to triggerInfo
-//                                try {
-//                                    if(rBut1.isChecked()) {
-//                                        trInf.setmTriggerEdge(TriggerEdge.RISING);
-//                                    }
-//                                    else if(rBut2.isChecked()) {
-//                                        trInf.setmTriggerEdge(TriggerEdge.FALLING);
-//                                    }
-//                                    // Refresh the channel info
-//                                    mOscilloscopeFragmentController.setTriggerInfo(trInf);
-//                                } catch (Exception e) {
-//                                    Toast.makeText(mContext, "Bad Edge value selected!", 5).show();
-//                                }
-//
-//
-//                            }
-//                        })
-//                        .show();
+                                // read the value radio button selected and affect the state to triggerInfo
+                                try {
+                                    timeInfoObj.setGraphTimeValue1((Double.valueOf(timeScaleText.getText().toString())) * OscilloscopeFragmentControllerApp.DIVISION_COUNT + timeInfoObj.getGraphTimeValue0());
+                                    //double timePerDivision = (tMax - tMin) / OscilloscopeFragmentControllerApp.DIVISION_COUNT;
+                                    // Refresh the channel info
+                                    //mOscilloscopeFragmentController.setTimeInfo(timeInfoObj);
+                                } catch (Exception e) {
+                                    //Toast.makeText(mContext, "No numerical value has been entered!", 5).show();
+                                }
+                                mOscilloscopeFragmentController.setTimeInfo(timeInfoObj);
 
-
-
+                            }
+                        });
 
 
                 // Callback interface

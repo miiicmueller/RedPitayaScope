@@ -695,6 +695,28 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mAppFragmentView.updateTriggerInfo(triggerInfoObj);
 
         this.mOscilloscopeApp.setTriggerLevel(this.mTriggerLevel / this.mOscilloscopeApp.getChannelScale(this.mSelectedChannel));
+        this.mOscilloscopeApp.setTriggerEdge(this.mTriggerEdge);
+    }
+
+    @Override
+    public void getTimeInfo(TimeInfo timeInfoObj) {
+
+        timeInfoObj.setGraphTimeUnits(this.mGraphTimeUnit);
+        timeInfoObj.setGraphTimeValue0(this.mGraphTimeValue[0]);
+        timeInfoObj.setGraphTimeValue1(this.mGraphTimeValue[1]);
+    }
+
+    @Override
+    public void setTimeInfo(TimeInfo timeInfoObj) {
+
+        this.mGraphTimeUnit = timeInfoObj.getGraphTimeUnits();
+        this.mGraphTimeValue[0] = timeInfoObj.getGraphTimeValue0();
+        this.mGraphTimeValue[1] = timeInfoObj.getGraphTimeValue1();
+
+        this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1], mOscilloscopeApp.getTimeUnits());
+        this.mAppFragmentView.updateOscilloscopeTimeUnits(this.mGraphTimeUnit);
+
+        this.updateFullView();
     }
 
     @Override
@@ -778,3 +800,4 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
 
     }
 }
+
