@@ -714,6 +714,7 @@ public class OscilloscopeFragmentControllerApp implements ITouchAppViewControlle
         this.mGraphTimeValue[1] = timeInfoObj.getGraphTimeValue1();
 
         this.mAppFragmentView.updateTimeRange(mGraphTimeValue[0], mGraphTimeValue[1], mOscilloscopeApp.getTimeUnits());
+        this.mOscilloscopeApp.setTimeLimits(this.mGraphTimeValue[0], this.mGraphTimeValue[1]);
         this.mAppFragmentView.updateOscilloscopeTimeUnits(this.mGraphTimeUnit);
 
         this.updateFullView();
